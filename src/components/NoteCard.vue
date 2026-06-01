@@ -119,14 +119,49 @@ const formattedTime = computed(() => {
   const minutes = date.getMinutes().toString().padStart(2, '0');
   return `${month}/${day} ${hours}:${minutes}`;
 });
+// 拖拽相关事件
+const handleDragStart = (e: DragEvent) => {
+  if (store.sortMode !== 'custom' || isEditing.value) {
+    e.preventDefault();
+    return;
+  }
+  store.draggedNoteId = props.note.id;
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', props.note.id);
+  }
+};
+
+const handleDragEnter = (e: DragEvent) => {
+  if (store.sortMode !== 'custom') return;
+  const draggedId = store.draggedNoteId;
+  if (draggedId && draggedId !== props.note.id) {
+    store.moveNote(draggedId, props.note.id);
+  }
+};
+
+const handleDragEnd = () => {
+  store.draggedNoteId = null;
+};
+
+const handleDrop = (e: DragEvent) => {
+  e.preventDefault();
+  store.draggedNoteId = null;
+};
 </script>
 
 <template>
   <div 
     class="note-card"
-    :class="{ pinned: note.isPinned, editing: isEditing }"
+    :class="{ pinned: note.isPinned, editing: isEditing, dragging: store.draggedNoteId === note.id }"
     :style="colorStyle"
+    :draggable="store.sortMode === 'custom' && !isEditing"
     @dblclick="handleDoubleClick"
+    @dragstart="handleDragStart"
+    @dragover.prevent
+    @dragenter="handleDragEnter"
+    @dragend="handleDragEnd"
+    @drop="handleDrop"
   >
     <!-- 置顶针和大头针效果 -->
     <button 
@@ -307,6 +342,21 @@ const formattedTime = computed(() => {
     max-height: none;
     min-height: 220px;
     z-index: 10;
+  }
+
+  &.dragging {
+    opacity: 0.35;
+    border-style: dashed !important;
+    transform: scale(0.98);
+    box-shadow: none !important;
+  }
+
+  &[draggable="true"] {
+    cursor: grab;
+    
+    &:active {
+      cursor: grabbing;
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '../stores/stickyNotes';
-import { Search, Plus, Trash2, Sun, Moon, X } from 'lucide-vue-next';
+import { Search, Plus, Trash2, Sun, Moon, X, ArrowUpDown } from 'lucide-vue-next';
 import { storage, isUTools } from '../utils/storage';
 
 const store = useStickyNotesStore();
@@ -9,8 +9,13 @@ const store = useStickyNotesStore();
 // 黑暗模式状态
 const isDark = ref(false);
 
-// 初始化主题
+// 排序弹窗状态
+const showSortPopover = ref(false);
+
+// 初始化主题与事件监听
 onMounted(() => {
+  document.addEventListener('click', handleDocumentClick);
+
   // 1. 如果在 uTools 环境下，我们可以根据 uTools 的系统颜色设置
   if (isUTools()) {
     try {
@@ -38,6 +43,10 @@ onMounted(() => {
   applyTheme(isDark.value);
 });
 
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
+
 // 切换主题
 const toggleTheme = () => {
   isDark.value = !isDark.value;
@@ -55,6 +64,25 @@ const applyTheme = (dark: boolean) => {
     root.classList.remove('dark-theme');
     root.classList.add('light-theme');
   }
+};
+
+// 切换排序方式
+const changeSortMode = (mode: 'date' | 'title' | 'custom') => {
+  store.setSortMode(mode);
+  showSortPopover.value = false;
+  
+  let modeName = '日期';
+  if (mode === 'title') modeName = '标题首字母';
+  if (mode === 'custom') modeName = '自定义 (拖拽)';
+  store.showToast(`已切换排序方式为：${modeName}`, 'success');
+};
+
+const closeSortPopover = () => {
+  showSortPopover.value = false;
+};
+
+const handleDocumentClick = () => {
+  closeSortPopover();
 };
 
 // 清空当前分类便签
@@ -116,6 +144,48 @@ const clearSearch = () => {
         <Sun v-if="isDark" class="btn-icon" />
         <Moon v-else class="btn-icon" />
       </button>
+
+      <!-- 排序选择 -->
+      <div class="action-popover-wrapper">
+        <button 
+          class="icon-btn" 
+          :class="{ active: store.sortMode !== 'date' }"
+          title="排序方式" 
+          @click.stop="showSortPopover = !showSortPopover"
+        >
+          <ArrowUpDown class="btn-icon" />
+        </button>
+        
+        <div v-if="showSortPopover" class="sort-popover" @click.stop>
+          <div class="popover-title">排序方式</div>
+          <div class="sort-list">
+            <button 
+              class="sort-item" 
+              :class="{ active: store.sortMode === 'date' }"
+              @click="changeSortMode('date')"
+            >
+              <span class="sort-item-icon">📅</span>
+              <span>按日期排序</span>
+            </button>
+            <button 
+              class="sort-item" 
+              :class="{ active: store.sortMode === 'title' }"
+              @click="changeSortMode('title')"
+            >
+              <span class="sort-item-icon">🔤</span>
+              <span>按标题首字母</span>
+            </button>
+            <button 
+              class="sort-item" 
+              :class="{ active: store.sortMode === 'custom' }"
+              @click="changeSortMode('custom')"
+            >
+              <span class="sort-item-icon">✍️</span>
+              <span>自定义排序 (拖拽)</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- 清空当前分类 -->
       <button 
@@ -266,6 +336,85 @@ const clearSearch = () => {
   .btn-icon {
     width: 16px;
     height: 16px;
+  }
+
+  &.active {
+    color: var(--accent-color);
+    border-color: rgba(99, 102, 241, 0.25);
+    background: var(--accent-light);
+  }
+}
+
+.action-popover-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sort-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  min-width: 150px;
+  animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  .popover-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    padding: 0 4px;
+  }
+}
+
+.sort-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sort-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+  }
+
+  &.active {
+    background: var(--accent-light);
+    color: var(--accent-color);
+    font-weight: 600;
+  }
+
+  .sort-item-icon {
+    font-size: 12px;
+  }
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
