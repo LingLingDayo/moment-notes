@@ -1,0 +1,170 @@
+/* 引入 Google Fonts 中优雅的字体 Outfit 与 Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Outfit', var(--font-sans);
+
+  // 设计系统色彩 (Light Mode)
+  --bg-gradient-start: #f8fafc;
+  --bg-gradient-end: #e2e8f0;
+  --panel-bg: rgba(255, 255, 255, 0.45);
+  --panel-border: rgba(255, 255, 255, 0.6);
+  --sidebar-bg: rgba(255, 255, 255, 0.3);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent-color: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-light: rgba(99, 102, 241, 0.1);
+  --shadow-sm: 0 2px 8px -2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 16px -6px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
+  --glass-blur: 16px;
+}
+
+// 自动切换或类切换为暗黑模式
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-end: #020617;
+    --panel-bg: rgba(15, 23, 42, 0.45);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --sidebar-bg: rgba(15, 23, 42, 0.2);
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
+    --accent-color: #818cf8;
+    --accent-hover: #6366f1;
+    --accent-light: rgba(129, 140, 248, 0.15);
+    --shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 16px -6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.dark-theme {
+  --bg-gradient-start: #0f172a;
+  --bg-gradient-end: #020617;
+  --panel-bg: rgba(15, 23, 42, 0.45);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --sidebar-bg: rgba(15, 23, 42, 0.2);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --accent-color: #818cf8;
+  --accent-hover: #6366f1;
+  --accent-light: rgba(129, 140, 248, 0.15);
+  --shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 16px -6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+}
+
+.light-theme {
+  --bg-gradient-start: #f8fafc;
+  --bg-gradient-end: #e2e8f0;
+  --panel-bg: rgba(255, 255, 255, 0.45);
+  --panel-border: rgba(255, 255, 255, 0.6);
+  --sidebar-bg: rgba(255, 255, 255, 0.3);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent-color: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-light: rgba(99, 102, 241, 0.1);
+  --shadow-sm: 0 2px 8px -2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 16px -6px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+/* 磨砂玻璃效果的滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--text-primary), 0.1);
+  border-radius: 4px;
+  
+  &:hover {
+    background: rgba(var(--text-primary), 0.2);
+  }
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+/* 按钮基础动效 */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* 输入框基础样式 */
+input, textarea {
+  font-family: inherit;
+  outline: none;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 提示通知动画 */
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-enter-from {
+  transform: translateY(30px) scale(0.9);
+  opacity: 0;
+}
+.toast-leave-to {
+  transform: translateY(-20px) scale(0.95);
+  opacity: 0;
+}

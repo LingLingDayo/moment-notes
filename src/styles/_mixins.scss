@@ -1,0 +1,44 @@
+@use 'variables' as *;
+
+// 磨砂玻璃背景混入
+@mixin glass-panel($bg: var(--panel-bg), $border: var(--panel-border)) {
+  background: $bg;
+  border: 1px solid $border;
+  backdrop-filter: blur($blur-intensity);
+  -webkit-backdrop-filter: blur($blur-intensity);
+}
+
+// 快速居中对齐
+@mixin flex-center($direction: row, $gap: 0px) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: center;
+  justify-content: center;
+  gap: $gap;
+}
+
+// 文本溢出省略号
+@mixin text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Hover 悬浮浮起动效
+@mixin hover-lift($translateY: -4px, $shadow: var(--shadow-md)) {
+  transition: transform $transition-slow, box-shadow $transition-slow;
+  
+  &:hover {
+    transform: translateY($translateY);
+    box-shadow: $shadow;
+  }
+}
+
+// 隐藏滚动条但保留滚动
+@mixin hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}

@@ -7,38 +7,27 @@
   },
   "features": [
     {
-      "code": "hello",
-      "explain": "这是插件应用的第一个功能",
+      "code": "notes",
+      "explain": "毛玻璃便签本：分类备忘与极速双击粘贴",
       "cmds": [
-        "你好",
-        "hello"
+        "便签",
+        "备忘录",
+        "粘性便签",
+        "sticky",
+        "备忘"
       ]
     },
     {
-      "code": "read",
-      "explain": "功能指令+匹配指令示例，使用 node.js 能力读文件",
-      "cmds": [
-        "读文件",
-        {
-          "type": "files",
-          "fileType": "file",
-          "maxLength": 1,
-          "label": "读文件"
-        }
-      ]
-    },
-    {
-      "code": "write",
-      "explain": "匹配指令示例，使用 node.js 能力写文件",
-      "mainHide": true,
+      "code": "save_note",
+      "explain": "快速把选中的文本内容或剪贴板文本保存为便签",
       "cmds": [
         {
           "type": "over",
-          "label": "保存为文件"
+          "label": "保存为便签"
         },
         {
-          "type": "img",
-          "label": "保存为文件"
+          "type": "text",
+          "label": "保存为便签"
         }
       ]
     }

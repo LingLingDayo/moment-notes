@@ -1,0 +1,131 @@
+# 📌 uTools 智能毛玻璃便签 (Sticky Notes)
+
+> 基于 **Vue 3 + TypeScript + Pinia + Vue Router + Sass** 构建的高颜值、生产力工具型 uTools 便签插件。
+>
+> 融入了现代 **Glassmorphism (磨砂玻璃)** 风格与 **Fluent Design** 微动效交互，支持极速双击粘贴、外部选区自动保存、全局快捷键以及数据自动云同步备份。
+
+---
+
+## ✨ 核心特色功能
+
+1. **🚀 极速双击粘贴**：
+   - 在卡片非编辑态下，**双击**便签卡片，插件窗口会自动隐藏，并直接将便签文本**粘贴到您当前的鼠标光标位置**。
+   - 极其适合存放：常用客服话术、代码模板、地址表单、日常快捷回复语等。
+
+2. **💡 uTools 超级面板 / 文字选区保存**：
+   - 完美集成 uTools `onPluginEnter` 机制。当您在操作系统任何界面选中文本并按下快捷键，呼出 uTools 选择“保存为便签”时，插件会自动捕获选中文本，并在当前分类下极速导入并生成便签卡片。
+
+3. **🎨 Premium 磨砂玻璃与 6 种配色**：
+   - 卡片支持 `暖阳黄`、`薄荷绿`、`晴空蓝`、`蔷薇粉`、`熏衣紫`、`极简灰` 六种精心调配的 HSL 主题配色，亮暗主题完美自适应。
+   - 拥有平滑置顶（大头针小动画）和拖拽流视觉。
+
+4. **🔄 备份导出与数据安全**：
+   - **单卡片导出**：支持一键将某张便签导出为本地 `.txt` 纯文本。
+   - **全局导入/导出**：支持将所有便签和分类打包导出为 JSON 备份。导入时支持严密的 Schema 校验，防范恶意或损坏的备份数据崩溃应用，并提供智能去重合并策略。
+
+5. **⌨️ 全局键盘流效率工具**：
+   - `Ctrl + Alt + N`：在当前激活的分类下瞬间创建一个空便签卡片。
+   - `Ctrl + F`：若焦点不在输入框上，按此键将一键聚焦定位到顶部模糊搜索框，并自动全选已输入内容，便于极速重新输入搜索。
+   - 卡片在编辑模式下支持 `Esc` 放弃编辑，`Ctrl + Enter` 保存编辑。
+
+6. **🍃 细腻微动效打磨**：
+   - **网格 FLIP 列表动效**：当便签排序发生改变（如置顶、分类转移、过滤）时，卡片会像水流一样顺滑滑行变道，消除硬直的突变。
+   - **分类切换淡入滑动**：点击切换分类菜单，右侧面板以轻微位移淡入交替（`fade-slide` 效果），切换体验如丝般顺滑。
+   - **侧边栏高亮条**：当前选中的分类最左侧会有亮色指示条，切换时伴有拉伸长出的回弹动画。
+
+---
+
+## 📂 项目结构目录
+
+```text
+sticky-notes/
+├── build/                      # 阶段性构建与重构标记文件
+├── dist/                       # npm run build 生产打包输出产物
+├── public/                     # 插件静态资源及 uTools 底层定义
+│   ├── logo.png                # 插件图标
+│   ├── plugin.json             # uTools 插件配置文件 (声明cmds指令与匹配动作)
+│   └── preload/
+│       └── services.js         # Node.js preload 底层写盘服务
+├── src/
+│   ├── components/
+│   │   ├── ActionBar.vue       # 顶部操作条 (包含搜索、主题、清空、新建)
+│   │   ├── CategorySidebar.vue # 左侧分类菜单 (包含分类增删改、备份导入导出)
+│   │   ├── ConfirmModal.vue    # 全局高斯模糊自定义异步确认弹窗
+│   │   ├── NoteCard.vue        # 便签纸卡片 (置顶、换色、转移、编辑、双击粘贴)
+│   │   ├── NoteGrid.vue        # 响应式自适应网格容器 (带空状态及FLIP列表动画)
+│   │   └── Toast.vue           # 全局类型化消息提示反馈
+│   ├── router/
+│   │   └── index.ts            # Vue Router 路由定义 (Hash 模式)
+│   ├── stores/
+│   │   └── stickyNotes.ts      # Pinia 数据中心 (分类/便签生命周期、Promise确认、Toast)
+│   ├── styles/
+│   │   ├── _mixins.scss        # 磨砂玻璃、居中对齐、悬浮动效等 SCSS 混合
+│   │   ├── _variables.scss     # 圆角半径、动效时间曲线等 SCSS 设计变量
+│   │   └── main.scss           # 全局样式主题及暗黑/浅色模式设计系统
+│   ├── types/
+│   │   └── index.ts            # 强类型 TypeScript 接口声明
+│   ├── utils/
+│   │   └── storage.ts          # uTools API 与浏览器双模式降级适配器 (存储/粘贴/导出)
+│   ├── App.vue                 # 根组件 (集成 uTools 激活监听及文本捕获)
+│   ├── main.ts                 # Vue 应用主入口 (注册 Pinia 与路由)
+│   └── vite-env.d.ts           # 类型垫片与 window 属性拓展现
+├── index.html                  # 项目单页 HTML 模板
+├── tsconfig.json               # TypeScript 编译配置
+├── vite.config.ts              # Vite 6 打包与 SCSS 预处理器注入配置
+└── package.json                # 项目依赖管理
+```
+
+---
+
+## 🔌 uTools 核心 API 交互说明
+
+本项目在 `src/utils/storage.ts` 中封装了统一的适配层，使得应用无需任何修改即可同时在浏览器调试模式与 uTools 环境下运行：
+
+*   **本地存储同步**：
+    - 在 uTools 内自动启用 `window.utools.dbStorage`，数据将在本地加密存储，并可在多设备间自动开启云端秒级同步。
+    - 浏览器下自动退化到 `window.localStorage` 存储。
+*   **隐藏并粘贴到光标处**：
+    - 调用 `window.utools.hideMainWindowPasteText(text)` 一键隐藏插件并输出文本。
+*   **跟随系统暗黑模式**：
+    - 调用 `window.utools.isDarkColors()` 获取当前系统的主题深浅色，并在 `onPluginEnter` 激活时重新评估，实现插件界面与系统主题色 100% 贴合。
+*   **NodeJS 写盘底层集成**：
+    - 复用了 `public/preload/services.js` 下的 Node fs 写盘服务 `window.services.writeTextFile`，使得在 uTools 插件内导出备份 JSON 和 TXT 时，能静默且安全地直接写入到用户的本地系统“下载目录”。
+
+---
+
+## 🛠️ 本地开发与调试指南
+
+### 1. 安装项目依赖
+在根目录下打开 PowerShell/终端，运行：
+```bash
+npm install
+```
+
+### 2. 启动本地开发服务
+运行以下命令启动 Vite 开发服务器：
+```bash
+npm run dev
+```
+服务启动后，本地预览地址为：`http://localhost:5173/`。此时您可以在任意 Chrome/Edge 浏览器中打开，进行分类增删、便签换色、搜索过滤、数据备份等全流程调试。
+
+### 3. 将插件载入 uTools
+1. 呼出您的 `uTools` 主输入框。
+2. 输入 `开发者工具` 进入 uTools 开发者中心（如未安装请在插件市场安装）。
+3. 点击 **新建项目**，选择项目根目录下的 `public/plugin.json`。
+4. 确保本地 `npm run dev` 正常运行，在 uTools 开发者中心点击“运行”或按下快捷键。
+5. 此时您便能以 uTools 插件沙箱环境调试本便签，体验 **双击直接粘贴到光标** 以及 **超级面板划词保存** 的强大体验。
+
+---
+
+## 📦 打包与发布上线
+
+当您调试完毕准备发布或生成正式的插件时：
+
+1. 运行生产打包命令：
+   ```bash
+   npm run build
+   ```
+   打包完成后，会在根目录下生成 `dist/` 文件夹，里面包含了经极致压缩和混淆后的 `index.html`、`assets/` 静态 CSS/JS 资源。
+2. 在 `uTools 开发者工具` 的项目面板中，点击 **打包项目**。
+3. 选择生成的 `dist/` 目录和 `public/` 下的 `logo.png` 等，打包生成 `.upx` 格式的 uTools 正式插件包。
+4. 将生成的 `.upx` 上传到 uTools 开放平台进行审核，即可发布到插件市场供所有用户下载使用。
