@@ -2,6 +2,7 @@
 import { onMounted } from 'vue';
 import { useStickyNotesStore } from './stores/stickyNotes';
 import { isUTools } from './utils/storage';
+import Dashboard from './views/Dashboard.vue';
 
 onMounted(() => {
   const store = useStickyNotesStore();
@@ -29,7 +30,7 @@ onMounted(() => {
 
 <template>
   <div class="app-wrapper">
-    <router-view></router-view>
+    <Dashboard />
   </div>
 </template>
 
