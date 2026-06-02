@@ -39,41 +39,22 @@
 
 ```text
 sticky-notes/
-├── build/                      # 阶段性构建与重构标记文件
-├── dist/                       # npm run build 生产打包输出产物
 ├── public/                     # 插件静态资源及 uTools 底层定义
-│   ├── logo.png                # 插件图标
-│   ├── plugin.json             # uTools 插件配置文件 (声明cmds指令与匹配动作)
-│   └── preload/
-│       └── services.js         # Node.js preload 底层写盘服务
-├── src/
-│   ├── components/
-│   │   ├── ActionBar.vue       # 顶部操作条 (包含搜索、主题、清空、新建)
-│   │   ├── CategorySidebar.vue # 左侧分类菜单 (包含分类增删改、备份导入导出)
-│   │   ├── ConfirmModal.vue    # 全局高斯模糊自定义异步确认弹窗
-│   │   ├── NoteCard.vue        # 便签纸卡片 (置顶、换色、转移、编辑、双击粘贴)
-│   │   ├── NoteGrid.vue        # 响应式自适应网格容器 (带空状态及FLIP列表动画)
-│   │   └── Toast.vue           # 全局类型化消息提示反馈
-│   ├── router/
-│   │   └── index.ts            # Vue Router 路由定义 (Hash 模式)
-│   ├── stores/
-│   │   └── stickyNotes.ts      # Pinia 数据中心 (分类/便签生命周期、Promise确认、Toast)
-│   ├── styles/
-│   │   ├── _mixins.scss        # 磨砂玻璃、居中对齐、悬浮动效等 SCSS 混合
-│   │   ├── _variables.scss     # 圆角半径、动效时间曲线等 SCSS 设计变量
-│   │   └── main.scss           # 全局样式主题及暗黑/浅色模式设计系统
-│   ├── types/
-│   │   └── index.ts            # 强类型 TypeScript 接口声明
-│   ├── utils/
-│   │   └── storage.ts          # uTools API 与浏览器双模式降级适配器 (存储/粘贴/导出)
-│   ├── App.vue                 # 根组件 (集成 uTools 激活监听及文本捕获)
-│   ├── main.ts                 # Vue 应用主入口 (注册 Pinia 与路由)
-│   └── vite-env.d.ts           # 类型垫片与 window 属性拓展现
-├── index.html                  # 项目单页 HTML 模板
-├── tsconfig.json               # TypeScript 编译配置
-├── vite.config.ts              # Vite 6 打包与 SCSS 预处理器注入配置
-└── package.json                # 项目依赖管理
+│   ├── plugin.json             # uTools 插件配置文件
+│   └── preload/                # Node.js preload 底层写盘服务目录
+├── src/                        # 源代码目录
+│   ├── components/             # UI 组件目录
+│   ├── router/                 # 路由配置
+│   ├── stores/                 # Pinia 状态管理
+│   ├── styles/                 # 全局样式与预处理器变量目录
+│   ├── types/                  # TypeScript 类型定义
+│   ├── utils/                  # 存储适配器与工具函数目录
+│   ├── App.vue                 # 根组件
+│   └── main.ts                 # Vue 入口文件
+├── index.html                  # 单页 HTML 模板
+└── vite.config.ts              # Vite 配置文件
 ```
+
 
 ---
 
