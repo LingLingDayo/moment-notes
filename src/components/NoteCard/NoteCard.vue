@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { Note } from '../../types';
 import { useStickyNotesStore, COLOR_PRESETS } from '../../stores/stickyNotes';
 import NoteCardHeader from './NoteCardHeader.vue';
@@ -112,6 +112,45 @@ const handleMouseLeave = () => {
   footerRef.value?.closePopovers();
 };
 
+// 用于判断外部点击的 Ref 引用
+const cardRef = ref<HTMLElement | null>(null);
+
+let mousedownTarget: Node | null = null;
+
+const handleMousedown = (event: MouseEvent) => {
+  mousedownTarget = event.target as Node;
+};
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (!isEditing.value || !cardRef.value) return;
+  
+  const clickTarget = event.target as Node;
+  const isMousedownInside = cardRef.value.contains(mousedownTarget);
+  const isClickInside = cardRef.value.contains(clickTarget);
+  
+  if (!isMousedownInside && !isClickInside) {
+    saveEdit();
+  }
+};
+
+watch(isEditing, (editing) => {
+  if (editing) {
+    nextTick(() => {
+      document.addEventListener('mousedown', handleMousedown, true);
+      document.addEventListener('click', handleClickOutside, true);
+    });
+  } else {
+    document.removeEventListener('mousedown', handleMousedown, true);
+    document.removeEventListener('click', handleClickOutside, true);
+    mousedownTarget = null;
+  }
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', handleMousedown, true);
+  document.removeEventListener('click', handleClickOutside, true);
+});
+
 onMounted(() => {
   if (store.editingNoteId === props.note.id) {
     enterEditMode();
@@ -122,6 +161,7 @@ onMounted(() => {
 
 <template>
   <div 
+    ref="cardRef"
     class="note-card"
     :class="{ pinned: note.isPinned, editing: isEditing, dragging: store.draggedNoteId === note.id }"
     :style="colorStyle"

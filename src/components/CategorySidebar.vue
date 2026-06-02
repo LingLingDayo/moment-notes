@@ -452,7 +452,6 @@ const getNoteCount = (categoryId: string) => {
   gap: 8px;
   margin-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 12px;
 }
 
 .hidden-file-input {
