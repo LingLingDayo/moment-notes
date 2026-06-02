@@ -37,6 +37,11 @@ const currentTargetLabel = computed(() => {
   return option ? option.label : '全部';
 });
 
+// 动态清空按钮的提示文字
+const clearTooltip = computed(() => {
+  return store.currentCategoryId === 'all' ? '清空所有便签' : '清空当前分类便签';
+});
+
 const changeSearchTarget = (target: 'all' | 'title' | 'content' | 'tag') => {
   store.searchTarget = target;
   showTargetPopover.value = false;
@@ -267,7 +272,7 @@ const clearSearch = () => {
       <button 
         class="icon-btn danger" 
         :disabled="store.filteredNotes.length === 0"
-        data-tooltip="清空当前便签" 
+        :data-tooltip="clearTooltip" 
         @click="handleClear"
       >
         <Trash2 class="btn-icon" />
