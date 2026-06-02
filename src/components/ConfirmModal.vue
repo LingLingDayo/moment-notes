@@ -49,7 +49,7 @@ const confirm = () => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--modal-overlay-bg);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -79,8 +79,8 @@ const confirm = () => {
 .warning-icon-wrapper {
   padding: 8px;
   border-radius: 12px;
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: var(--warning-bg);
+  color: var(--warning-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -122,29 +122,25 @@ const confirm = () => {
   font-weight: 600;
   
   &.cancel {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--btn-bg);
+    border: 1px solid var(--btn-border);
     color: var(--text-secondary);
 
-    .light-theme & {
-      background: rgba(0, 0, 0, 0.03);
-      border-color: rgba(0, 0, 0, 0.06);
-    }
-
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-primary);
+      background: var(--btn-hover-bg);
+      color: var(--btn-hover-color);
+      border-color: var(--btn-hover-border);
     }
   }
 
   &.confirm {
-    background: #ef4444; // Warning red
-    color: #ffffff;
-    box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.3);
+    background: var(--danger-color);
+    color: var(--text-on-accent);
+    box-shadow: 0 4px 12px -2px var(--danger-hover-border);
 
     &:hover {
-      background: #dc2626;
-      box-shadow: 0 6px 16px -2px rgba(239, 68, 68, 0.4);
+      opacity: 0.9;
+      box-shadow: 0 6px 16px -2px var(--danger-hover-border);
     }
   }
 }

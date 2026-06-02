@@ -45,10 +45,10 @@ const iconComponent = computed(() => {
   gap: 10px;
   padding: 12px 20px;
   border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--popover-shadow);
   z-index: 9999;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--popover-border);
   max-width: 90%;
   pointer-events: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -68,34 +68,34 @@ const iconComponent = computed(() => {
 
 // 各种类型的样式定义
 .toast-success {
-  background: rgba(16, 185, 129, 0.85); // Emerald 500
-  color: #ffffff;
+  background: var(--toast-success-bg);
+  color: var(--text-on-accent);
   .toast-icon {
-    color: #ffffff;
+    color: var(--text-on-accent);
   }
 }
 
 .toast-info {
-  background: rgba(59, 130, 246, 0.85); // Blue 500
-  color: #ffffff;
+  background: var(--toast-info-bg);
+  color: var(--text-on-accent);
   .toast-icon {
-    color: #ffffff;
+    color: var(--text-on-accent);
   }
 }
 
 .toast-warning {
-  background: rgba(245, 158, 11, 0.85); // Amber 500
-  color: #ffffff;
+  background: var(--toast-warning-bg);
+  color: var(--text-on-accent);
   .toast-icon {
-    color: #ffffff;
+    color: var(--text-on-accent);
   }
 }
 
 .toast-error {
-  background: rgba(239, 68, 68, 0.85); // Red 500
-  color: #ffffff;
+  background: var(--toast-error-bg);
+  color: var(--text-on-accent);
   .toast-icon {
-    color: #ffffff;
+    color: var(--text-on-accent);
   }
 }
 </style>

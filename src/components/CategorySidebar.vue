@@ -297,7 +297,7 @@ const getNoteCount = (categoryId: string) => {
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--item-hover-bg);
     color: var(--text-primary);
     
     .item-badge {
@@ -328,7 +328,7 @@ const getNoteCount = (categoryId: string) => {
 
     .item-badge {
       background: var(--accent-color);
-      color: #ffffff;
+      color: var(--text-on-accent);
     }
   }
 }
@@ -371,7 +371,7 @@ const getNoteCount = (categoryId: string) => {
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--badge-bg);
   color: var(--text-secondary);
   transition: all 0.2s;
 }
@@ -393,13 +393,13 @@ const getNoteCount = (categoryId: string) => {
   color: var(--text-muted);
   
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--item-hover-bg);
     color: var(--text-primary);
   }
 
   &.delete:hover {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background: var(--danger-hover-bg);
+    color: var(--danger-color);
   }
 
   .action-icon {
@@ -417,25 +417,20 @@ const getNoteCount = (categoryId: string) => {
 
 .item-edit-input {
   flex: 1;
-  background: rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 6px;
   padding: 4px 8px;
   font-size: 13px;
   color: var(--text-primary);
   width: 100%;
-
-  .light-theme & {
-    background: rgba(255, 255, 255, 0.8);
-    border-color: rgba(0, 0, 0, 0.1);
-  }
 }
 
 .edit-btn {
   padding: 4px;
   border-radius: 6px;
   background: var(--accent-color);
-  color: #ffffff;
+  color: var(--text-on-accent);
   
   &.confirm:hover {
     background: var(--accent-hover);
@@ -472,25 +467,16 @@ const getNoteCount = (categoryId: string) => {
   gap: 6px;
   padding: 8px 0;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
   color: var(--text-muted);
   font-size: 11px;
   font-weight: 500;
 
-  .light-theme & {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.05);
-  }
-
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.1);
-
-    .light-theme & {
-      background: rgba(0, 0, 0, 0.05);
-    }
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-color);
+    border-color: var(--btn-hover-border);
   }
 
   .backup-btn-icon {
@@ -511,11 +497,11 @@ const getNoteCount = (categoryId: string) => {
   color: var(--accent-color);
   font-size: 13px;
   font-weight: 600;
-  border: 1px dashed rgba(99, 102, 241, 0.3);
+  border: 1px dashed var(--accent-border-dashed);
 
   &:hover {
     background: var(--accent-color);
-    color: #ffffff;
+    color: var(--text-on-accent);
     border-color: transparent;
   }
 
@@ -533,17 +519,12 @@ const getNoteCount = (categoryId: string) => {
 
 .add-input {
   flex: 1;
-  background: rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 13px;
   color: var(--text-primary);
-
-  .light-theme & {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.1);
-  }
 
   &:focus {
     border-color: var(--accent-color);
@@ -571,19 +552,20 @@ const getNoteCount = (categoryId: string) => {
 
 .add-confirm-btn {
   background: var(--accent-color);
-  color: #ffffff;
+  color: var(--text-on-accent);
   &:hover {
     background: var(--accent-hover);
   }
 }
 
 .add-cancel-btn {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--btn-bg);
   color: var(--text-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--btn-border);
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-color);
+    border-color: var(--btn-hover-border);
   }
 }
 </style>

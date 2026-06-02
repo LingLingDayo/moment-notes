@@ -367,7 +367,7 @@ const handleMouseLeave = () => {
 
   @include glass-panel(var(--card-bg), var(--card-border));
   color: var(--card-text);
-  @include hover-lift(-4px, 0 12px 24px -10px rgba(0, 0, 0, 0.12));
+  @include hover-lift(-4px, var(--shadow-md));
 
   .dark-theme & {
     background: var(--card-bg-dark);
@@ -380,14 +380,18 @@ const handleMouseLeave = () => {
       opacity: 1;
     }
 
-    .card-footer .card-actions {
+    .card-footer {
       opacity: 1;
-      transform: translateY(0);
+
+      .card-actions {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
 
   &.pinned {
-    box-shadow: 0 8px 20px -8px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 8px 20px -8px var(--accent-light);
     border-width: 1.5px;
     
     .pin-icon {
@@ -428,7 +432,7 @@ const handleMouseLeave = () => {
   border-radius: 50%;
   background: var(--card-border);
   color: var(--card-text);
-  box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -482,8 +486,8 @@ const handleMouseLeave = () => {
 
 .title-input {
   flex: 1;
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   padding: 4px 10px;
   font-size: 13px;
@@ -491,17 +495,11 @@ const handleMouseLeave = () => {
   color: inherit;
   width: 100%;
 
-  .dark-theme & {
-    background: rgba(0, 0, 0, 0.25);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
   &:focus {
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--input-bg);
     border-color: var(--card-text);
 
     .dark-theme & {
-      background: rgba(0, 0, 0, 0.4);
       border-color: var(--card-text-dark);
     }
   }
@@ -519,10 +517,8 @@ const handleMouseLeave = () => {
   transition: opacity 0.2s, background 0.2s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    .dark-theme & {
-      background: rgba(0, 0, 0, 0.2);
-    }
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-color);
   }
 
   .edit-icon {
@@ -551,8 +547,8 @@ const handleMouseLeave = () => {
   width: 100%;
   height: 100%;
   min-height: 100px;
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 12px;
@@ -560,17 +556,11 @@ const handleMouseLeave = () => {
   color: inherit;
   resize: vertical;
 
-  .dark-theme & {
-    background: rgba(0, 0, 0, 0.25);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
   &:focus {
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--input-bg);
     border-color: var(--card-text);
 
     .dark-theme & {
-      background: rgba(0, 0, 0, 0.4);
       border-color: var(--card-text-dark);
     }
   }
@@ -590,17 +580,14 @@ const handleMouseLeave = () => {
   font-weight: 600;
 
   &.cancel {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--btn-bg);
     color: inherit;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid var(--btn-border);
     
-    .dark-theme & {
-      background: rgba(0, 0, 0, 0.2);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
-
     &:hover {
-      background: rgba(255, 255, 255, 0.35);
+      background: var(--btn-hover-bg);
+      color: var(--btn-hover-color);
+      border-color: var(--btn-hover-border);
     }
   }
 
@@ -623,15 +610,11 @@ const handleMouseLeave = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px dashed rgba(0, 0, 0, 0.06);
+  border-top: 1px dashed var(--popover-border);
   padding-top: 8px;
   font-size: 10px;
   color: inherit;
   opacity: 0.8;
-
-  .dark-theme & {
-    border-color: rgba(255, 255, 255, 0.06);
-  }
 }
 
 .updated-time {
@@ -661,15 +644,13 @@ const handleMouseLeave = () => {
   justify-content: center;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    .dark-theme & {
-      background: rgba(0, 0, 0, 0.2);
-    }
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-color);
   }
 
   &.delete:hover {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background: var(--danger-hover-bg);
+    color: var(--danger-color);
   }
 
   .action-icon {
@@ -683,20 +664,15 @@ const handleMouseLeave = () => {
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  background: #ffffff;
-  border: 1px solid var(--panel-border);
+  background: var(--popover-bg);
+  border: 1px solid var(--popover-border);
   padding: 6px;
   border-radius: 10px;
   display: flex;
   gap: 4px;
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(10px);
+  box-shadow: var(--popover-shadow);
   z-index: 3;
   animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-  .dark-theme & {
-    background: #1e293b;
-  }
 }
 
 .color-dot {
@@ -720,19 +696,14 @@ const handleMouseLeave = () => {
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  background: #ffffff;
-  border: 1px solid var(--panel-border);
+  background: var(--popover-bg);
+  border: 1px solid var(--popover-border);
   padding: 8px;
   border-radius: 12px;
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(10px);
+  box-shadow: var(--popover-shadow);
   z-index: 3;
   min-width: 120px;
   animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-  .dark-theme & {
-    background: #1e293b;
-  }
 
   .popover-title {
     font-size: 10px;
@@ -762,12 +733,8 @@ const handleMouseLeave = () => {
   text-overflow: ellipsis;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--item-hover-bg);
     color: var(--text-primary);
-
-    .light-theme & {
-      background: rgba(0, 0, 0, 0.05);
-    }
   }
 
   &.active {
@@ -803,15 +770,10 @@ const handleMouseLeave = () => {
   font-weight: 500;
   display: inline-flex;
   align-items: center;
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--badge-bg);
+  border: 1px solid var(--popover-border);
   color: inherit;
   opacity: 0.85;
-
-  .dark-theme & {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
 }
 
 // 标签编辑器样式
@@ -822,12 +784,8 @@ const handleMouseLeave = () => {
   gap: 6px;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  border-top: 1px dashed var(--popover-border);
   margin-bottom: 6px;
-
-  .dark-theme & {
-    border-top-color: rgba(255, 255, 255, 0.08);
-  }
 }
 
 .edit-tag-badge {
@@ -837,14 +795,9 @@ const handleMouseLeave = () => {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: var(--badge-bg);
+  border: 1px solid var(--popover-border);
   color: inherit;
-
-  .dark-theme & {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.15);
-  }
 
   .delete-tag-btn {
     border: none;
@@ -868,8 +821,8 @@ const handleMouseLeave = () => {
 
 .tag-input {
   border: none;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px dashed rgba(255, 255, 255, 0.4);
+  background: var(--badge-bg);
+  border: 1px dashed var(--popover-border);
   border-radius: 6px;
   padding: 3px 8px;
   font-size: 11px;
@@ -877,19 +830,12 @@ const handleMouseLeave = () => {
   flex: 1;
   min-width: 80px;
 
-  .dark-theme & {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-
   &:focus {
-    background: rgba(255, 255, 255, 0.35);
     border-style: solid;
     border-color: var(--card-text);
     outline: none;
 
     .dark-theme & {
-      background: rgba(0, 0, 0, 0.35);
       border-color: var(--card-text-dark);
     }
   }
