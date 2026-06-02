@@ -118,11 +118,17 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   // Toast 提示状态
   const toastMessage = ref<string>('');
   const toastType = ref<'success' | 'info' | 'warning' | 'error'>('success');
+  const toastPosition = ref<'top' | 'bottom'>('top');
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
 
-  const showToast = (msg: string, type: 'success' | 'info' | 'warning' | 'error' = 'success') => {
+  const showToast = (
+    msg: string, 
+    type: 'success' | 'info' | 'warning' | 'error' = 'success',
+    position: 'top' | 'bottom' = 'top'
+  ) => {
     toastMessage.value = msg;
     toastType.value = type;
+    toastPosition.value = position;
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
       toastMessage.value = '';
@@ -529,6 +535,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     filteredNotes,
     toastMessage,
     toastType,
+    toastPosition,
     showToast,
     confirmState,
     askConfirm,

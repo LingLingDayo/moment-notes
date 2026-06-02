@@ -8,6 +8,7 @@ const store = useStickyNotesStore();
 const isVisible = computed(() => !!store.toastMessage);
 const message = computed(() => store.toastMessage);
 const type = computed(() => store.toastType);
+const position = computed(() => store.toastPosition);
 
 const iconComponent = computed(() => {
   switch (type.value) {
@@ -26,8 +27,8 @@ const iconComponent = computed(() => {
 </script>
 
 <template>
-  <Transition name="toast">
-    <div v-if="isVisible" class="toast-container" :class="[`toast-${type}`]">
+  <Transition :name="`toast-${position}`">
+    <div v-if="isVisible" class="toast-container" :class="[`toast-${type}`, `position-${position}`]">
       <component :is="iconComponent" class="toast-icon" />
       <span class="toast-text">{{ message }}</span>
     </div>
@@ -37,7 +38,6 @@ const iconComponent = computed(() => {
 <style lang="scss" scoped>
 .toast-container {
   position: fixed;
-  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -52,6 +52,14 @@ const iconComponent = computed(() => {
   max-width: 90%;
   pointer-events: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  &.position-top {
+    top: 64px;
+  }
+
+  &.position-bottom {
+    bottom: 24px;
+  }
 }
 
 .toast-icon {
@@ -97,5 +105,33 @@ const iconComponent = computed(() => {
   .toast-icon {
     color: var(--text-on-accent);
   }
+}
+
+// 顶部 Toast 过渡动效
+.toast-container.toast-top-enter-active,
+.toast-container.toast-top-leave-active {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-container.toast-top-enter-from {
+  transform: translate(-50%, -30px) scale(0.9);
+  opacity: 0;
+}
+.toast-container.toast-top-leave-to {
+  transform: translate(-50%, -20px) scale(0.95);
+  opacity: 0;
+}
+
+// 底部 Toast 过渡动效
+.toast-container.toast-bottom-enter-active,
+.toast-container.toast-bottom-leave-active {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-container.toast-bottom-enter-from {
+  transform: translate(-50%, 30px) scale(0.9);
+  opacity: 0;
+}
+.toast-container.toast-bottom-leave-to {
+  transform: translate(-50%, 20px) scale(0.95);
+  opacity: 0;
 }
 </style>
