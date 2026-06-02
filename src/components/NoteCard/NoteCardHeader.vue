@@ -75,13 +75,8 @@ const emit = defineEmits<{
 
   &:hover {
     transform: scale(1.1) rotate(15deg);
-    background: var(--card-text);
-    color: var(--card-bg);
-
-    .dark-theme & {
-      background: var(--card-text-dark);
-      color: var(--card-bg-dark);
-    }
+    background: var(--card-btn-hover-bg);
+    color: var(--card-btn-hover-color);
   }
 
   .pin-icon {
@@ -146,8 +141,8 @@ const emit = defineEmits<{
   transition: opacity 0.2s, background 0.2s;
 
   &:hover {
-    background: var(--btn-hover-bg);
-    color: var(--btn-hover-color);
+    background: var(--card-btn-hover-bg);
+    color: var(--card-btn-hover-color);
   }
 
   .edit-icon {

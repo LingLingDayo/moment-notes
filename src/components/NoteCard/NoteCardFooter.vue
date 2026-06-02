@@ -179,9 +179,9 @@ const deleteSelf = async () => {
     border: 1px solid var(--btn-border);
     
     &:hover {
-      background: var(--btn-hover-bg);
-      color: var(--btn-hover-color);
-      border-color: var(--btn-hover-border);
+      background: var(--card-btn-hover-bg);
+      color: var(--card-btn-hover-color);
+      border-color: var(--card-btn-hover-bg);
     }
   }
 
@@ -238,8 +238,8 @@ const deleteSelf = async () => {
   justify-content: center;
 
   &:hover {
-    background: var(--btn-hover-bg);
-    color: var(--btn-hover-color);
+    background: var(--card-btn-hover-bg);
+    color: var(--card-btn-hover-color);
   }
 
   &.delete:hover {

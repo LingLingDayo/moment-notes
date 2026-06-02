@@ -24,4 +24,8 @@ export interface NoteColorPreset {
   darkBorder: string;
   lightText: string;
   darkText: string;
+  lightBtnHoverBg: string;
+  lightBtnHoverColor: string;
+  darkBtnHoverBg: string;
+  darkBtnHoverColor: string;
 }

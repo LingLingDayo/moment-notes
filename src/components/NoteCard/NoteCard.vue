@@ -33,6 +33,10 @@ const colorStyle = computed(() => {
     '--card-bg-dark': preset.darkBg,
     '--card-border-dark': preset.darkBorder,
     '--card-text-dark': preset.darkText,
+    '--card-btn-hover-bg': preset.lightBtnHoverBg,
+    '--card-btn-hover-color': preset.lightBtnHoverColor,
+    '--card-btn-hover-bg-dark': preset.darkBtnHoverBg,
+    '--card-btn-hover-color-dark': preset.darkBtnHoverColor,
   };
 });
 
@@ -235,6 +239,8 @@ onMounted(() => {
     background: var(--card-bg-dark);
     border-color: var(--card-border-dark);
     color: var(--card-text-dark);
+    --card-btn-hover-bg: var(--card-btn-hover-bg-dark);
+    --card-btn-hover-color: var(--card-btn-hover-color-dark);
   }
 
   &:hover {
