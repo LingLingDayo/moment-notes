@@ -112,11 +112,7 @@ watch(() => props.isEditing, async (newVal) => {
 
   &:focus {
     background: var(--input-bg);
-    border-color: var(--card-text);
-
-    .dark-theme & {
-      border-color: var(--card-text-dark);
-    }
+    border-color: var(--accent-color);
   }
 }
 
