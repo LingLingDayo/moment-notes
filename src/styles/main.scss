@@ -318,7 +318,10 @@ input, textarea {
   opacity: 0;
   transform: translateY(4px) scale(0.95);
   transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 340px;
+  word-break: break-all;
+  overflow-wrap: break-word;
   
   &.show {
     opacity: 1;

@@ -28,9 +28,9 @@ const emit = defineEmits<{
     <Pin class="pin-icon" />
   </button>
 
-  <!-- 没有标题且只读时，编辑按钮作为绝对定位元素在右上角展示 -->
+  <!-- 只读时，编辑按钮作为绝对定位元素在右上角展示 -->
   <button 
-    v-if="!isEditing && !note.title" 
+    v-if="!isEditing" 
     class="edit-trigger-btn absolute-edit-btn" 
     data-tooltip="编辑便签"
     @click.stop="emit('enter-edit')"
@@ -50,15 +50,6 @@ const emit = defineEmits<{
       @keyup.esc="emit('cancel-edit')"
     />
     <h3 v-else-if="note.title" class="card-title">{{ note.title }}</h3>
-    
-    <button 
-      v-if="!isEditing" 
-      class="edit-trigger-btn" 
-      data-tooltip="编辑便签"
-      @click.stop="emit('enter-edit')"
-    >
-      <Edit2 class="edit-icon" />
-    </button>
   </div>
 </template>
 
@@ -111,6 +102,7 @@ const emit = defineEmits<{
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  padding-right: 24px;
 }
 
 .title-input {

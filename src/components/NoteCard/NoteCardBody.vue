@@ -35,7 +35,7 @@ watch(() => props.isEditing, async (newVal) => {
 </script>
 
 <template>
-  <div class="card-body">
+  <div class="card-body" :class="{ 'is-view-mode': !isEditing }">
     <textarea 
       v-if="isEditing"
       ref="contentInputRef"
@@ -47,10 +47,17 @@ watch(() => props.isEditing, async (newVal) => {
       @input="adjustTextareaHeight"
     ></textarea>
     <template v-else>
-      <pre class="card-content">{{ note.content || '双击粘贴，点击右上角编辑...' }}</pre>
+      <div class="card-body-content">
+        <pre class="card-content">{{ note.content || '双击粘贴，点击右上角编辑...' }}</pre>
+      </div>
       <!-- 便签标签展示 -->
       <div v-if="note.tags && note.tags.length > 0" class="note-tags-list">
-        <span v-for="tag in note.tags" :key="tag" class="note-tag-badge">
+        <span 
+          v-for="tag in note.tags" 
+          :key="tag" 
+          class="note-tag-badge"
+          :data-tooltip="tag"
+        >
           # {{ tag }}
         </span>
       </div>
@@ -61,10 +68,22 @@ watch(() => props.isEditing, async (newVal) => {
 <style lang="scss" scoped>
 .card-body {
   flex: 1;
-  overflow-y: auto;
   min-height: 32px;
   padding-top: 4px;
   padding-bottom: 8px;
+  overflow-y: auto;
+
+  &.is-view-mode {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+}
+
+.card-body-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .card-content {
@@ -105,7 +124,10 @@ watch(() => props.isEditing, async (newVal) => {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 6px;
+  flex-shrink: 0;
+  max-height: 48px;
+  overflow: hidden;
 }
 
 .note-tag-badge {
@@ -113,11 +135,17 @@ watch(() => props.isEditing, async (newVal) => {
   padding: 2px 8px;
   border-radius: 99px;
   font-weight: 500;
-  display: inline-flex;
-  align-items: center;
   background: var(--badge-bg);
   border: 1px solid var(--popover-border);
   color: inherit;
   opacity: 0.85;
+
+  max-width: 100%;
+  display: -webkit-inline-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-all;
+  white-space: normal;
 }
 </style>
