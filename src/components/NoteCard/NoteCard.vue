@@ -51,12 +51,23 @@ const enterEditMode = () => {
 // 保存编辑
 const saveEdit = () => {
   tagEditorRef.value?.addTag();
-  store.updateNote(props.note.id, {
-    title: editTitle.value.trim(),
-    content: editContent.value,
-    tags: editTags.value
-  });
-  isEditing.value = false;
+  
+  const titleChanged = editTitle.value.trim() !== (props.note.title || '').trim();
+  const contentChanged = editContent.value !== props.note.content;
+  const originalTags = props.note.tags || [];
+  const tagsChanged = editTags.value.length !== originalTags.length || 
+                      !editTags.value.every((t, i) => t === originalTags[i]);
+                      
+  if (titleChanged || contentChanged || tagsChanged) {
+    store.updateNote(props.note.id, {
+      title: editTitle.value.trim(),
+      content: editContent.value,
+      tags: editTags.value
+    });
+    isEditing.value = false;
+  } else {
+    cancelEdit();
+  }
 };
 
 // 取消编辑
