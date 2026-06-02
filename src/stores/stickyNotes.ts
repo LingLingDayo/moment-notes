@@ -92,6 +92,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   const searchQuery = ref<string>('');
   const searchTarget = ref<'all' | 'title' | 'content' | 'tag'>('all');
   const sortMode = ref<'date' | 'title' | 'custom'>('date');
+  const sortOrder = ref<'asc' | 'desc'>('desc');
   const draggedNoteId = ref<string | null>(null);
   const editingNoteId = ref<string | null>(null);
 
@@ -149,6 +150,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       const storedSortMode = storage.getItem('sticky_notes_sort_mode');
       if (storedSortMode && ['date', 'title', 'custom'].includes(storedSortMode)) {
         sortMode.value = storedSortMode as 'date' | 'title' | 'custom';
+      }
+
+      const storedSortOrder = storage.getItem('sticky_notes_sort_order');
+      if (storedSortOrder && ['asc', 'desc'].includes(storedSortOrder)) {
+        sortOrder.value = storedSortOrder as 'asc' | 'desc';
       }
 
       if (storedNotes) {
@@ -345,11 +351,15 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         const titleB = b.title || '';
         if (!titleA && titleB) return 1;
         if (titleA && !titleB) return -1;
-        if (!titleA && !titleB) return b.updatedAt - a.updatedAt;
+        if (!titleA && !titleB) {
+          return sortOrder.value === 'asc' ? a.updatedAt - b.updatedAt : b.updatedAt - a.updatedAt;
+        }
         
         const cmp = titleA.localeCompare(titleB, 'zh');
-        if (cmp !== 0) return cmp;
-        return b.updatedAt - a.updatedAt;
+        if (cmp !== 0) {
+          return sortOrder.value === 'asc' ? cmp : -cmp;
+        }
+        return sortOrder.value === 'asc' ? a.updatedAt - b.updatedAt : b.updatedAt - a.updatedAt;
       } else if (sortMode.value === 'custom') {
         // 自定义排序：保持在原 notes 数组中的相对顺序
         const indexA = notes.value.findIndex(n => n.id === a.id);
@@ -357,7 +367,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         return indexA - indexB;
       } else {
         // 默认按日期更新时间倒序
-        return b.updatedAt - a.updatedAt;
+        return sortOrder.value === 'desc' 
+          ? b.updatedAt - a.updatedAt 
+          : a.updatedAt - b.updatedAt;
       }
     });
   });
@@ -477,8 +489,21 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   };
 
   const setSortMode = (mode: 'date' | 'title' | 'custom') => {
-    sortMode.value = mode;
-    storage.setItem('sticky_notes_sort_mode', mode);
+    if (mode === sortMode.value) {
+      if (mode !== 'custom') {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+      }
+    } else {
+      sortMode.value = mode;
+      // 切换新模式时，设置其默认排序方向
+      if (mode === 'date') {
+        sortOrder.value = 'desc'; // 默认按最新优先
+      } else if (mode === 'title') {
+        sortOrder.value = 'asc'; // 默认按首字母升序
+      }
+    }
+    storage.setItem('sticky_notes_sort_mode', sortMode.value);
+    storage.setItem('sticky_notes_sort_order', sortOrder.value);
   };
 
   const moveNote = (draggedId: string, targetId: string) => {
@@ -521,6 +546,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     importBackup,
     exportSingleNoteAsTxt,
     sortMode,
+    sortOrder,
     draggedNoteId,
     editingNoteId,
     setSortMode,

@@ -107,9 +107,14 @@ const changeSortMode = (mode: 'date' | 'title' | 'custom') => {
   store.setSortMode(mode);
   showSortPopover.value = false;
   
-  let modeName = '日期';
-  if (mode === 'title') modeName = '标题首字母';
-  if (mode === 'custom') modeName = '自定义 (拖拽)';
+  let modeName = '';
+  if (mode === 'date') {
+    modeName = store.sortOrder === 'desc' ? '日期 (从新到旧)' : '日期 (从旧到新)';
+  } else if (mode === 'title') {
+    modeName = store.sortOrder === 'asc' ? '标题首字母 (A-Z)' : '标题首字母 (Z-A)';
+  } else {
+    modeName = '自定义 (拖拽)';
+  }
   store.showToast(`已切换排序方式为：${modeName}`, 'success');
 };
 
@@ -215,7 +220,6 @@ const clearSearch = () => {
       <div class="action-popover-wrapper">
         <button 
           class="icon-btn" 
-          :class="{ active: store.sortMode !== 'date' }"
           title="排序方式" 
           @click.stop="showSortPopover = !showSortPopover"
         >
@@ -232,6 +236,9 @@ const clearSearch = () => {
             >
               <span class="sort-item-icon">📅</span>
               <span>按日期排序</span>
+              <span v-if="store.sortMode === 'date'" class="sort-direction">
+                {{ store.sortOrder === 'desc' ? '↓' : '↑' }}
+              </span>
             </button>
             <button 
               class="sort-item" 
@@ -240,6 +247,9 @@ const clearSearch = () => {
             >
               <span class="sort-item-icon">🔤</span>
               <span>按标题首字母</span>
+              <span v-if="store.sortMode === 'title'" class="sort-direction">
+                {{ store.sortOrder === 'asc' ? '↓' : '↑' }}
+              </span>
             </button>
             <button 
               class="sort-item" 
@@ -576,6 +586,13 @@ const clearSearch = () => {
 
   .sort-item-icon {
     font-size: 12px;
+  }
+
+  .sort-direction {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: bold;
+    opacity: 0.85;
   }
 }
 
