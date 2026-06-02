@@ -2,7 +2,7 @@
 import { ref, computed, nextTick, onMounted } from 'vue';
 import { Note } from '../types';
 import { useStickyNotesStore, COLOR_PRESETS } from '../stores/stickyNotes';
-import { Pin, Trash2, Palette, FolderInput, Check, Edit2, FileText } from 'lucide-vue-next';
+import { Pin, Trash2, Palette, FolderInput, Check, Edit2, Copy } from 'lucide-vue-next';
 import { isUTools } from '../utils/storage';
 
 const props = defineProps<{
@@ -105,9 +105,8 @@ const handleDoubleClick = () => {
   store.handlePasteNote(props.note.content);
 };
 
-// 单击复制逻辑
-const handleCardClick = async () => {
-  if (isEditing.value) return;
+// 复制便签内容逻辑
+const copyNoteContent = async () => {
   try {
     if (isUTools()) {
       window.utools.copyText(props.note.content);
@@ -120,6 +119,7 @@ const handleCardClick = async () => {
     store.showToast('复制失败', 'error');
   }
 };
+
 
 // 切换置顶
 const togglePin = () => {
@@ -214,7 +214,6 @@ onMounted(() => {
     :class="{ pinned: note.isPinned, editing: isEditing, dragging: store.draggedNoteId === note.id }"
     :style="colorStyle"
     :draggable="store.sortMode === 'custom' && !isEditing"
-    @click="handleCardClick"
     @dblclick="handleDoubleClick"
     @dragstart="handleDragStart"
     @dragover.prevent
@@ -271,7 +270,7 @@ onMounted(() => {
         @input="adjustTextareaHeight"
       ></textarea>
       <template v-else>
-        <pre class="card-content">{{ note.content || '单击复制，双击粘贴，点击右上角编辑...' }}</pre>
+        <pre class="card-content">{{ note.content || '双击粘贴，点击右上角编辑...' }}</pre>
         <!-- 便签标签展示 -->
         <div v-if="note.tags && note.tags.length > 0" class="note-tags-list">
           <span v-for="tag in note.tags" :key="tag" class="note-tag-badge">
@@ -358,9 +357,9 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- 导出为 TXT 文件 -->
-        <button class="action-btn" title="导出为文本文件" @click="store.exportSingleNoteAsTxt(note)">
-          <FileText class="action-icon" />
+        <!-- 复制 -->
+        <button class="action-btn" title="复制" @click="copyNoteContent">
+          <Copy class="action-icon" />
         </button>
 
         <!-- 删除按钮 -->
