@@ -88,7 +88,7 @@ const handleDoubleClick = () => {
 const togglePin = () => {
   store.updateNote(props.note.id, {
     isPinned: !props.note.isPinned
-  });
+  }, false);
   store.showToast(props.note.isPinned ? '便签已置顶' : '取消置顶');
 };
 

@@ -60,13 +60,13 @@ const copyNoteContent = async () => {
 
 // 更改颜色
 const changeColor = (colorName: string) => {
-  store.updateNote(props.note.id, { color: colorName });
+  store.updateNote(props.note.id, { color: colorName }, false);
   showColorPicker.value = false;
 };
 
 // 移动分类
 const moveCategory = (catId: string) => {
-  store.updateNote(props.note.id, { categoryId: catId });
+  store.updateNote(props.note.id, { categoryId: catId }, false);
   showFolderPicker.value = false;
   const cat = store.categories.find(c => c.id === catId);
   store.showToast(`已移至分类 "${cat?.name || '默认'}"`);

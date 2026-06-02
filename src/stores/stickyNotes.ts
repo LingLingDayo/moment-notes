@@ -290,13 +290,13 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     saveNotes();
   };
 
-  const updateNote = (id: string, fields: Partial<Omit<Note, 'id' | 'createdAt'>>) => {
+  const updateNote = (id: string, fields: Partial<Omit<Note, 'id' | 'createdAt'>>, updateTimestamp = true) => {
     const note = notes.value.find(n => n.id === id);
     if (note) {
-      Object.assign(note, {
-        ...fields,
-        updatedAt: Date.now()
-      });
+      Object.assign(note, fields);
+      if (updateTimestamp) {
+        note.updatedAt = Date.now();
+      }
       saveNotes();
     }
   };
