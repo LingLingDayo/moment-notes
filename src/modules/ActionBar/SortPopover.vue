@@ -9,7 +9,7 @@ const store = useStickyNotesStore();
 const showSortPopover = ref(false);
 
 // 切换排序方式
-const changeSortMode = (mode: 'date' | 'title' | 'custom') => {
+const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
   store.setSortMode(mode);
   showSortPopover.value = false;
   
@@ -18,6 +18,8 @@ const changeSortMode = (mode: 'date' | 'title' | 'custom') => {
     modeName = store.sortOrder === 'desc' ? '日期 (从新到旧)' : '日期 (从旧到新)';
   } else if (mode === 'title') {
     modeName = store.sortOrder === 'asc' ? '标题首字母 (A-Z)' : '标题首字母 (Z-A)';
+  } else if (mode === 'tag') {
+    modeName = store.sortOrder === 'asc' ? '标签首字母 (A-Z)' : '标签首字母 (Z-A)';
   } else {
     modeName = '自定义 (拖拽)';
   }
@@ -70,6 +72,17 @@ onUnmounted(() => {
           <span class="sort-item-icon">🔤</span>
           <span>按标题首字母</span>
           <span v-if="store.sortMode === 'title'" class="sort-direction">
+            {{ store.sortOrder === 'asc' ? '↓' : '↑' }}
+          </span>
+        </button>
+        <button 
+          class="sort-item" 
+          :class="{ active: store.sortMode === 'tag' }"
+          @click="changeSortMode('tag')"
+        >
+          <span class="sort-item-icon">🏷️</span>
+          <span>按标签排序</span>
+          <span v-if="store.sortMode === 'tag'" class="sort-direction">
             {{ store.sortOrder === 'asc' ? '↓' : '↑' }}
           </span>
         </button>
