@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '../stores/stickyNotes';
 import { Folder, Plus, Trash2, Edit3, ClipboardList, Check, X, Download, Upload } from 'lucide-vue-next';
 
@@ -109,10 +109,64 @@ const getNoteCount = (categoryId: string) => {
   }
   return store.notes.filter(n => n.categoryId === categoryId).length;
 };
+
+// 侧边栏宽度管理
+const sidebarWidth = ref(260);
+const isResizing = ref(false);
+
+// 从本地存储初始化宽度
+const savedWidth = localStorage.getItem('sidebar-width');
+if (savedWidth) {
+  const width = parseInt(savedWidth, 10);
+  if (!isNaN(width) && width >= 200) {
+    sidebarWidth.value = width;
+  }
+}
+
+const startResize = (e: MouseEvent) => {
+  e.preventDefault();
+  isResizing.value = true;
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+
+  window.addEventListener('mousemove', handleResize);
+  window.addEventListener('mouseup', stopResize);
+};
+
+const handleResize = (e: MouseEvent) => {
+  if (!isResizing.value) return;
+  let newWidth = e.clientX;
+  if (newWidth < 200) {
+    newWidth = 200;
+  }
+  // 限制最大宽度为窗口宽度的 50%
+  const maxWidth = window.innerWidth * 0.5;
+  if (newWidth > maxWidth) {
+    newWidth = maxWidth;
+  }
+  sidebarWidth.value = newWidth;
+};
+
+const stopResize = () => {
+  if (!isResizing.value) return;
+  isResizing.value = false;
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+  
+  localStorage.setItem('sidebar-width', sidebarWidth.value.toString());
+
+  window.removeEventListener('mousemove', handleResize);
+  window.removeEventListener('mouseup', stopResize);
+};
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', handleResize);
+  window.removeEventListener('mouseup', stopResize);
+});
 </script>
 
 <template>
-  <aside class="sidebar-container">
+  <aside class="sidebar-container" :style="{ width: sidebarWidth + 'px' }">
     <div class="sidebar-header">
       <ClipboardList class="header-icon" />
       <h2 class="header-title">分类管理</h2>
@@ -137,7 +191,7 @@ const getNoteCount = (categoryId: string) => {
       <div 
         v-for="cat in store.categories" 
         :key="cat.id"
-        class="menu-item"
+        class="menu-item has-actions"
         :class="{ active: store.currentCategoryId === cat.id }"
         @click="store.currentCategoryId = cat.id"
       >
@@ -227,12 +281,18 @@ const getNoteCount = (categoryId: string) => {
         </button>
       </div>
     </div>
+
+    <!-- 拖拽调整宽度的手柄 -->
+    <div 
+      class="resize-handle" 
+      :class="{ resizing: isResizing }"
+      @mousedown="startResize"
+    ></div>
   </aside>
 </template>
 
 <style lang="scss" scoped>
 .sidebar-container {
-  width: 260px;
   height: 100%;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--panel-border);
@@ -240,6 +300,7 @@ const getNoteCount = (categoryId: string) => {
   flex-direction: column;
   backdrop-filter: blur(var(--glass-blur));
   flex-shrink: 0;
+  position: relative;
 }
 
 .sidebar-header {
@@ -299,7 +360,9 @@ const getNoteCount = (categoryId: string) => {
   &:hover {
     background: var(--item-hover-bg);
     color: var(--text-primary);
-    
+  }
+
+  &.has-actions:hover {
     .item-badge {
       opacity: 0;
       transform: scale(0.8);
@@ -443,7 +506,7 @@ const getNoteCount = (categoryId: string) => {
 }
 
 .sidebar-footer {
-  padding: 20px 16px;
+  padding: 16px 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -565,6 +628,23 @@ const getNoteCount = (categoryId: string) => {
     background: var(--btn-hover-bg);
     color: var(--btn-hover-color);
     border-color: var(--btn-hover-border);
+  }
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  right: -2px;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+  background: transparent;
+  transition: background-color 0.2s ease;
+
+  &:hover,
+  &.resizing {
+    background-color: var(--accent-color);
   }
 }
 </style>
