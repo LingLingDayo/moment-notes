@@ -116,11 +116,11 @@ const handleAddNote = () => {
   color: var(--accent-color);
   font-size: 13px;
   font-weight: 600;
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid var(--accent-border-dashed);
 
   &:hover {
     background: var(--accent-color);
-    color: #ffffff;
+    color: var(--text-on-accent);
     border-color: transparent;
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);

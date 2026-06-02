@@ -419,18 +419,14 @@ const clearSearch = () => {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: #ffffff;
-  border: 1px solid var(--panel-border);
+  background: var(--popover-bg);
+  border: 1px solid var(--popover-border);
   padding: 6px;
   border-radius: 12px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--popover-shadow);
   z-index: 100;
   min-width: 110px;
   animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-  .dark-theme & {
-    background: #1e293b;
-  }
 
   .popover-title {
     font-size: 10px;
@@ -458,12 +454,8 @@ const clearSearch = () => {
   width: 100%;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--item-hover-bg);
     color: var(--text-primary);
-
-    .light-theme & {
-      background: rgba(0, 0, 0, 0.05);
-    }
   }
 
   &.active {
@@ -491,19 +483,14 @@ const clearSearch = () => {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
   color: var(--text-secondary);
 
-  .light-theme & {
-    background: rgba(255, 255, 255, 0.8);
-    border-color: rgba(0, 0, 0, 0.08);
-  }
-
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.15);
-    color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-color);
+    border-color: var(--btn-hover-border);
   }
 
   &:disabled {
@@ -513,9 +500,9 @@ const clearSearch = () => {
 
   &.danger {
     &:hover:not(:disabled) {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.25);
-      color: #ef4444;
+      background: var(--danger-hover-bg);
+      border-color: var(--danger-hover-border);
+      color: var(--danger-color);
     }
   }
 
@@ -541,18 +528,14 @@ const clearSearch = () => {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: #ffffff;
-  border: 1px solid var(--panel-border);
+  background: var(--popover-bg);
+  border: 1px solid var(--popover-border);
   padding: 8px;
   border-radius: 12px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--popover-shadow);
   z-index: 100;
   min-width: 150px;
   animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-  .dark-theme & {
-    background: #1e293b;
-  }
 
   .popover-title {
     font-size: 10px;
@@ -581,7 +564,7 @@ const clearSearch = () => {
   color: var(--text-secondary);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--item-hover-bg);
     color: var(--text-primary);
   }
 
