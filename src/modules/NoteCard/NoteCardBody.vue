@@ -84,6 +84,67 @@ watch(() => props.isEditing, async (newVal) => {
   flex: 1;
   overflow-y: auto;
   padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  // 1. 默认显示极其清淡淡雅的半透明颜色，既保持视觉纯净，又避开了 Chromium 隐藏滚动条不响应 hover 重绘的缺陷
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+  }
+
+  // 2. 悬停在内容区时，滚动条滑块加深
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  // --- 暗色主题适配 (类切换) ---
+  .dark-theme &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .dark-theme &:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.32);
+    }
+  }
+
+  // --- 针对系统自带暗色模式偏好的处理 ---
+  @media (prefers-color-scheme: dark) {
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    &:hover::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.18);
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.32);
+      }
+    }
+
+    // 系统是暗色，但手动切换为了亮色主题
+    .light-theme &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    .light-theme &:hover::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+      
+      &:hover {
+        background: rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
 }
 
 .card-content {

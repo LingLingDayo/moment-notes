@@ -239,8 +239,8 @@ onMounted(() => {
   position: relative;
   min-height: 90px;
   max-height: 320px;
-  user-select: none;
-  cursor: pointer;
+  // user-select: none;
+  // cursor: pointer;
 
   @include glass-panel(var(--card-bg), var(--card-border));
   color: var(--card-text);
