@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import CategorySidebar from '@modules/CategorySidebar.vue';
-import ActionBar from '@modules/ActionBar.vue';
+import CategorySidebar from '@modules/CategorySidebar/CategorySidebar.vue';
+import ActionBar from '@modules/ActionBar/ActionBar.vue';
 import NoteGrid from '@modules/NoteGrid.vue';
 import Toast from '@modules/Toast.vue';
 import ConfirmModal from '@modules/ConfirmModal.vue';

@@ -2,8 +2,8 @@
 import { ref, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { ClipboardList, Download, Upload } from 'lucide-vue-next';
-import CategoryList from './CategorySidebar/CategoryList.vue';
-import CategoryAdd from './CategorySidebar/CategoryAdd.vue';
+import CategoryList from './CategoryList.vue';
+import CategoryAdd from './CategoryAdd.vue';
 
 const store = useStickyNotesStore();
 
