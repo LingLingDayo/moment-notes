@@ -50,7 +50,6 @@ const confirm = () => {
   width: 100vw;
   height: 100vh;
   background: var(--modal-overlay-bg);
-  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,7 +61,8 @@ const confirm = () => {
   max-width: 360px;
   border-radius: 20px;
   padding: 24px;
-  @include glass-panel;
+  background: var(--popover-bg);
+  border: 1px solid var(--popover-border);
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
