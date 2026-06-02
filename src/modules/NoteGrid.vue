@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useStickyNotesStore } from '../stores/stickyNotes';
+import { useStickyNotesStore } from '@stores/stickyNotes';
 import NoteCard from './NoteCard/NoteCard.vue';
 import { StickyNote, SearchX, Plus } from 'lucide-vue-next';
 

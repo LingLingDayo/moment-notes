@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue';
-import { useStickyNotesStore } from './stores/stickyNotes';
-import { isUTools } from './utils/storage';
-import Dashboard from './views/Dashboard.vue';
+import { useStickyNotesStore } from '@stores/stickyNotes';
+import { isUTools } from '@utils/storage';
+import Dashboard from '@views/Dashboard.vue';
 
 onMounted(() => {
   const store = useStickyNotesStore();

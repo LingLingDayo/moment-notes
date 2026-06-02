@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
-import { useStickyNotesStore } from '../../stores/stickyNotes';
+import { useStickyNotesStore } from '@stores/stickyNotes';
 
 const tags = defineModel<string[]>('tags', { default: () => [] });
 

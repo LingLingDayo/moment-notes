@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
-import { Note } from '../../types';
-import { useStickyNotesStore, COLOR_PRESETS } from '../../stores/stickyNotes';
+import { Note } from '@type';
+import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
 import NoteCardHeader from './NoteCardHeader.vue';
 import NoteCardBody from './NoteCardBody.vue';
 import NoteCardTagEditor from './NoteCardTagEditor.vue';

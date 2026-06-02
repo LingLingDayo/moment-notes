@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
 import { Palette, FolderInput, Check, Copy, Trash2 } from 'lucide-vue-next';
-import { Note } from '../../types';
-import { useStickyNotesStore, COLOR_PRESETS } from '../../stores/stickyNotes';
-import { isUTools } from '../../utils/storage';
+import { Note } from '@type';
+import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
+import { isUTools } from '@utils/storage';
 
 const props = defineProps<{
   note: Note;

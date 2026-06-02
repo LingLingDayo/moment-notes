@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, watch, nextTick } from 'vue';
-import { Note } from '../../types';
+import { Note } from '@type';
 
 const props = defineProps<{
   note: Note;
@@ -143,6 +143,7 @@ watch(() => props.isEditing, async (newVal) => {
   max-width: 100%;
   display: -webkit-inline-box;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   overflow: hidden;
   word-break: break-all;

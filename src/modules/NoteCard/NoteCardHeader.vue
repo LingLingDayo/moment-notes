@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Pin, Edit2 } from 'lucide-vue-next';
-import { Note } from '../../types';
+import { Note } from '@type';
 
 const props = defineProps<{
   note: Note;

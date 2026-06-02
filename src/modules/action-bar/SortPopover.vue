@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { useStickyNotesStore } from '../../stores/stickyNotes';
+import { useStickyNotesStore } from '@stores/stickyNotes';
 import { ArrowUpDown } from 'lucide-vue-next';
 
 const store = useStickyNotesStore();

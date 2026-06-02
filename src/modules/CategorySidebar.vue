@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, nextTick, onUnmounted } from 'vue';
-import { useStickyNotesStore } from '../stores/stickyNotes';
+import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Folder, Plus, Trash2, Edit3, ClipboardList, Check, X, Download, Upload } from 'lucide-vue-next';
 
 const store = useStickyNotesStore();

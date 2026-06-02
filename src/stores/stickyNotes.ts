@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { Category, Note, NoteColorPreset } from '../types';
-import { storage, pasteTextToCursor, downloadOrWriteFile } from '../utils/storage';
+import { Category, Note, NoteColorPreset } from '@type';
+import { storage, pasteTextToCursor, downloadOrWriteFile } from '@utils/storage';
 
 // 精心设计的配色方案，符合现代审美
 export const COLOR_PRESETS: Record<string, NoteColorPreset> = {

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { useStickyNotesStore } from '../stores/stickyNotes';
+import { useStickyNotesStore } from '@stores/stickyNotes';
 import { AlertTriangle } from 'lucide-vue-next';
 
 const store = useStickyNotesStore();
