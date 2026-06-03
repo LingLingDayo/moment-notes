@@ -179,4 +179,16 @@ const handleAddNote = () => {
   // 保持卡片大致宽度，防止 absolute 时宽度坍缩
   width: 250px; 
 }
+
+@media (max-width: 999px) {
+  .note-grid-container {
+    padding: 16px;
+    height: calc(100% - 59px); // 减去更窄的头部工具栏高度 (12px * 2 + 34px + 1px)
+  }
+
+  .notes-grid {
+    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
 </style>

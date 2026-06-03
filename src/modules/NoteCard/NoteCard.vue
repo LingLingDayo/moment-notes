@@ -303,4 +303,11 @@ onMounted(() => {
     }
   }
 }
+
+@media (max-width: 999px) {
+  .note-card {
+    padding: 14px 16px 10px 16px;
+    min-height: 80px;
+  }
+}
 </style>

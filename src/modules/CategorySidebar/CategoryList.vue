@@ -309,4 +309,21 @@ const getNoteCount = (categoryId: string) => {
     height: 12px;
   }
 }
+
+@media (max-width: 999px) {
+  .sidebar-menu {
+    padding: 10px 8px;
+    gap: 4px;
+  }
+
+  .menu-item {
+    height: 36px;
+    padding: 0 10px;
+    padding-right: 6px;
+  }
+
+  .item-left {
+    gap: 8px;
+  }
+}
 </style>
