@@ -213,4 +213,12 @@ onUnmounted(() => {
     transform: translateY(0) scale(1);
   }
 }
+
+@media (max-width: 999px) {
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+}
 </style>

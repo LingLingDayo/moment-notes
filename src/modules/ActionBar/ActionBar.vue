@@ -220,4 +220,27 @@ const handleAddNote = () => {
     height: 15px;
   }
 }
+
+@media (max-width: 999px) {
+  .action-bar-container {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .actions-wrapper {
+    gap: 6px;
+  }
+
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .primary-btn {
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 10px;
+  }
+}
 </style>

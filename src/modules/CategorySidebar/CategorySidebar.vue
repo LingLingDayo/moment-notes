@@ -226,4 +226,21 @@ onUnmounted(() => {
     background-color: var(--accent-color);
   }
 }
+
+@media (max-width: 999px) {
+  .sidebar-header {
+    padding: 16px;
+    gap: 8px;
+  }
+
+  .sidebar-footer {
+    padding: 12px 8px;
+  }
+
+  .backup-section {
+    margin-top: 8px;
+    padding-top: 8px;
+    gap: 4px;
+  }
+}
 </style>
