@@ -23,10 +23,6 @@
         {
           "type": "over",
           "label": "保存为便签"
-        },
-        {
-          "type": "text",
-          "label": "保存为便签"
         }
       ]
     }

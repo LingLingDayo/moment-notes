@@ -68,7 +68,7 @@ const getNoteCount = (categoryId: string) => {
       <div class="active-indicator"></div>
       <div class="item-left">
         <Folder class="item-icon" />
-        <span class="item-name">全部便签</span>
+        <span class="item-name" data-tooltip="全部便签">全部便签</span>
       </div>
       <span class="item-badge">{{ getNoteCount('all') }}</span>
     </div>
@@ -102,7 +102,7 @@ const getNoteCount = (categoryId: string) => {
       <template v-else>
         <div class="item-left">
           <Folder class="item-icon" />
-          <span class="item-name" @dblclick="startEdit(cat.id, cat.name)">{{ cat.name }}</span>
+          <span class="item-name" :data-tooltip="cat.name" @dblclick="startEdit(cat.id, cat.name)">{{ cat.name }}</span>
         </div>
         
         <div class="item-right" @click.stop>
@@ -137,6 +137,7 @@ const getNoteCount = (categoryId: string) => {
   justify-content: space-between;
   height: 42px;
   padding: 0 14px;
+  padding-right: 10px;
   border-radius: 10px;
   cursor: pointer;
   color: var(--text-secondary);
@@ -288,10 +289,16 @@ const getNoteCount = (categoryId: string) => {
 }
 
 .edit-btn {
-  padding: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   border-radius: 6px;
   background: var(--accent-color);
   color: var(--text-on-accent);
+  transition: all 0.2s ease;
   
   &.confirm:hover {
     background: var(--accent-hover);

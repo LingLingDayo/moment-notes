@@ -29,15 +29,19 @@ const handleFileImport = (event: Event) => {
   reader.readAsText(file);
 };
 
+// 侧边栏宽度常量
+const DEFAULT_SIDEBAR_WIDTH = 240;
+const MIN_SIDEBAR_WIDTH = 180;
+
 // 侧边栏宽度管理
-const sidebarWidth = ref(260);
+const sidebarWidth = ref(DEFAULT_SIDEBAR_WIDTH);
 const isResizing = ref(false);
 
 // 从本地存储初始化宽度
 const savedWidth = localStorage.getItem('sidebar-width');
 if (savedWidth) {
   const width = parseInt(savedWidth, 10);
-  if (!isNaN(width) && width >= 200) {
+  if (!isNaN(width) && width >= MIN_SIDEBAR_WIDTH) {
     sidebarWidth.value = width;
   }
 }
@@ -55,8 +59,8 @@ const startResize = (e: MouseEvent) => {
 const handleResize = (e: MouseEvent) => {
   if (!isResizing.value) return;
   let newWidth = e.clientX;
-  if (newWidth < 200) {
-    newWidth = 200;
+  if (newWidth < MIN_SIDEBAR_WIDTH) {
+    newWidth = MIN_SIDEBAR_WIDTH;
   }
   // 限制最大宽度为窗口宽度的 50%
   const maxWidth = window.innerWidth * 0.5;
