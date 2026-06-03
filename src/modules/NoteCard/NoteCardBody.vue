@@ -318,7 +318,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   min-height: 100px;
-  max-height: 260px;
+  max-height: 200px;
   overflow-y: auto;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
