@@ -2,6 +2,7 @@
 import { ref, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Download, Upload } from 'lucide-vue-next';
+import { isUTools } from '@utils/storage';
 import CategoryList from './CategoryList.vue';
 import CategoryAdd from './CategoryAdd.vue';
 
@@ -90,7 +91,7 @@ onUnmounted(() => {
 
 <template>
   <aside class="sidebar-container" :style="{ width: sidebarWidth + 'px' }">
-    <div class="sidebar-header">
+    <div v-if="!isUTools()" class="sidebar-header">
       <img src="/logo.png" class="logo" alt="logo" />
       <h2 class="header-title">拾光便签</h2>
     </div>

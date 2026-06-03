@@ -113,7 +113,8 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   flex: 1;
-  max-width: 520px;
+  max-width: 370px;
+  // max-width: 520px;
 }
 
 .search-wrapper {

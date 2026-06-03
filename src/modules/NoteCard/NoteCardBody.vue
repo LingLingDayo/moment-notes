@@ -241,7 +241,6 @@ onBeforeUnmount(() => {
 .card-body-content {
   flex: 1;
   overflow-y: auto;
-  padding-right: 4px;
 
   &::-webkit-scrollbar {
     width: 6px;

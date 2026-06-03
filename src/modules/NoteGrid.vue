@@ -1,9 +1,69 @@
 <script lang="ts" setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import NoteCard from './NoteCard/NoteCard.vue';
 import { StickyNote, SearchX, Plus } from 'lucide-vue-next';
 
 const store = useStickyNotesStore();
+
+const containerRef = ref<HTMLElement | null>(null);
+let resizeObserver: ResizeObserver | null = null;
+
+// 根据容器的净宽度（contentRect.width）来计算允许的最大列数
+const updateMaxColumns = (width: number) => {
+  let maxCols: 1 | 2 | 3 | 4 = 1;
+  if (width >= 760) {
+    maxCols = 4;
+  } else if (width >= 540) {
+    maxCols = 3;
+  } else if (width >= 320) {
+    maxCols = 2;
+  } else {
+    maxCols = 1;
+  }
+  store.setMaxColumns(maxCols);
+};
+
+onMounted(() => {
+  if (containerRef.value) {
+    // 初始计算一次
+    updateMaxColumns(containerRef.value.clientWidth);
+
+    if (typeof window !== 'undefined' && 'ResizeObserver' in window) {
+      resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          updateMaxColumns(entry.contentRect.width);
+        }
+      });
+      resizeObserver.observe(containerRef.value);
+    }
+  }
+});
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
+  }
+});
+
+// 计算出应该应用的列数限制
+const actualColumns = computed(() => {
+  if (store.gridColumns === 'auto') {
+    return 'auto';
+  }
+  return Math.min(store.gridColumns, store.maxColumns);
+});
+
+// 动态网格样式
+const gridStyle = computed(() => {
+  if (actualColumns.value === 'auto') {
+    return {};
+  }
+  return {
+    gridTemplateColumns: `repeat(${actualColumns.value}, 1fr)`
+  };
+});
 
 // 创建新便签
 const handleAddNote = () => {
@@ -13,7 +73,7 @@ const handleAddNote = () => {
 </script>
 
 <template>
-  <div class="note-grid-container">
+  <div ref="containerRef" class="note-grid-container">
     <!-- 空状态 -->
     <div v-if="store.filteredNotes.length === 0" class="empty-state">
       <div class="empty-illustration-wrapper">
@@ -40,7 +100,7 @@ const handleAddNote = () => {
     </div>
 
     <!-- 便签网格 -->
-    <TransitionGroup v-else name="notes-list" tag="div" class="notes-grid">
+    <TransitionGroup v-else name="notes-list" tag="div" class="notes-grid" :style="gridStyle">
       <NoteCard 
         v-for="note in store.filteredNotes" 
         :key="note.id"
