@@ -2,6 +2,7 @@
 import { ref, nextTick } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Folder, Edit3, Trash2, Check } from 'lucide-vue-next';
+import { isUTools } from '@/utils/storage';
 
 const store = useStickyNotesStore();
 
@@ -58,7 +59,7 @@ const getNoteCount = (categoryId: string) => {
 </script>
 
 <template>
-  <div class="sidebar-menu">
+  <div :class="{ 'uTools': isUTools() }" class="sidebar-menu">
     <!-- "全部便签" 分类 -->
     <div 
       class="menu-item" 
@@ -130,6 +131,10 @@ const getNoteCount = (categoryId: string) => {
   display: flex;
   flex-direction: column;
   gap: 6px;
+
+  &.uTools {
+    padding-top: 0;
+  }
 }
 
 .menu-item {
@@ -324,6 +329,10 @@ const getNoteCount = (categoryId: string) => {
     padding: 10px 8px;
     margin-top: 8px;
     gap: 4px;
+
+    &.uTools {
+      padding-top: 0;
+    }
   }
 
   .menu-item {

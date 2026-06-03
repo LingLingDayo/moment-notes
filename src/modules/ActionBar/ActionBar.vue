@@ -5,6 +5,7 @@ import { Plus, Trash2, Sun, Moon } from 'lucide-vue-next';
 import { storage, isUTools } from '@utils/storage';
 import SearchSection from './SearchSection.vue';
 import SortPopover from './SortPopover.vue';
+import GridColumnsPopover from './GridColumnsPopover.vue';
 
 const store = useStickyNotesStore();
 
@@ -106,6 +107,9 @@ const handleAddNote = () => {
 
       <!-- 排序选择 -->
       <SortPopover />
+
+      <!-- 列数设置 -->
+      <GridColumnsPopover />
 
       <!-- 清空当前分类 -->
       <button 

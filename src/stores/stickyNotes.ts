@@ -95,6 +95,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   const sortOrder = ref<'asc' | 'desc'>('desc');
   const draggedNoteId = ref<string | null>(null);
   const editingNoteId = ref<string | null>(null);
+  const gridColumns = ref<'auto' | 1 | 2 | 3 | 4>('auto');
+  const maxColumns = ref<1 | 2 | 3 | 4>(4);
 
   // 确认弹窗状态 (Promise 驱动)
   const confirmState = ref({ show: false, title: '', message: '' });
@@ -161,6 +163,18 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       const storedSortOrder = storage.getItem('sticky_notes_sort_order');
       if (storedSortOrder && ['asc', 'desc'].includes(storedSortOrder)) {
         sortOrder.value = storedSortOrder as 'asc' | 'desc';
+      }
+
+      const storedGridColumns = storage.getItem('sticky_notes_grid_columns');
+      if (storedGridColumns) {
+        if (storedGridColumns === 'auto') {
+          gridColumns.value = 'auto';
+        } else {
+          const cols = parseInt(storedGridColumns, 10);
+          if ([1, 2, 3, 4].includes(cols)) {
+            gridColumns.value = cols as 1 | 2 | 3 | 4;
+          }
+        }
       }
 
       if (storedNotes) {
@@ -538,6 +552,15 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     storage.setItem('sticky_notes_sort_order', sortOrder.value);
   };
 
+  const setGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
+    gridColumns.value = cols;
+    storage.setItem('sticky_notes_grid_columns', cols.toString());
+  };
+
+  const setMaxColumns = (val: 1 | 2 | 3 | 4) => {
+    maxColumns.value = val;
+  };
+
   const moveNote = (draggedId: string, targetId: string) => {
     const fromIndex = notes.value.findIndex(n => n.id === draggedId);
     const toIndex = notes.value.findIndex(n => n.id === targetId);
@@ -550,6 +573,65 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         saveNotes();
       }
     }
+  };
+
+  // --- 仅开发环境可用的重置方法 ---
+  const devResetNotes = () => {
+    notes.value = [
+      {
+        id: 'n1',
+        categoryId: '1',
+        title: '✨ 欢迎使用拾光便签',
+        content: '👋 你好！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想。',
+        color: 'yellow',
+        isPinned: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        tags: ['欢迎', '指南']
+      },
+      {
+        id: 'n2',
+        categoryId: '1',
+        title: '🚀 核心特色功能：双击粘贴',
+        content: '双击本便签卡片，本插件将自动隐藏并把便签内容直接粘贴到你的光标输入位置！非常适合存储客服话术、代码模板和常用邮箱地址等。',
+        color: 'blue',
+        isPinned: false,
+        createdAt: Date.now() - 1000,
+        updatedAt: Date.now() - 1000,
+        tags: ['特色', '效率']
+      },
+      {
+        id: 'n3',
+        categoryId: '2',
+        title: '💡 快捷操作指南',
+        content: '1. 点击卡片右上角大头针可以置顶便签。\n2. 点击下方调色盘图标一键切换便签主题颜色。\n3. 右侧工具栏支持一键搜索、清空分类或在当前分类下极速创建便签。',
+        color: 'green',
+        isPinned: false,
+        createdAt: Date.now() - 2000,
+        updatedAt: Date.now() - 2000,
+        tags: ['操作', '快速开始']
+      }
+    ];
+    saveNotes();
+    showToast('已重置所有便签(Notes)', 'success');
+    console.log('StickyNotes Dev: 已重置所有便签(Notes)为默认便签。');
+  };
+
+  const devResetTags = () => {
+    notes.value = notes.value.map(n => ({ ...n, tags: [] }));
+    saveNotes();
+    showToast('已重置所有便签的标签(Tags)', 'success');
+    console.log('StickyNotes Dev: 已清空所有便签的标签(Tags)。');
+  };
+
+  const devResetAllData = () => {
+    storage.removeItem('sticky_notes_categories');
+    storage.removeItem('sticky_notes_notes');
+    storage.removeItem('sticky_notes_grid_columns');
+    gridColumns.value = 'auto';
+    loadData();
+    showToast('已重置所有数据(便签和分类)', 'success');
+    console.log('StickyNotes Dev: 已重置所有便签与分类数据。');
   };
 
   return {
@@ -583,6 +665,13 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     draggedNoteId,
     editingNoteId,
     setSortMode,
-    moveNote
+    moveNote,
+    gridColumns,
+    setGridColumns,
+    maxColumns,
+    setMaxColumns,
+    devResetNotes,
+    devResetTags,
+    devResetAllData
   };
 });
