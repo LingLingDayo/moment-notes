@@ -146,9 +146,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       } else {
         // 默认内置分类
         categories.value = [
-          { id: '1', name: '📌 工作备忘', createdAt: Date.now() },
-          { id: '2', name: '💡 灵感想法', createdAt: Date.now() - 1000 },
-          { id: '3', name: '📝 常用模版', createdAt: Date.now() - 2000 }
+          { id: '1', name: '工作备忘', createdAt: Date.now() },
+          { id: '2', name: '灵感想法', createdAt: Date.now() - 1000 },
+          { id: '3', name: '常用模版', createdAt: Date.now() - 2000 }
         ];
         saveCategories();
       }

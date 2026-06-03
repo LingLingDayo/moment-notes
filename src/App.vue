@@ -15,7 +15,7 @@ onMounted(() => {
       
       // uTools 提供了强大的文本输入匹配能力，支持将用户选中的文本快速保存
       // action.type 为 'text' 或 'over' (文本匹配指令)
-      if (action.type === 'text' || action.type === 'over') {
+      if (action.type === 'over') {
         const textPayload = action.payload;
         if (textPayload && textPayload.trim()) {
           // 在当前分类下极速导入文本便签
