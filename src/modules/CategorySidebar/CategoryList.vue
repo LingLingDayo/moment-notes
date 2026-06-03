@@ -125,6 +125,7 @@ const getNoteCount = (categoryId: string) => {
 .sidebar-menu {
   flex: 1;
   padding: 16px 12px;
+  margin-top: 10px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -321,6 +322,7 @@ const getNoteCount = (categoryId: string) => {
 @media (max-width: 1049px) {
   .sidebar-menu {
     padding: 10px 8px;
+    margin-top: 8px;
     gap: 4px;
   }
 

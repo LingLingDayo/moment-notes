@@ -136,8 +136,8 @@ const handleAddNote = () => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
+  padding-bottom: 0;
   background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--panel-border);
   backdrop-filter: blur(var(--glass-blur));
   gap: 16px;
   position: relative;
@@ -224,6 +224,7 @@ const handleAddNote = () => {
 @media (max-width: 1049px) {
   .action-bar-container {
     padding: 12px 16px;
+    padding-bottom: 0;
     gap: 12px;
   }
 

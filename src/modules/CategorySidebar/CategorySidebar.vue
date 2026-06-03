@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { ClipboardList, Download, Upload } from 'lucide-vue-next';
+import { Download, Upload } from 'lucide-vue-next';
 import CategoryList from './CategoryList.vue';
 import CategoryAdd from './CategoryAdd.vue';
 
@@ -91,8 +91,8 @@ onUnmounted(() => {
 <template>
   <aside class="sidebar-container" :style="{ width: sidebarWidth + 'px' }">
     <div class="sidebar-header">
-      <ClipboardList class="header-icon" />
-      <h2 class="header-title">分类管理</h2>
+      <img src="/logo.png" class="logo" alt="logo" />
+      <h2 class="header-title">拾光便签</h2>
     </div>
 
     <!-- 分类列表区域 -->
@@ -146,14 +146,15 @@ onUnmounted(() => {
 
 .sidebar-header {
   padding: 24px;
+  padding-bottom: 0;
   display: flex;
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 
-  .header-icon {
-    width: 22px;
-    height: 22px;
+  .logo {
+    width: 30px;
+    height: 30px;
     color: var(--accent-color);
   }
 
@@ -229,6 +230,7 @@ onUnmounted(() => {
 @media (max-width: 1049px) {
   .sidebar-header {
     padding: 16px;
+    padding-bottom: 0;
     gap: 8px;
   }
 
