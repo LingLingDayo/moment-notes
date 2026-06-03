@@ -248,4 +248,16 @@ const handleAddNote = () => {
     border-radius: 10px;
   }
 }
+
+@media (max-width: 869px) {
+  .primary-btn {
+    width: 34px;
+    padding: 0;
+    justify-content: center;
+
+    span {
+      display: none;
+    }
+  }
+}
 </style>
