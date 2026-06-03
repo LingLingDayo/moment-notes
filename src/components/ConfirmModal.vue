@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, watch, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { AlertTriangle } from 'lucide-vue-next';
 
@@ -16,6 +16,28 @@ const cancel = () => {
 const confirm = () => {
   store.handleConfirmResult(true);
 };
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    confirm();
+    e.preventDefault();
+  } else if (e.key === 'Escape') {
+    cancel();
+    e.preventDefault();
+  }
+};
+
+watch(isVisible, (visible) => {
+  if (visible) {
+    window.addEventListener('keydown', handleKeyDown);
+  } else {
+    window.removeEventListener('keydown', handleKeyDown);
+  }
+}, { immediate: true });
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
 </script>
 
 <template>
