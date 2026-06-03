@@ -1,47 +1,40 @@
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { LayoutGrid } from 'lucide-vue-next';
 
 const store = useStickyNotesStore();
 
-// 弹窗显示状态
-const showPopover = ref(false);
+defineProps<{
+  isOpen: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: 'toggle'): void;
+  (e: 'close'): void;
+}>();
 
 // 切换列数
 const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
   store.setGridColumns(cols);
-  showPopover.value = false;
+  emit('close');
   
   const label = cols === 'auto' ? '自动' : `${cols} 列`;
   store.showToast(`已强制设置卡片列数为：${label}`, 'success');
 };
-
-const handleDocumentClick = () => {
-  showPopover.value = false;
-};
-
-onMounted(() => {
-  document.addEventListener('click', handleDocumentClick);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick);
-});
 </script>
 
 <template>
   <div class="action-popover-wrapper" @click.stop>
     <button 
       class="icon-btn" 
-      :class="{ active: showPopover }"
+      :class="{ active: isOpen }"
       data-tooltip="列数设置" 
-      @click="showPopover = !showPopover"
+      @click="emit('toggle')"
     >
       <LayoutGrid class="btn-icon" />
     </button>
     
-    <div v-if="showPopover" class="columns-popover">
+    <div v-if="isOpen" class="columns-popover">
       <div class="popover-title">列数设置</div>
       <div class="columns-list">
         <!-- 自动选项 -->

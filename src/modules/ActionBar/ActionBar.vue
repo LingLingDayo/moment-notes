@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Plus, Trash2, Sun, Moon } from 'lucide-vue-next';
 import { storage, isUTools } from '@utils/storage';
@@ -8,6 +8,17 @@ import SortPopover from './SortPopover.vue';
 import GridColumnsPopover from './GridColumnsPopover.vue';
 
 const store = useStickyNotesStore();
+
+// 当前处于展开状态的下拉菜单：'sort' | 'columns' | null
+const activePopover = ref<'sort' | 'columns' | null>(null);
+
+const togglePopover = (type: 'sort' | 'columns') => {
+  activePopover.value = activePopover.value === type ? null : type;
+};
+
+const closePopover = () => {
+  activePopover.value = null;
+};
 
 // 黑暗模式状态
 const isDark = ref(false);
@@ -19,6 +30,9 @@ const clearTooltip = computed(() => {
 
 // 初始化主题与事件监听
 onMounted(() => {
+  // 监听全局点击以关闭所有下拉菜单
+  document.addEventListener('click', closePopover);
+
   // 1. 如果在 uTools 环境下，我们可以根据 uTools 的系统颜色设置
   if (isUTools()) {
     try {
@@ -44,6 +58,10 @@ onMounted(() => {
     isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
   applyTheme(isDark.value);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', closePopover);
 });
 
 // 切换主题
@@ -106,10 +124,18 @@ const handleAddNote = () => {
       </button>
 
       <!-- 排序选择 -->
-      <SortPopover />
+      <SortPopover 
+        :is-open="activePopover === 'sort'"
+        @toggle="togglePopover('sort')"
+        @close="closePopover"
+      />
 
       <!-- 列数设置 -->
-      <GridColumnsPopover />
+      <GridColumnsPopover 
+        :is-open="activePopover === 'columns'"
+        @toggle="togglePopover('columns')"
+        @close="closePopover"
+      />
 
       <!-- 清空当前分类 -->
       <button 

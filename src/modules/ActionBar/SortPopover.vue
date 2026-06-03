@@ -1,17 +1,22 @@
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { ArrowUpDown } from 'lucide-vue-next';
 
 const store = useStickyNotesStore();
 
-// 排序弹窗状态
-const showSortPopover = ref(false);
+defineProps<{
+  isOpen: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: 'toggle'): void;
+  (e: 'close'): void;
+}>();
 
 // 切换排序方式
 const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
   store.setSortMode(mode);
-  showSortPopover.value = false;
+  emit('close');
   
   let modeName = '';
   if (mode === 'date') {
@@ -25,32 +30,20 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
   }
   store.showToast(`已切换排序方式为：${modeName}`, 'success');
 };
-
-const handleDocumentClick = () => {
-  showSortPopover.value = false;
-};
-
-onMounted(() => {
-  document.addEventListener('click', handleDocumentClick);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick);
-});
 </script>
 
 <template>
   <div class="action-popover-wrapper" @click.stop>
     <button 
       class="icon-btn" 
-      :class="{ active: showSortPopover }"
+      :class="{ active: isOpen }"
       data-tooltip="排序方式" 
-      @click="showSortPopover = !showSortPopover"
+      @click="emit('toggle')"
     >
       <ArrowUpDown class="btn-icon" />
     </button>
     
-    <div v-if="showSortPopover" class="sort-popover">
+    <div v-if="isOpen" class="sort-popover">
       <div class="popover-title">排序方式</div>
       <div class="sort-list">
         <button 
