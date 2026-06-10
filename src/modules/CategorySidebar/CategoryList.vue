@@ -431,9 +431,9 @@ const handleCategoryDblClick = (cat: any) => {
     z-index: 2;
     flex-shrink: 0;
     align-self: center;
+    background: transparent;
 
     &:hover {
-      background: var(--item-hover-bg);
       color: var(--text-primary);
 
       .toggle-icon {
