@@ -56,70 +56,125 @@ const getNoteCount = (categoryId: string) => {
   }
   return store.notes.filter(n => n.categoryId === categoryId).length;
 };
+
+// 拖动排序相关的状态与方法
+const draggedIndex = ref<number | null>(null);
+let lastSwapTime = 0;
+
+const onDragStart = (event: DragEvent, index: number) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', index.toString());
+  }
+  lastSwapTime = 0; // 重置冷却时间
+  setTimeout(() => {
+    draggedIndex.value = index;
+  }, 0);
+};
+
+const onDragOver = (event: DragEvent, index: number) => {
+  if (draggedIndex.value === null || draggedIndex.value === index) return;
+
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const clientY = event.clientY;
+  const threshold = rect.top + rect.height / 2;
+
+  // 向下拖拽：鼠标必须穿过目标元素中线以下
+  if (draggedIndex.value < index) {
+    if (clientY < threshold) return;
+  } 
+  // 向上拖拽：鼠标必须穿过目标元素中线以上
+  else if (draggedIndex.value > index) {
+    if (clientY > threshold) return;
+  }
+
+  // 150ms 冷却节流，防止在 FLIP 动画位移期间发生位置跳跃产生的振荡
+  const now = Date.now();
+  if (now - lastSwapTime < 150) return;
+  lastSwapTime = now;
+
+  store.reorderCategories(draggedIndex.value, index);
+  draggedIndex.value = index;
+};
+
+const onDragEnd = () => {
+  draggedIndex.value = null;
+};
 </script>
 
 <template>
-  <div :class="{ 'uTools': isUTools() }" class="sidebar-menu">
-    <!-- "全部便签" 分类 -->
+  <TransitionGroup 
+    tag="div" 
+    name="category-list" 
+    :class="{ 'uTools': isUTools() }" 
+    class="sidebar-menu"
+  >
     <div 
-      class="menu-item" 
-      :class="{ active: store.currentCategoryId === 'all' }"
-      @click="store.currentCategoryId = 'all'"
-    >
-      <div class="active-indicator"></div>
-      <div class="item-left">
-        <Folder class="item-icon" />
-        <span class="item-name" data-tooltip="全部便签">全部便签</span>
-      </div>
-      <span class="item-badge">{{ getNoteCount('all') }}</span>
-    </div>
-
-    <!-- 用户自定义分类列表 -->
-    <div 
-      v-for="cat in store.categories" 
+      v-for="(cat, index) in store.orderedCategories" 
       :key="cat.id"
-      class="menu-item has-actions"
-      :class="{ active: store.currentCategoryId === cat.id }"
+      class="menu-item"
+      :class="{ 
+        active: store.currentCategoryId === cat.id,
+        'has-actions': !cat.isSystem,
+        'dragging': draggedIndex === index
+      }"
+      :draggable="editingId !== cat.id"
       @click="store.currentCategoryId = cat.id"
+      @dragstart="onDragStart($event, index)"
+      @dragover.prevent="onDragOver($event, index)"
+      @dragend="onDragEnd"
     >
       <div class="active-indicator"></div>
-      <!-- 编辑状态 -->
-      <div v-if="editingId === cat.id" class="item-edit-wrapper" @click.stop>
-        <input 
-          ref="editInputRef"
-          v-model="editCategoryName"
-          type="text" 
-          class="item-edit-input"
-          @keyup.enter="submitEdit(cat.id)"
-          @keyup.esc="cancelEdit"
-          @blur="submitEdit(cat.id)"
-        />
-        <button class="edit-btn confirm" @click="submitEdit(cat.id)">
-          <Check class="btn-icon-small" />
-        </button>
-      </div>
-
-      <!-- 正常展示状态 -->
-      <template v-else>
+      
+      <!-- 系统分类 (全部便签) -->
+      <template v-if="cat.isSystem">
         <div class="item-left">
           <Folder class="item-icon" />
-          <span class="item-name" :data-tooltip="cat.name" @dblclick="startEdit(cat.id, cat.name)">{{ cat.name }}</span>
+          <span class="item-name" data-tooltip="全部便签">全部便签</span>
         </div>
-        
-        <div class="item-right" @click.stop>
-          <span class="item-badge">{{ getNoteCount(cat.id) }}</span>
-          <div class="item-actions">
-            <button class="action-btn" data-tooltip="编辑分类" @click="startEdit(cat.id, cat.name)">
-              <Edit3 class="action-icon" />
-            </button>
-            <button class="action-btn delete" data-tooltip="删除分类" @click="confirmDelete(cat.id, cat.name)">
-              <Trash2 class="action-icon" />
-            </button>
+        <span class="item-badge">{{ getNoteCount('all') }}</span>
+      </template>
+
+      <!-- 用户自定义分类 -->
+      <template v-else>
+        <!-- 编辑状态 -->
+        <div v-if="editingId === cat.id" class="item-edit-wrapper" @click.stop>
+          <input 
+            ref="editInputRef"
+            v-model="editCategoryName"
+            type="text" 
+            class="item-edit-input"
+            @keyup.enter="submitEdit(cat.id)"
+            @keyup.esc="cancelEdit"
+            @blur="submitEdit(cat.id)"
+          />
+          <button class="edit-btn confirm" @click="submitEdit(cat.id)">
+            <Check class="btn-icon-small" />
+          </button>
+        </div>
+
+        <!-- 正常展示状态 -->
+        <template v-else>
+          <div class="item-left">
+            <Folder class="item-icon" />
+            <span class="item-name" :data-tooltip="cat.name" @dblclick="startEdit(cat.id, cat.name)">{{ cat.name }}</span>
           </div>
-        </div>
+          
+          <div class="item-right" @click.stop>
+            <span class="item-badge">{{ getNoteCount(cat.id) }}</span>
+            <div class="item-actions">
+              <button class="action-btn" data-tooltip="编辑分类" @click="startEdit(cat.id, cat.name)">
+                <Edit3 class="action-icon" />
+              </button>
+              <button class="action-btn delete" data-tooltip="删除分类" @click="confirmDelete(cat.id, cat.name)">
+                <Trash2 class="action-icon" />
+              </button>
+            </div>
+          </div>
+        </template>
       </template>
     </div>
-  </div>
+  </TransitionGroup>
 </template>
 
 <style lang="scss" scoped>
@@ -197,6 +252,18 @@ const getNoteCount = (categoryId: string) => {
     .item-badge {
       background: var(--accent-color);
       color: var(--text-on-accent);
+    }
+  }
+
+  &.dragging {
+    opacity: 0.45;
+    background: var(--item-hover-bg);
+    border-color: var(--accent-color);
+    border-style: dashed;
+    box-shadow: none;
+    
+    .item-badge, .item-actions, .active-indicator {
+      opacity: 0 !important;
     }
   }
 }
@@ -344,5 +411,9 @@ const getNoteCount = (categoryId: string) => {
   .item-left {
     gap: 8px;
   }
+}
+
+.category-list-move {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 </style>

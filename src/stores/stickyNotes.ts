@@ -1,94 +1,39 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { Category, Note, NoteColorPreset } from '@type';
+import { Category, Note } from '@type';
 import { storage, pasteTextToCursor, downloadOrWriteFile } from '@utils/storage';
+import { COLOR_PRESETS } from './colorPresets';
 
-// 精心设计的配色方案，符合现代审美
-export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
-  yellow: {
-    name: '暖阳黄',
-    lightBg: 'hsl(48, 100%, 88%, 0.75)',
-    darkBg: 'hsl(48, 40%, 18%, 0.75)',
-    lightBorder: 'hsl(48, 100%, 75%)',
-    darkBorder: 'hsl(48, 40%, 30%)',
-    lightText: 'hsl(48, 80%, 15%)',
-    darkText: 'hsl(48, 100%, 85%)',
-    lightBtnHoverBg: 'hsl(48, 80%, 80%)',
-    lightBtnHoverColor: 'hsl(48, 90%, 12%)',
-    darkBtnHoverBg: 'hsla(48, 60%, 55%, 0.13)',
-    darkBtnHoverColor: 'hsl(48, 100%, 88%)',
-  },
-  green: {
-    name: '薄荷绿',
-    lightBg: 'hsl(120, 75%, 90%, 0.75)',
-    darkBg: 'hsl(120, 30%, 16%, 0.75)',
-    lightBorder: 'hsl(120, 75%, 80%)',
-    darkBorder: 'hsl(120, 30%, 28%)',
-    lightText: 'hsl(120, 70%, 15%)',
-    darkText: 'hsl(120, 85%, 85%)',
-    lightBtnHoverBg: 'hsl(120, 75%, 84%)',
-    lightBtnHoverColor: 'hsl(120, 75%, 12%)',
-    darkBtnHoverBg: 'hsla(120, 50%, 50%, 0.13)',
-    darkBtnHoverColor: 'hsl(120, 85%, 88%)',
-  },
-  blue: {
-    name: '晴空蓝',
-    lightBg: 'hsl(200, 90%, 90%, 0.75)',
-    darkBg: 'hsl(200, 40%, 17%, 0.75)',
-    lightBorder: 'hsl(200, 90%, 80%)',
-    darkBorder: 'hsl(200, 40%, 30%)',
-    lightText: 'hsl(200, 75%, 15%)',
-    darkText: 'hsl(200, 90%, 85%)',
-    lightBtnHoverBg: 'hsl(200, 90%, 84%)',
-    lightBtnHoverColor: 'hsl(200, 80%, 12%)',
-    darkBtnHoverBg: 'hsla(200, 60%, 55%, 0.13)',
-    darkBtnHoverColor: 'hsl(200, 90%, 88%)',
-  },
-  pink: {
-    name: '蔷薇粉',
-    lightBg: 'hsl(340, 85%, 91%, 0.75)',
-    darkBg: 'hsl(340, 40%, 18%, 0.75)',
-    lightBorder: 'hsl(340, 85%, 82%)',
-    darkBorder: 'hsl(340, 40%, 30%)',
-    lightText: 'hsl(340, 75%, 15%)',
-    darkText: 'hsl(340, 90%, 85%)',
-    lightBtnHoverBg: 'hsl(340, 85%, 84%)',
-    lightBtnHoverColor: 'hsl(340, 80%, 12%)',
-    darkBtnHoverBg: 'hsla(340, 60%, 55%, 0.13)',
-    darkBtnHoverColor: 'hsl(340, 90%, 88%)',
-  },
-  purple: {
-    name: '熏衣紫',
-    lightBg: 'hsl(270, 80%, 92%, 0.75)',
-    darkBg: 'hsl(270, 35%, 18%, 0.75)',
-    lightBorder: 'hsl(270, 80%, 83%)',
-    darkBorder: 'hsl(270, 35%, 30%)',
-    lightText: 'hsl(270, 70%, 15%)',
-    darkText: 'hsl(270, 90%, 85%)',
-    lightBtnHoverBg: 'hsl(270, 80%, 86%)',
-    lightBtnHoverColor: 'hsl(270, 75%, 12%)',
-    darkBtnHoverBg: 'hsla(270, 55%, 58%, 0.13)',
-    darkBtnHoverColor: 'hsl(270, 90%, 88%)',
-  },
-  gray: {
-    name: '极简灰',
-    lightBg: 'hsl(0, 0%, 93%, 0.75)',
-    darkBg: 'hsl(0, 0%, 18%, 0.75)',
-    lightBorder: 'hsl(0, 0%, 82%)',
-    darkBorder: 'hsl(0, 0%, 30%)',
-    lightText: 'hsl(0, 0%, 15%)',
-    darkText: 'hsl(0, 0%, 85%)',
-    lightBtnHoverBg: 'hsl(0, 0%, 84%)',
-    lightBtnHoverColor: 'hsl(0, 0%, 10%)',
-    darkBtnHoverBg: 'hsla(0, 0%, 70%, 0.1)',
-    darkBtnHoverColor: 'hsl(0, 0%, 92%)',
-  }
-};
+export { COLOR_PRESETS };
 
 export const useStickyNotesStore = defineStore('stickyNotes', () => {
   const categories = ref<Category[]>([]);
+  const categoryOrder = ref<string[]>([]);
   const notes = ref<Note[]>([]);
   const currentCategoryId = ref<string>('all');
+
+  const saveCategoryOrder = () => {
+    storage.setItem('sticky_notes_category_order', JSON.stringify(categoryOrder.value));
+  };
+
+  const orderedCategories = computed(() => {
+    const catMap = new Map(categories.value.map(c => [c.id, c]));
+    return categoryOrder.value.map(id => {
+      if (id === 'all') {
+        return { id: 'all', name: '全部便签', isSystem: true };
+      }
+      const cat = catMap.get(id);
+      return cat ? { ...cat, isSystem: false } : null;
+    }).filter(Boolean) as Array<Category & { isSystem: boolean }>;
+  });
+
+  const reorderCategories = (fromIndex: number, toIndex: number) => {
+    const order = [...categoryOrder.value];
+    const [moved] = order.splice(fromIndex, 1);
+    order.splice(toIndex, 0, moved);
+    categoryOrder.value = order;
+    saveCategoryOrder();
+  };
   const searchQuery = ref<string>('');
   const searchTarget = ref<'all' | 'title' | 'content' | 'tag'>('all');
   const sortMode = ref<'date' | 'title' | 'tag' | 'custom'>('date');
@@ -153,6 +98,35 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
           { id: '3', name: '常用模版', createdAt: Date.now() - 2000 }
         ];
         saveCategories();
+      }
+
+      // 初始化或加载分类顺序
+      const storedOrder = storage.getItem('sticky_notes_category_order');
+      let loadedOrder: string[] = [];
+      if (storedOrder) {
+        try {
+          loadedOrder = JSON.parse(storedOrder);
+        } catch (e) {
+          console.error('Failed to parse category order:', e);
+        }
+      }
+      
+      const currentIds = new Set(categories.value.map(c => c.id));
+      currentIds.add('all');
+      
+      let finalOrder = loadedOrder.filter(id => currentIds.has(id));
+      categories.value.forEach(c => {
+        if (!finalOrder.includes(c.id)) {
+          finalOrder.push(c.id);
+        }
+      });
+      if (!finalOrder.includes('all')) {
+        finalOrder.unshift('all');
+      }
+      
+      categoryOrder.value = finalOrder;
+      if (!storedOrder) {
+        saveCategoryOrder();
       }
 
       const storedSortMode = storage.getItem('sticky_notes_sort_mode');
@@ -243,6 +217,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     };
     categories.value.push(newCategory);
     saveCategories();
+    
+    // 同步更新分类顺序
+    categoryOrder.value.push(newCategory.id);
+    saveCategoryOrder();
+
     // 自动切换到新分类
     currentCategoryId.value = newCategory.id;
   };
@@ -250,6 +229,10 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   const deleteCategory = (id: string) => {
     categories.value = categories.value.filter(c => c.id !== id);
     saveCategories();
+    
+    // 从分类顺序中移除
+    categoryOrder.value = categoryOrder.value.filter(itemId => itemId !== id);
+    saveCategoryOrder();
     
     // 删除分类时，该分类下的便签会变成“未分类”或者直接删除？
     // 这里我们将该分类下的便签的 categoryId 设为 'all' 或者是直接移至未分类，但为了用户体验，我们把该分类下便签的 categoryId 改成 'uncategorized'
@@ -493,6 +476,22 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
 
       saveCategories();
       saveNotes();
+
+      // 重建并保存导入后的分类顺序
+      const currentIds = new Set(categories.value.map(c => c.id));
+      currentIds.add('all');
+      let newOrder = categoryOrder.value.filter(id => currentIds.has(id));
+      categories.value.forEach(c => {
+        if (!newOrder.includes(c.id)) {
+          newOrder.push(c.id);
+        }
+      });
+      if (!newOrder.includes('all')) {
+        newOrder.unshift('all');
+      }
+      categoryOrder.value = newOrder;
+      saveCategoryOrder();
+
       showToast(`成功导入 ${validCategories.length} 个分类和 ${validNotes.length} 张便签！`, 'success');
       return true;
     } catch (e) {
@@ -626,6 +625,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
 
   const devResetAllData = () => {
     storage.removeItem('sticky_notes_categories');
+    storage.removeItem('sticky_notes_category_order');
     storage.removeItem('sticky_notes_notes');
     storage.removeItem('sticky_notes_grid_columns');
     gridColumns.value = 'auto';
@@ -636,6 +636,10 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
 
   return {
     categories,
+    categoryOrder,
+    orderedCategories,
+    saveCategoryOrder,
+    reorderCategories,
     notes,
     currentCategoryId,
     searchQuery,
