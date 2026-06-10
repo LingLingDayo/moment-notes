@@ -148,6 +148,12 @@ export const useNoteStore = defineStore('noteStore', () => {
       const fromNote = notes.value[fromIndex];
       const toNote = notes.value[toIndex];
       if (fromNote.isPinned === toNote.isPinned) {
+        if (currentCategoryId.value !== 'all' && currentCategoryId.value !== 'trash') {
+          if (fromNote.categoryId !== toNote.categoryId) {
+            fromNote.categoryId = toNote.categoryId;
+            fromNote.updatedAt = Date.now();
+          }
+        }
         const [movedNote] = notes.value.splice(fromIndex, 1);
         notes.value.splice(toIndex, 0, movedNote);
         saveNotes();

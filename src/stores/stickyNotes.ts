@@ -274,6 +274,13 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
           ? a.updatedAt - b.updatedAt
           : b.updatedAt - a.updatedAt;
       } else if (noteStore.sortMode === 'custom') {
+        const currentId = noteStore.currentCategoryId;
+        if (currentId !== 'all' && currentId !== 'trash') {
+          const isOwnA = a.categoryId === currentId;
+          const isOwnB = b.categoryId === currentId;
+          if (isOwnA && !isOwnB) return -1;
+          if (!isOwnA && isOwnB) return 1;
+        }
         const indexA = noteStore.notes.findIndex(n => n.id === a.id);
         const indexB = noteStore.notes.findIndex(n => n.id === b.id);
         return indexA - indexB;
