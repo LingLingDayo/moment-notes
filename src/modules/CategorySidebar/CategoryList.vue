@@ -274,7 +274,6 @@ const handleCategoryDblClick = (cat: any) => {
           <ChevronDown v-if="!cat.isCollapsed" class="toggle-icon" />
           <ChevronRight v-else class="toggle-icon" />
         </span>
-        <span v-else class="collapse-toggle-spacer"></span>
 
         <!-- 系统分类 (全部便签) -->
         <template v-if="cat.isSystem">
@@ -368,7 +367,6 @@ const handleCategoryDblClick = (cat: any) => {
       @click="store.currentCategoryId = 'trash'"
     >
       <div class="active-indicator"></div>
-      <span class="collapse-toggle-spacer"></span>
       <div class="item-left">
         <Trash2 class="item-icon" />
         <span class="item-name" data-tooltip="已删除的便签">垃圾箱</span>
@@ -450,14 +448,6 @@ const handleCategoryDblClick = (cat: any) => {
       stroke-width: 2.5px;
       transition: transform 0.2s ease, color 0.2s ease;
     }
-  }
-
-  .collapse-toggle-spacer {
-    width: 20px;
-    margin-right: 4px;
-    margin-left: -4px;
-    flex-shrink: 0;
-    align-self: center;
   }
 
   &:hover {
