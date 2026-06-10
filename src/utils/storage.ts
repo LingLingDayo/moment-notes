@@ -93,29 +93,52 @@ export const pasteTextToCursor = async (text: string): Promise<boolean> => {
  * 保存文本内容为本地文件
  * 优先在 uTools 下通过 window.services 写入下载文件夹
  * 浏览器环境降级为 Blob 触发文件下载
- * @returns {boolean} true 表示通过服务写入了本地, false 表示降级为浏览器下载
+ * @returns {'success' | 'canceled' | 'fallback'} 保存状态
  */
-export const downloadOrWriteFile = (content: string, filename: string, mimeType: string = 'text/plain'): boolean => {
+export const downloadOrWriteFile = (content: string, filename: string, mimeType: string = 'text/plain'): 'success' | 'canceled' | 'fallback' => {
   if (isUTools()) {
     if (typeof window !== 'undefined' && window.services?.writeTextFile) {
       try {
-        window.services.writeTextFile(content);
-        return true;
+        const downloadsPath = window.utools.getPath('downloads');
+        const separator = downloadsPath.endsWith('/') || downloadsPath.endsWith('\\') ? '' : '/';
+        const defaultPath = `${downloadsPath}${separator}${filename}`;
+        
+        const extension = filename.split('.').pop() || 'txt';
+        const savePath = window.utools.showSaveDialog({
+          title: '选择保存路径',
+          defaultPath: defaultPath,
+          buttonLabel: '保存',
+          filters: mimeType.includes('json')
+            ? [{ name: 'JSON Backup Files', extensions: [extension] }, { name: 'All Files', extensions: ['*'] }]
+            : [{ name: 'Text Files', extensions: [extension] }, { name: 'All Files', extensions: ['*'] }]
+        });
+
+        if (savePath) {
+          window.services.writeTextFile(content, savePath);
+          return 'success';
+        } else {
+          return 'canceled';
+        }
       } catch (e) {
-        console.error('uTools preload writeTextFile failed, falling back to download:', e);
+        console.error('uTools showSaveDialog or writeTextFile failed, falling back to download:', e);
       }
     }
   }
 
   // 浏览器环境降级下载
-  const blob = new Blob([content], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  return false;
+  try {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    return 'fallback';
+  } catch (e) {
+    console.error('Browser download fallback failed:', e);
+    return 'fallback';
+  }
 };

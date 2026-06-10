@@ -9,7 +9,7 @@ declare module '*.vue' {
 interface Window {
   services: {
     readFile(file: string): string;
-    writeTextFile(text: string): string;
+    writeTextFile(text: string, filePath?: string): string;
     writeImageFile(base64Url: string): string | undefined;
   };
 }

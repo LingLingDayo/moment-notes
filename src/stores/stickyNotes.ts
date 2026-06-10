@@ -465,11 +465,16 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     };
     
     const jsonStr = JSON.stringify(backupData, null, 2);
-    const filename = `sticky-notes-backup-${Date.now()}.json`;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const now = new Date();
+    const timeStr = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())} ${pad(now.getHours())}.${pad(now.getMinutes())}.${pad(now.getSeconds())}`;
+    const filename = `sticky-notes-backup-${timeStr}.json`;
     
-    const isNative = downloadOrWriteFile(jsonStr, filename, 'application/json');
-    if (isNative) {
-      showToast('备份已成功导出至下载目录', 'success');
+    const result = downloadOrWriteFile(jsonStr, filename, 'application/json');
+    if (result === 'success') {
+      showToast('备份已成功导出', 'success');
+    } else if (result === 'canceled') {
+      showToast('已取消备份导出', 'info');
     } else {
       showToast('备份已导出为 JSON 文件下载', 'success');
     }
@@ -562,9 +567,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     const content = `${title}\n创建时间: ${new Date(note.createdAt).toLocaleString()}\n${tagsStr}---------------------------\n\n${note.content}`;
     const filename = `${title.replace(/[\\/:*?"<>|]/g, '_')}.txt`;
     
-    const isNative = downloadOrWriteFile(content, filename, 'text/plain;charset=utf-8');
-    if (isNative) {
-      showToast('便签已导出至下载目录', 'success');
+    const result = downloadOrWriteFile(content, filename, 'text/plain;charset=utf-8');
+    if (result === 'success') {
+      showToast('便签已成功导出', 'success');
+    } else if (result === 'canceled') {
+      showToast('已取消导出', 'info');
     } else {
       showToast('便签已导出为 TXT 文本下载', 'success');
     }
