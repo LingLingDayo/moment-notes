@@ -17,33 +17,58 @@ const targetOptions = [
 
 // 动态 placeholder text
 const searchPlaceholder = computed(() => {
-  switch (store.searchTarget) {
-    case 'title': return '搜索便签标题...';
-    case 'content': return '搜索便签内容...';
-    case 'tag': return '搜索便签标签...';
-    default: return '搜索全部信息...';
+  if (store.searchTarget.includes('all')) {
+    return '搜索全部信息...';
   }
-});
-
-const currentTargetLabel = computed(() => {
-  const option = targetOptions.find(opt => opt.value === store.searchTarget);
-  return option ? option.label : '全部';
-});
-
-const changeSearchTarget = (target: 'all' | 'title' | 'content' | 'tag') => {
-  store.searchTarget = target;
-  showTargetPopover.value = false;
+  const parts: string[] = [];
+  if (store.searchTarget.includes('title')) parts.push('标题');
+  if (store.searchTarget.includes('content')) parts.push('内容');
+  if (store.searchTarget.includes('tag')) parts.push('标签');
   
-  let targetName = '全部信息';
-  if (target === 'title') targetName = '标题';
-  if (target === 'content') targetName = '内容';
-  if (target === 'tag') targetName = '标签';
-  store.showToast(`已切换搜索范围为：${targetName}`, 'success');
-};
+  if (parts.length > 0) {
+    return `搜索便签${parts.join('/')}...`;
+  }
+  return '搜索全部信息...';
+});
 
 // 清空搜索词
 const clearSearch = () => {
   store.searchQuery = '';
+};
+
+// 切换下拉弹窗显示
+const togglePopover = () => {
+  showTargetPopover.value = !showTargetPopover.value;
+};
+
+// 检查是否选中
+const isSelected = (value: 'all' | 'title' | 'content' | 'tag') => {
+  return store.searchTarget.includes(value);
+};
+
+// 切换选择目标
+const toggleTarget = (target: 'all' | 'title' | 'content' | 'tag') => {
+  let nextTargets: Array<'all' | 'title' | 'content' | 'tag'> = [];
+  if (target === 'all') {
+    nextTargets = ['all'];
+  } else {
+    // 移除 'all'
+    nextTargets = store.searchTarget.filter(t => t !== 'all');
+    
+    // 切换当前项
+    if (nextTargets.includes(target)) {
+      nextTargets = nextTargets.filter(t => t !== target);
+    } else {
+      nextTargets.push(target);
+    }
+    
+    // 如果全部都取消了，或者把所有其他选项都选上了，自动变回 'all'
+    const otherOptionsCount = 3; // title, content, tag
+    if (nextTargets.length === 0 || nextTargets.length === otherOptionsCount) {
+      nextTargets = ['all'];
+    }
+  }
+  store.searchTarget = nextTargets;
 };
 
 const handleDocumentClick = () => {
@@ -69,38 +94,42 @@ onUnmounted(() => {
         :placeholder="searchPlaceholder"
         class="search-input"
       />
+      
+      <!-- 清除搜索按钮 -->
       <button 
         v-if="store.searchQuery" 
         class="clear-search-btn"
+        data-tooltip="清空搜索"
         @click="clearSearch"
       >
         <X class="clear-icon" />
       </button>
-    </div>
 
-    <!-- 搜索目标选择器 -->
-    <div class="search-target-wrapper" @click.stop>
-      <button 
-        class="target-trigger-btn" 
-        data-tooltip="搜索范围"
-        @click="showTargetPopover = !showTargetPopover"
-      >
-        <span>{{ currentTargetLabel }}</span>
-        <ChevronDown class="chevron-icon" />
-      </button>
-      
-      <div v-if="showTargetPopover" class="target-popover">
-        <div class="popover-title">搜索范围</div>
-        <div class="target-list">
-          <button 
-            v-for="opt in targetOptions"
-            :key="opt.value"
-            class="target-item"
-            :class="{ active: store.searchTarget === opt.value }"
-            @click="changeSearchTarget(opt.value)"
-          >
-            {{ opt.label }}
-          </button>
+      <!-- 搜索目标选择器（内嵌到右侧） -->
+      <div class="search-target-wrapper" @click.stop>
+        <button 
+          class="target-trigger-btn" 
+          :class="{ active: showTargetPopover }"
+          data-tooltip="选择搜索范围"
+          @click="togglePopover"
+        >
+          <ChevronDown class="chevron-icon" :class="{ open: showTargetPopover }" />
+        </button>
+        
+        <div v-if="showTargetPopover" class="target-popover">
+          <div class="popover-title">搜索范围</div>
+          <div class="target-list">
+            <button 
+              v-for="opt in targetOptions"
+              :key="opt.value"
+              class="target-item"
+              :class="{ selected: isSelected(opt.value) }"
+              @click="toggleTarget(opt.value)"
+            >
+              <span class="target-text">{{ opt.label }}</span>
+              <span v-if="isSelected(opt.value)" class="check-icon">✓</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -111,23 +140,20 @@ onUnmounted(() => {
 .search-section {
   display: flex;
   align-items: center;
-  gap: 8px;
   flex: 1;
   max-width: 370px;
-  // max-width: 520px;
 }
 
 .search-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
   background: rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  padding: 6px 14px;
-  flex: 1;
+  width: 100%;
   height: 38px;
   box-sizing: border-box;
-  position: relative;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   .light-theme & {
@@ -147,20 +173,24 @@ onUnmounted(() => {
 }
 
 .search-icon {
+  position: absolute;
+  left: 12px;
   width: 16px;
   height: 16px;
   color: var(--text-muted);
-  margin-right: 10px;
+  pointer-events: none;
 }
 
 .search-input {
+  width: 100%;
+  height: 100%;
   background: transparent;
   border: none;
   color: var(--text-primary);
   font-size: 13px;
-  width: 100%;
-  padding: 4px 0;
+  padding: 0 64px 0 36px; // 左边留给搜索图标，右边留给清除按钮 + 触发按钮
   outline: none;
+  box-sizing: border-box;
 
   &::placeholder {
     color: var(--text-muted);
@@ -168,26 +198,43 @@ onUnmounted(() => {
 }
 
 .clear-search-btn {
+  position: absolute;
+  right: 36px; // 调整为紧贴触发按钮的左边
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   color: var(--text-muted);
   background: transparent;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-left: 8px;
+  padding: 0;
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
+
+    .light-theme & {
+      background: rgba(0, 0, 0, 0.05);
+    }
   }
 }
 
+.clear-icon {
+  width: 12px;
+  height: 12px;
+}
+
 .search-target-wrapper {
-  position: relative;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
 }
@@ -196,50 +243,41 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0 16px;
-  height: 38px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
   color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-  box-sizing: border-box;
+  padding: 0;
 
-  span {
-    white-space: nowrap;
-  }
-
-  .light-theme & {
-    background: rgba(255, 255, 255, 0.8);
-    border-color: rgba(0, 0, 0, 0.08);
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
+  &:hover, &.active {
+    background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.15);
 
     .light-theme & {
-      background: rgba(0, 0, 0, 0.04);
+      background: rgba(0, 0, 0, 0.05);
     }
   }
 
   .chevron-icon {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     opacity: 0.7;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+
+    &.open {
+      transform: rotate(180deg);
+    }
   }
 }
 
 .target-popover {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   right: 0;
   background: var(--popover-bg);
   border: 1px solid var(--popover-border);
@@ -247,7 +285,7 @@ onUnmounted(() => {
   border-radius: 12px;
   box-shadow: var(--popover-shadow);
   z-index: 100;
-  min-width: 110px;
+  min-width: 120px;
   animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   .popover-title {
@@ -266,32 +304,44 @@ onUnmounted(() => {
 }
 
 .target-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   text-align: left;
-  padding: 5px 8px;
-  border-radius: 5px;
+  padding: 6px 8px;
+  border-radius: 6px;
   font-size: 11px;
   color: var(--text-secondary);
-  white-space: nowrap;
   cursor: pointer;
   width: 100%;
   background: transparent;
   border: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 
   &:hover {
     background: var(--item-hover-bg);
     color: var(--text-primary);
   }
 
-  &.active {
+  &.selected {
     background: var(--accent-light);
     color: var(--accent-color);
     font-weight: 600;
   }
-}
 
-.clear-icon {
-  width: 12px;
-  height: 12px;
+  .target-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .check-icon {
+    font-size: 10px;
+    margin-left: 6px;
+    flex-shrink: 0;
+  }
 }
 
 @keyframes popoverFadeIn {
@@ -309,13 +359,40 @@ onUnmounted(() => {
   .search-wrapper {
     height: 34px;
     border-radius: 10px;
-    padding: 0 10px;
+  }
+
+  .search-input {
+    padding: 0 54px 0 32px;
+    font-size: 12px;
+  }
+
+  .search-icon {
+    left: 10px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .clear-search-btn {
+    right: 32px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .clear-icon {
+    width: 10px;
+    height: 10px;
   }
 
   .target-trigger-btn {
-    height: 34px;
-    border-radius: 10px;
-    padding: 0 12px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+
+    .chevron-icon {
+      width: 12px;
+      height: 12px;
+    }
   }
 }
 </style>

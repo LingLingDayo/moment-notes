@@ -35,7 +35,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     saveCategoryOrder();
   };
   const searchQuery = ref<string>('');
-  const searchTarget = ref<'all' | 'title' | 'content' | 'tag'>('all');
+  const searchTarget = ref<Array<'all' | 'title' | 'content' | 'tag'>>(['all']);
   const sortMode = ref<'date' | 'title' | 'tag' | 'custom'>('date');
   const sortOrder = ref<'asc' | 'desc'>('desc');
   const draggedNoteId = ref<string | null>(null);
@@ -384,16 +384,15 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         const contentMatch = n.content.toLowerCase().includes(q);
         const tagsMatch = n.tags ? n.tags.some(tag => tag.toLowerCase().includes(q)) : false;
 
-        if (searchTarget.value === 'title') {
-          return titleMatch;
-        } else if (searchTarget.value === 'content') {
-          return contentMatch;
-        } else if (searchTarget.value === 'tag') {
-          return tagsMatch;
-        } else {
-          // 'all'
+        if (searchTarget.value.includes('all')) {
           return titleMatch || contentMatch || tagsMatch;
         }
+
+        let match = false;
+        if (searchTarget.value.includes('title') && titleMatch) match = true;
+        if (searchTarget.value.includes('content') && contentMatch) match = true;
+        if (searchTarget.value.includes('tag') && tagsMatch) match = true;
+        return match;
       });
     }
 
