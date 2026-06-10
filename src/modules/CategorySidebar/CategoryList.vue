@@ -72,59 +72,116 @@ const getNoteCount = (categoryId: string) => {
 };
 
 // 拖动排序相关的状态与方法
-const draggedIndex = ref<number | null>(null);
-let lastSwapTime = 0;
+const draggedCatId = ref<string | null>(null);
+const dragOverCatId = ref<string | null>(null);
+const dragPlacement = ref<'before' | 'after' | 'inside' | null>(null);
+const isOverContainer = ref(false);
 
-const onDragStart = (event: DragEvent, index: number) => {
-  const cat = store.orderedCategories[index];
-  if (cat && (cat.isSystem || cat.isVirtualAdd)) {
+const onDragStart = (event: DragEvent, cat: any) => {
+  if (cat.isSystem || cat.isVirtualAdd) {
     event.preventDefault();
     return;
   }
+  draggedCatId.value = cat.id;
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/plain', index.toString());
+    event.dataTransfer.setData('text/plain', cat.id);
   }
-  lastSwapTime = 0; // 重置冷却时间
-  setTimeout(() => {
-    draggedIndex.value = index;
-  }, 0);
+  isOverContainer.value = false;
 };
 
-const onDragOver = (event: DragEvent, index: number) => {
-  if (draggedIndex.value === null || draggedIndex.value === index) return;
+const onDragOverItem = (event: DragEvent, cat: any) => {
+  if (!draggedCatId.value || draggedCatId.value === cat.id) return;
+  if (cat.isVirtualAdd) return;
 
-  const draggedCat = store.orderedCategories[draggedIndex.value];
-  const targetCat = store.orderedCategories[index];
-  if (!draggedCat || !targetCat) return;
-  if (draggedCat.isSystem || targetCat.isSystem) return;
-  if (draggedCat.isVirtualAdd || targetCat.isVirtualAdd) return;
-  if (draggedCat.parentId !== targetCat.parentId) return;
+  event.preventDefault();
+  event.stopPropagation();
+  
+  if (cat.isSystem) {
+    dragOverCatId.value = null;
+    dragPlacement.value = null;
+    return;
+  }
+
+  // 限制：不能拖入自身的子孙分类中
+  const descendants = store.getCategoryDescendants(draggedCatId.value);
+  if (descendants.has(cat.id)) {
+    dragOverCatId.value = null;
+    dragPlacement.value = null;
+    return;
+  }
 
   const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
   const clientY = event.clientY;
-  const threshold = rect.top + rect.height / 2;
+  const relativeY = clientY - rect.top;
+  const threshold1 = rect.height * 0.25;
+  const threshold2 = rect.height * 0.75;
 
-  // 向下拖拽：鼠标必须穿过目标元素中线以下
-  if (draggedIndex.value < index) {
-    if (clientY < threshold) return;
-  } 
-  // 向上拖拽：鼠标必须穿过目标元素中线以上
-  else if (draggedIndex.value > index) {
-    if (clientY > threshold) return;
+  dragOverCatId.value = cat.id;
+  isOverContainer.value = false;
+
+  if (relativeY < threshold1) {
+    dragPlacement.value = 'before';
+  } else if (relativeY > threshold2) {
+    dragPlacement.value = 'after';
+  } else {
+    dragPlacement.value = 'inside';
+  }
+};
+
+const onDragOverContainer = (event: DragEvent) => {
+  if (!draggedCatId.value) return;
+  event.preventDefault();
+  dragOverCatId.value = null;
+  dragPlacement.value = null;
+  isOverContainer.value = true;
+};
+
+const onContainerDrop = (event: DragEvent) => {
+  event.preventDefault();
+  if (!draggedCatId.value) return;
+
+  const sourceId = draggedCatId.value;
+  
+  if (dragOverCatId.value && dragPlacement.value) {
+    const targetId = dragOverCatId.value;
+    const targetCat = store.categories.find(c => c.id === targetId);
+    
+    if (targetCat) {
+      if (dragPlacement.value === 'inside') {
+        store.moveCategory(sourceId, targetId, undefined, 'inside');
+        const sourceCat = store.categories.find(c => c.id === sourceId);
+        store.showToast(`已将分类 "${sourceCat?.name}" 移入 "${targetCat.name}" 内部`);
+      } else {
+        store.moveCategory(sourceId, targetCat.parentId, targetId, dragPlacement.value);
+        const sourceCat = store.categories.find(c => c.id === sourceId);
+        const placementText = dragPlacement.value === 'before' ? '上方' : '下方';
+        store.showToast(`已将分类 "${sourceCat?.name}" 移至 "${targetCat.name}" 的${placementText}`);
+      }
+    }
+  } else if (isOverContainer.value) {
+    store.moveCategory(sourceId, undefined, undefined, 'inside');
+    const sourceCat = store.categories.find(c => c.id === sourceId);
+    store.showToast(`已将分类 "${sourceCat?.name}" 移出为一级分类`);
   }
 
-  // 150ms 冷却节流，防止在 FLIP 动画位移期间发生位置跳跃产生的振荡
-  const now = Date.now();
-  if (now - lastSwapTime < 150) return;
-  lastSwapTime = now;
-
-  store.reorderCategories(draggedIndex.value, index);
-  draggedIndex.value = index;
+  resetDragState();
 };
 
 const onDragEnd = () => {
-  draggedIndex.value = null;
+  resetDragState();
+};
+
+const resetDragState = () => {
+  draggedCatId.value = null;
+  dragOverCatId.value = null;
+  dragPlacement.value = null;
+  isOverContainer.value = false;
+};
+
+const hasParent = (id: string) => {
+  const cat = store.categories.find(c => c.id === id);
+  return !!(cat && cat.parentId);
 };
 
 // 子分类增加逻辑
@@ -160,7 +217,12 @@ const submitAddSub = (parentId?: string) => {
 </script>
 
 <template>
-  <div :class="{ 'uTools': isUTools() }" class="sidebar-menu">
+  <div 
+    :class="{ 'uTools': isUTools() }" 
+    class="sidebar-menu"
+    @dragover="onDragOverContainer"
+    @drop="onContainerDrop"
+  >
     <TransitionGroup 
       tag="div" 
       name="category-list" 
@@ -173,13 +235,16 @@ const submitAddSub = (parentId?: string) => {
         :class="{ 
           active: store.currentCategoryId === cat.id,
           'has-actions': !cat.isSystem && !cat.isVirtualAdd,
-          'dragging': draggedIndex === index
+          'dragging': draggedCatId === cat.id,
+          'drag-before': dragOverCatId === cat.id && dragPlacement === 'before',
+          'drag-after': dragOverCatId === cat.id && dragPlacement === 'after',
+          'drag-inside': dragOverCatId === cat.id && dragPlacement === 'inside'
         }"
         :draggable="editingId !== cat.id && !cat.isVirtualAdd"
         :style="{ '--item-level': cat.level || 0 }"
         @click="store.currentCategoryId = cat.isVirtualAdd ? store.currentCategoryId : cat.id"
-        @dragstart="onDragStart($event, index)"
-        @dragover.prevent="onDragOver($event, index)"
+        @dragstart="onDragStart($event, cat)"
+        @dragover="onDragOverItem($event, cat)"
         @dragend="onDragEnd"
       >
         <div class="active-indicator"></div>
@@ -266,6 +331,16 @@ const submitAddSub = (parentId?: string) => {
         </template>
       </div>
     </TransitionGroup>
+
+    <!-- 拖拽移出根级提示区 -->
+    <div 
+      v-if="draggedCatId && hasParent(draggedCatId)" 
+      class="drag-out-zone"
+      :class="{ 'active': isOverContainer && !dragOverCatId }"
+      @dragover.prevent
+    >
+      <span>移出为一级分类</span>
+    </div>
 
     <!-- 分割线 -->
     <div class="menu-divider"></div>
@@ -373,6 +448,44 @@ const submitAddSub = (parentId?: string) => {
     
     .item-badge, .item-actions, .active-indicator, .collapse-toggle {
       opacity: 0 !important;
+    }
+  }
+
+  &.drag-inside {
+    background: color-mix(in srgb, var(--accent-color) 12%, var(--item-hover-bg)) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 1px var(--accent-color), var(--shadow-sm) !important;
+  }
+
+  &.drag-before {
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: calc(14px + var(--item-level, 0) * var(--level-indent, 14px));
+      right: 10px;
+      height: 3px;
+      background: var(--accent-color);
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--accent-color);
+      z-index: 10;
+    }
+  }
+
+  &.drag-after {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: calc(14px + var(--item-level, 0) * var(--level-indent, 14px));
+      right: 10px;
+      height: 3px;
+      background: var(--accent-color);
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--accent-color);
+      z-index: 10;
     }
   }
 }
@@ -542,6 +655,29 @@ const submitAddSub = (parentId?: string) => {
       background: var(--danger-color, #ff4d4f) !important;
       color: var(--text-on-accent, #ffffff) !important;
     }
+  }
+}
+
+.drag-out-zone {
+  margin: 4px 0;
+  height: 38px;
+  border: 1px dashed var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color) 4%, transparent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--accent-color);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  user-select: none;
+  pointer-events: none;
+
+  &.active {
+    opacity: 1;
+    background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+    box-shadow: inset 0 0 8px color-mix(in srgb, var(--accent-color) 20%, transparent);
   }
 }
 </style>

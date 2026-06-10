@@ -169,6 +169,57 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     }
   };
 
+  const moveCategory = (
+    categoryId: string,
+    targetParentId: string | undefined,
+    targetSiblingId: string | undefined,
+    position: 'before' | 'after' | 'inside'
+  ) => {
+    const cat = categories.value.find(c => c.id === categoryId);
+    if (!cat) return;
+
+    if (targetParentId === categoryId) return;
+    const descendants = getCategoryDescendants(categoryId);
+    if (targetParentId && descendants.has(targetParentId)) {
+      showToast('无法将分类移动到其子分类下', 'error');
+      return;
+    }
+
+    cat.parentId = targetParentId;
+    saveCategories();
+
+    const order = [...categoryOrder.value];
+    const currentIdx = order.indexOf(categoryId);
+    if (currentIdx !== -1) {
+      order.splice(currentIdx, 1);
+    }
+
+    if (position === 'inside') {
+      const parentIdx = order.indexOf(targetParentId || '');
+      if (parentIdx !== -1) {
+        order.splice(parentIdx + 1, 0, categoryId);
+      } else {
+        order.push(categoryId);
+      }
+      
+      if (targetParentId && collapsedCategoryIds.value.includes(targetParentId)) {
+        collapsedCategoryIds.value = collapsedCategoryIds.value.filter(id => id !== targetParentId);
+        saveCollapsedCategories();
+      }
+    } else {
+      const siblingIdx = order.indexOf(targetSiblingId || '');
+      if (siblingIdx !== -1) {
+        const insertIdx = position === 'before' ? siblingIdx : siblingIdx + 1;
+        order.splice(insertIdx, 0, categoryId);
+      } else {
+        order.push(categoryId);
+      }
+    }
+
+    categoryOrder.value = order;
+    saveCategoryOrder();
+  };
+
   const searchQuery = ref<string>('');
   const searchTarget = ref<Array<'all' | 'title' | 'content' | 'tag'>>(['all']);
   const sortMode = ref<'date' | 'title' | 'tag' | 'custom'>('date');
@@ -705,6 +756,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     orderedCategories,
     saveCategoryOrder,
     reorderCategories,
+    moveCategory,
     notes,
     currentCategoryId,
     searchQuery,
