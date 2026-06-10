@@ -187,7 +187,7 @@ const hasParent = (id: string) => {
 // 子分类增加逻辑
 const startAddSub = async (parentId: string) => {
   store.addingSubParentId = parentId;
-  store.newSubCategoryName = '';
+  store.newSubCategoryName = '分类';
   
   // 展开父分类
   if (store.collapsedCategoryIds.includes(parentId)) {
@@ -197,6 +197,7 @@ const startAddSub = async (parentId: string) => {
   await nextTick();
   if (subAddInputRef.value) {
     subAddInputRef.value.focus();
+    subAddInputRef.value.select();
   }
 };
 

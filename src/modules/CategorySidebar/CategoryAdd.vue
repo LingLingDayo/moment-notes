@@ -13,9 +13,12 @@ const addInputRef = ref<HTMLInputElement | null>(null);
 // 开启新增
 const startAdd = async () => {
   isAdding.value = true;
-  newCategoryName.value = '';
+  newCategoryName.value = '分类';
   await nextTick();
-  addInputRef.value?.focus();
+  if (addInputRef.value) {
+    addInputRef.value.focus();
+    addInputRef.value.select();
+  }
 };
 
 // 取消新增
