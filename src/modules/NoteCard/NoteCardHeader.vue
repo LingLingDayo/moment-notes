@@ -2,7 +2,7 @@
 import { Pin, Edit2 } from 'lucide-vue-next';
 import { Note } from '@type';
 
-const props = defineProps<{
+defineProps<{
   note: Note;
   isEditing: boolean;
 }>();
@@ -19,20 +19,20 @@ const emit = defineEmits<{
 
 <template>
   <!-- 置顶针和大头针效果 -->
-  <button 
+  <button
     v-if="!note.isDeleted"
-    class="pin-btn" 
+    class="pin-btn"
     :class="{ active: note.isPinned }"
-    :data-tooltip="note.isPinned ? '取消置顶' : '置顶便签'" 
+    :data-tooltip="note.isPinned ? '取消置顶' : '置顶便签'"
     @click.stop="emit('toggle-pin')"
   >
     <Pin class="pin-icon" />
   </button>
 
   <!-- 只读时，编辑按钮作为绝对定位元素在右上角展示 -->
-  <button 
-    v-if="!isEditing && !note.isDeleted" 
-    class="edit-trigger-btn absolute-edit-btn" 
+  <button
+    v-if="!isEditing && !note.isDeleted"
+    class="edit-trigger-btn absolute-edit-btn"
     data-tooltip="编辑便签"
     @click.stop="emit('enter-edit')"
   >
@@ -41,7 +41,7 @@ const emit = defineEmits<{
 
   <!-- 卡片头部 (标题 / 编辑态) -->
   <div v-if="isEditing || note.title" class="card-header">
-    <input 
+    <input
       v-if="isEditing"
       v-model="title"
       type="text"
@@ -132,7 +132,9 @@ const emit = defineEmits<{
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s, background 0.2s;
+  transition:
+    opacity 0.2s,
+    background 0.2s;
 
   &:hover {
     background: var(--card-btn-hover-bg);

@@ -31,7 +31,10 @@ const addTag = () => {
     tag = tag.slice(0, -1).trim();
   }
   if (tag) {
-    const tagsToAdd = tag.split(',').map(t => t.trim()).filter(Boolean);
+    const tagsToAdd = tag
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
     tagsToAdd.forEach(t => {
       if (!tags.value.includes(t)) {
         tags.value.push(t);
@@ -66,6 +69,13 @@ const selectTag = (tag: string) => {
   }
 };
 
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === ',' || e.key === '，') {
+    e.preventDefault();
+    addTag();
+  }
+};
+
 // 暴露 addTag 方法供父组件在保存时调用，以便在点击保存前将未按回车的文本也作为标签录入
 defineExpose({
   addTag
@@ -79,37 +89,41 @@ defineExpose({
       <button class="delete-tag-btn" data-tooltip="删除标签" @click.stop="removeTag(idx)">×</button>
     </div>
     <div class="tag-input-wrapper">
-      <input 
+      <input
         ref="inputRef"
         v-model="newTagInput"
         type="text"
         placeholder="+ 添加标签 (按回车或逗号)"
         class="tag-input"
         @keydown.enter.prevent="addTag"
-        @keydown.comma.prevent="addTag"
+        @keydown="handleKeydown"
         @blur="handleBlur"
       />
-      <button 
-        class="arrow-btn" 
-        type="button" 
-        @mousedown.prevent 
-        @click="toggleDropdown"
+      <button
+        class="arrow-btn"
+        type="button"
         data-tooltip="选择已有标签"
+        @mousedown.prevent
+        @click="toggleDropdown"
       >
-        <svg class="arrow-icon" :class="{ open: showDropdown }" viewBox="0 0 24 24" width="12" height="12">
+        <svg
+          class="arrow-icon"
+          :class="{ open: showDropdown }"
+          viewBox="0 0 24 24"
+          width="12"
+          height="12"
+        >
           <path fill="currentColor" d="M7 10l5 5 5-5z" />
         </svg>
       </button>
 
       <div v-if="showDropdown" class="tags-dropdown" @mousedown.prevent>
-        <div v-if="allExistingTags.length === 0" class="dropdown-item empty">
-          暂无已有标签
-        </div>
-        <div 
+        <div v-if="allExistingTags.length === 0" class="dropdown-item empty">暂无已有标签</div>
+        <div
+          v-for="tag in allExistingTags"
           v-else
-          v-for="tag in allExistingTags" 
-          :key="tag" 
-          class="dropdown-item" 
+          :key="tag"
+          class="dropdown-item"
           :class="{ selected: tags.includes(tag) }"
           :data-tooltip="tag"
           @click="selectTag(tag)"
@@ -208,7 +222,9 @@ defineExpose({
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 
   &:hover {
     opacity: 1;
@@ -237,7 +253,7 @@ defineExpose({
   box-shadow: var(--popover-shadow);
   z-index: 100;
   padding: 4px 0;
-  
+
   .dropdown-item {
     display: flex;
     align-items: center;
@@ -247,18 +263,18 @@ defineExpose({
     cursor: pointer;
     color: var(--text-secondary);
     transition: all 0.2s ease;
-    
+
     &:hover {
       background: var(--item-hover-bg);
       color: var(--text-primary);
     }
-    
+
     &.selected {
       color: var(--accent-color);
       background: var(--accent-light);
       font-weight: 500;
     }
-    
+
     .tag-text {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -266,7 +282,7 @@ defineExpose({
       flex: 1;
       margin-right: 8px;
     }
-    
+
     .check-icon {
       font-size: 10px;
       flex-shrink: 0;

@@ -1,20 +1,24 @@
 import { Category, Note } from '@type';
 import { storage, downloadOrWriteFile } from '@utils/storage';
 
-export const exportBackup = (categories: Category[], notes: Note[], showToast: (msg: string, type?: any) => void) => {
+export const exportBackup = (
+  categories: Category[],
+  notes: Note[],
+  showToast: (msg: string, type?: any) => void
+) => {
   const backupData = {
     version: '1.0.0',
     timestamp: Date.now(),
     categories,
     notes
   };
-  
+
   const jsonStr = JSON.stringify(backupData, null, 2);
   const pad = (n: number) => String(n).padStart(2, '0');
   const now = new Date();
   const timeStr = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())} ${pad(now.getHours())}.${pad(now.getMinutes())}.${pad(now.getSeconds())}`;
   const filename = `sticky-notes-backup-${timeStr}.json`;
-  
+
   const result = downloadOrWriteFile(jsonStr, filename, 'application/json');
   if (result === 'success') {
     showToast('备份已成功导出', 'success');
@@ -37,7 +41,7 @@ export const importBackup = (
 ): boolean => {
   try {
     const data = JSON.parse(jsonStr);
-    
+
     if (!data || typeof data !== 'object') return false;
     if (!Array.isArray(data.categories) || !Array.isArray(data.notes)) return false;
 
@@ -46,10 +50,13 @@ export const importBackup = (
     });
 
     const validNotes = data.notes.filter((n: any) => {
-      return n && typeof n.id === 'string' && 
-             typeof n.categoryId === 'string' && 
-             typeof n.content === 'string' &&
-             typeof n.color === 'string';
+      return (
+        n &&
+        typeof n.id === 'string' &&
+        typeof n.categoryId === 'string' &&
+        typeof n.content === 'string' &&
+        typeof n.color === 'string'
+      );
     });
 
     if (validCategories.length === 0 && validNotes.length === 0) {
@@ -101,7 +108,10 @@ export const importBackup = (
     categoryOrder.value = newOrder;
     saveCategoryOrder();
 
-    showToast(`成功导入 ${validCategories.length} 个分类和 ${validNotes.length} 张便签！`, 'success');
+    showToast(
+      `成功导入 ${validCategories.length} 个分类和 ${validNotes.length} 张便签！`,
+      'success'
+    );
     return true;
   } catch (e) {
     console.error('Import backup failed:', e);
@@ -112,10 +122,11 @@ export const importBackup = (
 
 export const exportSingleNoteAsTxt = (note: Note, showToast: (msg: string, type?: any) => void) => {
   const title = note.title || '无标题便签';
-  const tagsStr = note.tags && note.tags.length > 0 ? `标签: ${note.tags.map(t => `#${t}`).join(' ')}\n` : '';
+  const tagsStr =
+    note.tags && note.tags.length > 0 ? `标签: ${note.tags.map(t => `#${t}`).join(' ')}\n` : '';
   const content = `${title}\n创建时间: ${new Date(note.createdAt).toLocaleString()}\n${tagsStr}---------------------------\n\n${note.content}`;
   const filename = `${title.replace(/[\\/:*?"<>|]/g, '_')}.txt`;
-  
+
   const result = downloadOrWriteFile(content, filename, 'text/plain;charset=utf-8');
   if (result === 'success') {
     showToast('便签已成功导出', 'success');
@@ -126,13 +137,18 @@ export const exportSingleNoteAsTxt = (note: Note, showToast: (msg: string, type?
   }
 };
 
-export const devResetNotes = (notes: { value: Note[] }, saveNotes: () => void, showToast: (msg: string, type?: any) => void) => {
+export const devResetNotes = (
+  notes: { value: Note[] },
+  saveNotes: () => void,
+  showToast: (msg: string, type?: any) => void
+) => {
   notes.value = [
     {
       id: 'n1',
       categoryId: '1',
       title: '✨ 欢迎使用拾光便签',
-      content: '👋 你好！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想。',
+      content:
+        '👋 你好！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想。',
       color: 'yellow',
       isPinned: true,
       createdAt: Date.now(),
@@ -143,7 +159,8 @@ export const devResetNotes = (notes: { value: Note[] }, saveNotes: () => void, s
       id: 'n2',
       categoryId: '1',
       title: '🚀 核心特色功能：双击粘贴',
-      content: '双击本便签卡片，本插件将自动隐藏并把便签内容直接粘贴到你的光标输入位置！非常适合存储客服话术、代码模板和常用邮箱地址等。',
+      content:
+        '双击本便签卡片，本插件将自动隐藏并把便签内容直接粘贴到你的光标输入位置！非常适合存储客服话术、代码模板和常用邮箱地址等。',
       color: 'blue',
       isPinned: false,
       createdAt: Date.now() - 1000,
@@ -154,7 +171,8 @@ export const devResetNotes = (notes: { value: Note[] }, saveNotes: () => void, s
       id: 'n3',
       categoryId: '2',
       title: '💡 快捷操作指南',
-      content: '1. 点击卡片右上角大头针可以置顶便签。\n2. 点击下方调色盘图标一键切换便签主题颜色。\n3. 右侧工具栏支持一键搜索、清空分类或在当前分类下极速创建便签。',
+      content:
+        '1. 点击卡片右上角大头针可以置顶便签。\n2. 点击下方调色盘图标一键切换便签主题颜色。\n3. 右侧工具栏支持一键搜索、清空分类或在当前分类下极速创建便签。',
       color: 'green',
       isPinned: false,
       createdAt: Date.now() - 2000,
@@ -166,13 +184,21 @@ export const devResetNotes = (notes: { value: Note[] }, saveNotes: () => void, s
   showToast('已重置所有便签(Notes)', 'success');
 };
 
-export const devResetTags = (notes: { value: Note[] }, saveNotes: () => void, showToast: (msg: string, type?: any) => void) => {
+export const devResetTags = (
+  notes: { value: Note[] },
+  saveNotes: () => void,
+  showToast: (msg: string, type?: any) => void
+) => {
   notes.value = notes.value.map(n => ({ ...n, tags: [] }));
   saveNotes();
   showToast('已重置所有便签的标签(Tags)', 'success');
 };
 
-export const devResetAllData = (loadData: () => void, gridColumns: { value: any }, showToast: (msg: string, type?: any) => void) => {
+export const devResetAllData = (
+  loadData: () => void,
+  gridColumns: { value: any },
+  showToast: (msg: string, type?: any) => void
+) => {
   storage.removeItem('sticky_notes_categories');
   storage.removeItem('sticky_notes_category_order');
   storage.removeItem('sticky_notes_notes');

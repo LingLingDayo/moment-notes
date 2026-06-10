@@ -7,9 +7,9 @@ import Dashboard from '@views/Dashboard.vue';
 onMounted(() => {
   const store = useStickyNotesStore();
 
-  const isDevMode = 
-    import.meta.env.DEV || 
-    window.location.hostname === 'localhost' || 
+  const isDevMode =
+    import.meta.env.DEV ||
+    window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1' ||
     (typeof window !== 'undefined' && (window as any).utools?.isDev?.());
 
@@ -25,10 +25,10 @@ onMounted(() => {
 
   if (isUTools()) {
     // 监听 uTools 插件进入事件
-    window.utools.onPluginEnter((action) => {
+    window.utools.onPluginEnter(action => {
       // 触发数据加载以保证是最新的
       store.loadData();
-      
+
       // uTools 提供了强大的文本输入匹配能力，支持将用户选中的文本快速保存
       // action.type 为 'text' 或 'over' (文本匹配指令)
       if (action.type === 'over') {

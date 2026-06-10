@@ -60,7 +60,12 @@ const calculateVisibleTags = () => {
     const gap = 6;
 
     const lineTops: number[] = [];
-    const elementsInfo: { index: number; offsetLeft: number; offsetWidth: number; offsetTop: number }[] = [];
+    const elementsInfo: {
+      index: number;
+      offsetLeft: number;
+      offsetWidth: number;
+      offsetTop: number;
+    }[] = [];
     const tagsCount = tags.length;
 
     for (let i = 0; i < tagsCount; i++) {
@@ -86,7 +91,7 @@ const calculateVisibleTags = () => {
     }
 
     const containerWidth = container.clientWidth;
-    const rows: typeof elementsInfo[] = lineTops.map(() => []);
+    const rows: (typeof elementsInfo)[] = lineTops.map(() => []);
     elementsInfo.forEach(info => {
       const lineIndex = lineTops.findIndex(top => Math.abs(top - info.offsetTop) < 5);
       if (lineIndex !== -1) {
@@ -139,20 +144,27 @@ const calculateVisibleTags = () => {
 };
 
 // 监听编辑状态
-watch(() => props.isEditing, async (newVal) => {
-  if (newVal) {
-    await nextTick();
-    contentInputRef.value?.focus();
-    adjustTextareaHeight();
-  } else {
-    calculateVisibleTags();
+watch(
+  () => props.isEditing,
+  async newVal => {
+    if (newVal) {
+      await nextTick();
+      contentInputRef.value?.focus();
+      adjustTextareaHeight();
+    } else {
+      calculateVisibleTags();
+    }
   }
-});
+);
 
 // 监听便签的标签变化
-watch(() => props.note.tags, () => {
-  calculateVisibleTags();
-}, { deep: true, immediate: true });
+watch(
+  () => props.note.tags,
+  () => {
+    calculateVisibleTags();
+  },
+  { deep: true, immediate: true }
+);
 
 onMounted(() => {
   calculateVisibleTags();
@@ -175,7 +187,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="card-body" :class="{ 'is-view-mode': !isEditing }">
-    <textarea 
+    <textarea
       v-if="isEditing"
       ref="contentInputRef"
       v-model="content"
@@ -187,33 +199,24 @@ onBeforeUnmount(() => {
     ></textarea>
     <template v-else>
       <div class="card-body-content">
-        <pre class="card-content">{{ note.content || (note.isDeleted ? '无内容' : '双击粘贴，点击右上角编辑...') }}</pre>
+        <pre class="card-content">{{
+          note.content || (note.isDeleted ? '无内容' : '双击粘贴，点击右上角编辑...')
+        }}</pre>
       </div>
       <!-- 便签标签展示 -->
       <div v-if="note.tags && note.tags.length > 0" class="note-tags-list">
-        <span 
-          v-for="tag in visibleTags" 
-          :key="tag" 
-          class="note-tag-badge"
-          :data-tooltip="tag"
-        >
+        <span v-for="tag in visibleTags" :key="tag" class="note-tag-badge" :data-tooltip="tag">
           # {{ tag }}
         </span>
-        <span 
-          v-if="hasMore" 
-          class="note-tag-badge more"
-          :data-tooltip="allTagsText"
-        >
-          ...
-        </span>
+        <span v-if="hasMore" class="note-tag-badge more" :data-tooltip="allTagsText"> ... </span>
       </div>
       <!-- 隐藏的便签标签测量区域 -->
-      <div v-if="note.tags && note.tags.length > 0" ref="measureContainerRef" class="note-tags-list-measure">
-        <span 
-          v-for="tag in note.tags" 
-          :key="'measure-' + tag" 
-          class="note-tag-badge"
-        >
+      <div
+        v-if="note.tags && note.tags.length > 0"
+        ref="measureContainerRef"
+        class="note-tags-list-measure"
+      >
+        <span v-for="tag in note.tags" :key="'measure-' + tag" class="note-tag-badge">
           # {{ tag }}
         </span>
         <span ref="measureEllipsisRef" class="note-tag-badge more">...</span>
@@ -259,7 +262,7 @@ onBeforeUnmount(() => {
   // 2. 悬停在内容区时，滚动条滑块加深
   &:hover::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.15);
-    
+
     &:hover {
       background: rgba(0, 0, 0, 0.3);
     }
@@ -271,7 +274,7 @@ onBeforeUnmount(() => {
   }
   .dark-theme &:hover::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.18);
-    
+
     &:hover {
       background: rgba(255, 255, 255, 0.32);
     }
@@ -284,7 +287,7 @@ onBeforeUnmount(() => {
     }
     &:hover::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.18);
-      
+
       &:hover {
         background: rgba(255, 255, 255, 0.32);
       }
@@ -296,7 +299,7 @@ onBeforeUnmount(() => {
     }
     .light-theme &:hover::-webkit-scrollbar-thumb {
       background: rgba(0, 0, 0, 0.15);
-      
+
       &:hover {
         background: rgba(0, 0, 0, 0.3);
       }

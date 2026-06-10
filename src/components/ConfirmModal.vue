@@ -27,13 +27,17 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 };
 
-watch(isVisible, (visible) => {
-  if (visible) {
-    window.addEventListener('keydown', handleKeyDown);
-  } else {
-    window.removeEventListener('keydown', handleKeyDown);
-  }
-}, { immediate: true });
+watch(
+  isVisible,
+  visible => {
+    if (visible) {
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      window.removeEventListener('keydown', handleKeyDown);
+    }
+  },
+  { immediate: true }
+);
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown);
@@ -50,11 +54,11 @@ onUnmounted(() => {
           </div>
           <h3 class="modal-title">{{ title }}</h3>
         </div>
-        
+
         <div class="modal-body">
           <p class="modal-message">{{ message }}</p>
         </div>
-        
+
         <div class="modal-footer">
           <button class="modal-btn cancel" @click="cancel">取消</button>
           <button class="modal-btn confirm" @click="confirm">确定</button>
@@ -142,7 +146,7 @@ onUnmounted(() => {
   border-radius: 10px;
   font-size: 12px;
   font-weight: 600;
-  
+
   &.cancel {
     background: var(--btn-bg);
     border: 1px solid var(--btn-border);
@@ -171,7 +175,7 @@ onUnmounted(() => {
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  
+
   .modal-container {
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -180,7 +184,7 @@ onUnmounted(() => {
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
-  
+
   .modal-container {
     transform: scale(0.9) translateY(10px);
     opacity: 0;

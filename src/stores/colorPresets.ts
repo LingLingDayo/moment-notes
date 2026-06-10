@@ -13,7 +13,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
     lightBtnHoverBg: 'hsl(48, 80%, 80%)',
     lightBtnHoverColor: 'hsl(48, 90%, 12%)',
     darkBtnHoverBg: 'hsla(48, 60%, 55%, 0.13)',
-    darkBtnHoverColor: 'hsl(48, 100%, 88%)',
+    darkBtnHoverColor: 'hsl(48, 100%, 88%)'
   },
   green: {
     name: '薄荷绿',
@@ -26,7 +26,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
     lightBtnHoverBg: 'hsl(120, 75%, 84%)',
     lightBtnHoverColor: 'hsl(120, 75%, 12%)',
     darkBtnHoverBg: 'hsla(120, 50%, 50%, 0.13)',
-    darkBtnHoverColor: 'hsl(120, 85%, 88%)',
+    darkBtnHoverColor: 'hsl(120, 85%, 88%)'
   },
   blue: {
     name: '晴空蓝',
@@ -39,7 +39,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
     lightBtnHoverBg: 'hsl(200, 90%, 84%)',
     lightBtnHoverColor: 'hsl(200, 80%, 12%)',
     darkBtnHoverBg: 'hsla(200, 60%, 55%, 0.13)',
-    darkBtnHoverColor: 'hsl(200, 90%, 88%)',
+    darkBtnHoverColor: 'hsl(200, 90%, 88%)'
   },
   pink: {
     name: '蔷薇粉',
@@ -52,7 +52,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
     lightBtnHoverBg: 'hsl(340, 85%, 84%)',
     lightBtnHoverColor: 'hsl(340, 80%, 12%)',
     darkBtnHoverBg: 'hsla(340, 60%, 55%, 0.13)',
-    darkBtnHoverColor: 'hsl(340, 90%, 88%)',
+    darkBtnHoverColor: 'hsl(340, 90%, 88%)'
   },
   purple: {
     name: '熏衣紫',
@@ -65,7 +65,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
     lightBtnHoverBg: 'hsl(270, 80%, 86%)',
     lightBtnHoverColor: 'hsl(270, 75%, 12%)',
     darkBtnHoverBg: 'hsla(270, 55%, 58%, 0.13)',
-    darkBtnHoverColor: 'hsl(270, 90%, 88%)',
+    darkBtnHoverColor: 'hsl(270, 90%, 88%)'
   },
   gray: {
     name: '极简灰',
@@ -78,6 +78,6 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
     lightBtnHoverBg: 'hsl(0, 0%, 84%)',
     lightBtnHoverColor: 'hsl(0, 0%, 10%)',
     darkBtnHoverBg: 'hsla(0, 0%, 70%, 0.1)',
-    darkBtnHoverColor: 'hsl(0, 0%, 92%)',
+    darkBtnHoverColor: 'hsl(0, 0%, 92%)'
   }
 };

@@ -20,7 +20,7 @@ const handleFileImport = (event: Event) => {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     const text = e.target?.result as string;
     if (text) {
       store.importBackup(text);
@@ -76,7 +76,7 @@ const stopResize = () => {
   isResizing.value = false;
   document.body.style.cursor = '';
   document.body.style.userSelect = '';
-  
+
   localStorage.setItem('sidebar-width', sidebarWidth.value.toString());
 
   window.removeEventListener('mousemove', handleResize);
@@ -106,9 +106,9 @@ onUnmounted(() => {
 
       <!-- 备份管理区 (开发者效率与数据安全增强) -->
       <div class="backup-section">
-        <input 
+        <input
           ref="fileInputRef"
-          type="file" 
+          type="file"
           accept=".json"
           class="hidden-file-input"
           @change="handleFileImport"
@@ -125,11 +125,7 @@ onUnmounted(() => {
     </div>
 
     <!-- 拖拽调整宽度的手柄 -->
-    <div 
-      class="resize-handle" 
-      :class="{ resizing: isResizing }"
-      @mousedown="startResize"
-    ></div>
+    <div class="resize-handle" :class="{ resizing: isResizing }" @mousedown="startResize"></div>
   </aside>
 </template>
 

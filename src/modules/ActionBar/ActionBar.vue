@@ -41,7 +41,7 @@ onMounted(() => {
     try {
       isDark.value = window.utools.isDarkColors();
       applyTheme(isDark.value);
-      
+
       // 监听 uTools 主题切换
       window.utools.onPluginEnter(() => {
         isDark.value = window.utools.isDarkColors();
@@ -101,7 +101,7 @@ const handleClear = async () => {
 
   const currentCat = store.categories.find(c => c.id === store.currentCategoryId);
   const catName = currentCat ? `"${currentCat.name}"` : '所有';
-  
+
   const ok = await store.askConfirm(
     '确认删除便签',
     `⚠️ 警告：确定要清空 ${catName} 下的所有便签吗？这些便签将被移动到回收站。`
@@ -115,7 +115,7 @@ const handleClear = async () => {
 // 创建新便签
 const handleAddNote = () => {
   // 创建一个空便签，放在最前端
-  const newNote = store.addNote(store.currentCategoryId, '', '', 'yellow');
+  store.addNote(store.currentCategoryId, '', '', 'yellow');
   store.showToast('已新建空便签，可以直接编辑');
 };
 </script>
@@ -128,46 +128,42 @@ const handleAddNote = () => {
     <!-- 按钮操作区 -->
     <div class="actions-wrapper">
       <!-- 切换主题 -->
-      <button 
-        class="icon-btn theme-toggle" 
-        data-tooltip="切换主题" 
-        @click="toggleTheme"
-      >
+      <button class="icon-btn theme-toggle" data-tooltip="切换主题" @click="toggleTheme">
         <Sun v-if="isDark" class="btn-icon" />
         <Moon v-else class="btn-icon" />
       </button>
 
       <!-- 排序选择 -->
-      <SortPopover 
+      <SortPopover
         :is-open="activePopover === 'sort'"
         @toggle="togglePopover('sort')"
         @close="closePopover"
       />
 
       <!-- 列数设置 -->
-      <GridColumnsPopover 
+      <GridColumnsPopover
         :is-open="activePopover === 'columns'"
         @toggle="togglePopover('columns')"
         @close="closePopover"
       />
 
       <!-- 清空当前分类 (垃圾箱分类下隐藏) -->
-      <button 
+      <button
         v-if="store.currentCategoryId !== 'trash'"
-        class="icon-btn danger" 
+        class="icon-btn danger"
         :disabled="store.filteredNotes.length === 0"
-        :data-tooltip="clearTooltip" 
+        :data-tooltip="clearTooltip"
         @click="handleClear"
       >
         <Trash2 class="btn-icon" />
       </button>
 
       <!-- 清空回收站 (在垃圾箱分类下显示) -->
-      <button 
+      <button
         v-if="store.currentCategoryId === 'trash'"
-        class="primary-btn danger-btn" 
+        class="primary-btn danger-btn"
         :disabled="store.filteredNotes.length === 0"
-        data-tooltip="清空回收站" 
+        data-tooltip="清空回收站"
         @click="handleClear"
       >
         <Trash2 class="btn-icon-plus" />
@@ -175,12 +171,7 @@ const handleAddNote = () => {
       </button>
 
       <!-- 新建便签 -->
-      <button 
-        v-else
-        class="primary-btn" 
-        data-tooltip="新建便签" 
-        @click="handleAddNote"
-      >
+      <button v-else class="primary-btn" data-tooltip="新建便签" @click="handleAddNote">
         <Plus class="btn-icon-plus" />
         <span>新建便签</span>
       </button>
@@ -276,7 +267,7 @@ const handleAddNote = () => {
   &:active:not(:disabled) {
     transform: translateY(0);
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -287,11 +278,11 @@ const handleAddNote = () => {
     width: 15px;
     height: 15px;
   }
-  
+
   &.danger-btn {
     background: var(--danger-color, #ff4d4f);
     box-shadow: 0 4px 12px -2px rgba(255, 77, 79, 0.3);
-    
+
     &:hover:not(:disabled) {
       background: #ff7875;
       box-shadow: 0 6px 16px -2px rgba(255, 77, 79, 0.4);

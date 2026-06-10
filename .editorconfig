@@ -1,0 +1,20 @@
+# Editorconfig is awesome:http://editorconfig.org
+
+# top-level EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+
+[{*.json,*.yml,*.yaml}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+insert_final_newline = false
+trim_trailing_whitespace = false

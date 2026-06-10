@@ -20,7 +20,10 @@ export const useCategoryStore = defineStore('categoryStore', () => {
   };
 
   const saveCollapsedCategories = () => {
-    storage.setItem('sticky_notes_collapsed_categories', JSON.stringify(collapsedCategoryIds.value));
+    storage.setItem(
+      'sticky_notes_collapsed_categories',
+      JSON.stringify(collapsedCategoryIds.value)
+    );
   };
 
   const toggleCategoryCollapse = (id: string) => {
@@ -92,7 +95,15 @@ export const useCategoryStore = defineStore('categoryStore', () => {
     rootCategories.sort(sortFn);
     childrenMap.forEach(list => list.sort(sortFn));
 
-    const result: Array<Category & { isSystem: boolean; level: number; hasChildren: boolean; isCollapsed: boolean; isVirtualAdd?: boolean }> = [];
+    const result: Array<
+      Category & {
+        isSystem: boolean;
+        level: number;
+        hasChildren: boolean;
+        isCollapsed: boolean;
+        isVirtualAdd?: boolean;
+      }
+    > = [];
 
     result.push({
       id: 'all',
@@ -198,7 +209,7 @@ export const useCategoryStore = defineStore('categoryStore', () => {
       } else {
         order.push(categoryId);
       }
-      
+
       if (targetParentId && collapsedCategoryIds.value.includes(targetParentId)) {
         collapsedCategoryIds.value = collapsedCategoryIds.value.filter(id => id !== targetParentId);
         saveCollapsedCategories();
@@ -227,7 +238,7 @@ export const useCategoryStore = defineStore('categoryStore', () => {
     };
     categories.value.push(newCategory);
     saveCategories();
-    
+
     categoryOrder.value.push(newCategory.id);
     saveCategoryOrder();
 
@@ -236,14 +247,16 @@ export const useCategoryStore = defineStore('categoryStore', () => {
 
   const deleteCategory = (id: string) => {
     const targetParentId = categories.value.find(c => c.id === id)?.parentId;
-    categories.value = categories.value.map(c => {
-      if (c.parentId === id) {
-        return { ...c, parentId: targetParentId };
-      }
-      return c;
-    }).filter(c => c.id !== id);
+    categories.value = categories.value
+      .map(c => {
+        if (c.parentId === id) {
+          return { ...c, parentId: targetParentId };
+        }
+        return c;
+      })
+      .filter(c => c.id !== id);
     saveCategories();
-    
+
     categoryOrder.value = categoryOrder.value.filter(itemId => itemId !== id);
     saveCategoryOrder();
   };

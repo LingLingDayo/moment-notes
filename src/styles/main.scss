@@ -1,6 +1,6 @@
-
 :root {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-display: 'Outfit', var(--font-sans);
 
   // 设计系统色彩 (Light Mode)
@@ -35,10 +35,10 @@
   --btn-hover-bg: var(--accent-light);
   --btn-hover-border: rgba(99, 102, 241, 0.2);
   --btn-hover-color: var(--accent-color);
-  
+
   // 条目悬浮
   --item-hover-bg: rgba(15, 23, 42, 0.04);
-  
+
   // 危险提示状态
   --danger-color: #ef4444;
   --danger-hover-bg: rgba(239, 68, 68, 0.1);
@@ -88,7 +88,7 @@
     --btn-hover-bg: rgba(255, 255, 255, 0.12);
     --btn-hover-border: rgba(255, 255, 255, 0.15);
     --btn-hover-color: var(--text-primary);
-    
+
     --item-hover-bg: rgba(255, 255, 255, 0.08);
     // 危险提示状态
     --danger-color: #f87171;
@@ -138,9 +138,9 @@
   --btn-hover-bg: rgba(255, 255, 255, 0.12);
   --btn-hover-border: rgba(255, 255, 255, 0.15);
   --btn-hover-color: var(--text-primary);
-  
+
   --item-hover-bg: rgba(255, 255, 255, 0.08);
-  
+
   // 危险提示状态
   --danger-color: #f87171;
   --danger-hover-bg: rgba(248, 113, 113, 0.15);
@@ -188,9 +188,9 @@
   --btn-hover-bg: var(--accent-light);
   --btn-hover-border: rgba(99, 102, 241, 0.2);
   --btn-hover-color: var(--accent-color);
-  
+
   --item-hover-bg: rgba(15, 23, 42, 0.04);
-  
+
   --danger-color: #ef4444;
   --danger-hover-bg: rgba(239, 68, 68, 0.1);
   --danger-hover-border: rgba(239, 68, 68, 0.25);
@@ -214,7 +214,8 @@
   padding: 0;
 }
 
-body, html {
+body,
+html {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -243,7 +244,7 @@ body, html {
 ::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--text-primary) 12%, transparent);
   border-radius: 4px;
-  
+
   &:hover {
     background: color-mix(in srgb, var(--text-primary) 25%, transparent);
   }
@@ -272,14 +273,15 @@ button {
   background: none;
   font-family: inherit;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   &:active {
     transform: scale(0.95);
   }
 }
 
 /* 输入框基础样式 */
-input, textarea {
+input,
+textarea {
   font-family: inherit;
   outline: none;
   border: 1px solid transparent;
@@ -317,12 +319,14 @@ input, textarea {
   pointer-events: none;
   opacity: 0;
   transform: translateY(4px) scale(0.95);
-  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: normal;
   max-width: 340px;
   word-break: break-all;
   overflow-wrap: break-word;
-  
+
   &.show {
     opacity: 1;
     transform: translateY(0) scale(1);

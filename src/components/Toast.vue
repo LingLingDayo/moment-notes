@@ -28,7 +28,11 @@ const iconComponent = computed(() => {
 
 <template>
   <Transition :name="`toast-${position}`">
-    <div v-if="isVisible" class="toast-container" :class="[`toast-${type}`, `position-${position}`]">
+    <div
+      v-if="isVisible"
+      class="toast-container"
+      :class="[`toast-${type}`, `position-${position}`]"
+    >
       <component :is="iconComponent" class="toast-icon" />
       <span class="toast-text">{{ message }}</span>
     </div>
@@ -52,7 +56,7 @@ const iconComponent = computed(() => {
   max-width: 90%;
   pointer-events: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  
+
   &.position-top {
     top: 64px;
   }

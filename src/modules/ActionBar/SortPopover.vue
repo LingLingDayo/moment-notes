@@ -17,7 +17,7 @@ const emit = defineEmits<{
 const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
   store.setSortMode(mode);
   emit('close');
-  
+
   let modeName = '';
   if (mode === 'date') {
     modeName = store.sortOrder === 'desc' ? '日期 (从新到旧)' : '日期 (从旧到新)';
@@ -34,20 +34,20 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
 
 <template>
   <div class="action-popover-wrapper" @click.stop>
-    <button 
-      class="icon-btn" 
+    <button
+      class="icon-btn"
       :class="{ active: isOpen }"
-      data-tooltip="排序方式" 
+      data-tooltip="排序方式"
       @click="emit('toggle')"
     >
       <ArrowUpDown class="btn-icon" />
     </button>
-    
+
     <div v-if="isOpen" class="sort-popover">
       <div class="popover-title">排序方式</div>
       <div class="sort-list">
-        <button 
-          class="sort-item" 
+        <button
+          class="sort-item"
           :class="{ active: store.sortMode === 'date' }"
           @click="changeSortMode('date')"
         >
@@ -57,8 +57,8 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
             {{ store.sortOrder === 'desc' ? '↓' : '↑' }}
           </span>
         </button>
-        <button 
-          class="sort-item" 
+        <button
+          class="sort-item"
           :class="{ active: store.sortMode === 'title' }"
           @click="changeSortMode('title')"
         >
@@ -68,8 +68,8 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
             {{ store.sortOrder === 'asc' ? '↓' : '↑' }}
           </span>
         </button>
-        <button 
-          class="sort-item" 
+        <button
+          class="sort-item"
           :class="{ active: store.sortMode === 'tag' }"
           @click="changeSortMode('tag')"
         >
@@ -79,8 +79,8 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
             {{ store.sortOrder === 'asc' ? '↓' : '↑' }}
           </span>
         </button>
-        <button 
-          class="sort-item" 
+        <button
+          class="sort-item"
           :class="{ active: store.sortMode === 'custom' }"
           @click="changeSortMode('custom')"
         >

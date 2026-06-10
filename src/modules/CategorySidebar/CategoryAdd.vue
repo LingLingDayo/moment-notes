@@ -44,10 +44,10 @@ const submitAdd = () => {
 <template>
   <div class="category-add-container">
     <div v-if="isAdding" class="add-category-input-wrapper">
-      <input 
+      <input
         ref="addInputRef"
         v-model="newCategoryName"
-        type="text" 
+        type="text"
         placeholder="分类名称..."
         class="add-input"
         @keyup.enter="submitAdd"
@@ -63,7 +63,7 @@ const submitAdd = () => {
         </button>
       </div>
     </div>
-    
+
     <button v-else class="add-category-btn" @click="startAdd">
       <Plus class="add-icon" />
       <span>添加新分类</span>
@@ -130,7 +130,8 @@ const submitAdd = () => {
   gap: 4px;
 }
 
-.add-confirm-btn, .add-cancel-btn {
+.add-confirm-btn,
+.add-cancel-btn {
   padding: 8px;
   border-radius: 8px;
   display: flex;

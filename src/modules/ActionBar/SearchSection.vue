@@ -24,7 +24,7 @@ const searchPlaceholder = computed(() => {
   if (store.searchTarget.includes('title')) parts.push('标题');
   if (store.searchTarget.includes('content')) parts.push('内容');
   if (store.searchTarget.includes('tag')) parts.push('标签');
-  
+
   if (parts.length > 0) {
     return `搜索便签${parts.join('/')}...`;
   }
@@ -54,14 +54,14 @@ const toggleTarget = (target: 'all' | 'title' | 'content' | 'tag') => {
   } else {
     // 移除 'all'
     nextTargets = store.searchTarget.filter(t => t !== 'all');
-    
+
     // 切换当前项
     if (nextTargets.includes(target)) {
       nextTargets = nextTargets.filter(t => t !== target);
     } else {
       nextTargets.push(target);
     }
-    
+
     // 如果全部都取消了，或者把所有其他选项都选上了，自动变回 'all'
     const otherOptionsCount = 3; // title, content, tag
     if (nextTargets.length === 0 || nextTargets.length === otherOptionsCount) {
@@ -88,16 +88,16 @@ onUnmounted(() => {
   <div class="search-section">
     <div class="search-wrapper">
       <Search class="search-icon" />
-      <input 
+      <input
         v-model="store.searchQuery"
-        type="text" 
+        type="text"
         :placeholder="searchPlaceholder"
         class="search-input"
       />
-      
+
       <!-- 清除搜索按钮 -->
-      <button 
-        v-if="store.searchQuery" 
+      <button
+        v-if="store.searchQuery"
         class="clear-search-btn"
         data-tooltip="清空搜索"
         @click="clearSearch"
@@ -107,19 +107,19 @@ onUnmounted(() => {
 
       <!-- 搜索目标选择器（内嵌到右侧） -->
       <div class="search-target-wrapper" @click.stop>
-        <button 
-          class="target-trigger-btn" 
+        <button
+          class="target-trigger-btn"
           :class="{ active: showTargetPopover }"
           data-tooltip="选择搜索范围"
           @click="togglePopover"
         >
           <ChevronDown class="chevron-icon" :class="{ open: showTargetPopover }" />
         </button>
-        
+
         <div v-if="showTargetPopover" class="target-popover">
           <div class="popover-title">搜索范围</div>
           <div class="target-list">
-            <button 
+            <button
               v-for="opt in targetOptions"
               :key="opt.value"
               class="target-item"
@@ -253,7 +253,8 @@ onUnmounted(() => {
   transition: all 0.2s ease;
   padding: 0;
 
-  &:hover, &.active {
+  &:hover,
+  &.active {
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
 

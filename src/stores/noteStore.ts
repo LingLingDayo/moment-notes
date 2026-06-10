@@ -78,7 +78,11 @@ export const useNoteStore = defineStore('noteStore', () => {
     return notes.value.filter(n => n.isDeleted === true).length;
   });
 
-  const updateNote = (id: string, fields: Partial<Omit<Note, 'id' | 'createdAt'>>, updateTimestamp = true) => {
+  const updateNote = (
+    id: string,
+    fields: Partial<Omit<Note, 'id' | 'createdAt'>>,
+    updateTimestamp = true
+  ) => {
     const note = notes.value.find(n => n.id === id);
     if (note) {
       Object.assign(note, fields);
@@ -104,7 +108,10 @@ export const useNoteStore = defineStore('noteStore', () => {
       return;
     } else {
       notes.value.forEach(n => {
-        if ((n.categoryId === categoryId || (descendants && descendants.has(n.categoryId))) && !n.isDeleted) {
+        if (
+          (n.categoryId === categoryId || (descendants && descendants.has(n.categoryId))) &&
+          !n.isDeleted
+        ) {
           n.isDeleted = true;
           n.deletedAt = Date.now();
           n.isPinned = false;

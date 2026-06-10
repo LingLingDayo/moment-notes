@@ -26,8 +26,10 @@
 
 // Hover 悬浮浮起动效
 @mixin hover-lift($translateY: -4px, $shadow: var(--shadow-md)) {
-  transition: transform $transition-slow, box-shadow $transition-slow;
-  
+  transition:
+    transform $transition-slow,
+    box-shadow $transition-slow;
+
   &:hover {
     transform: translateY($translateY);
     box-shadow: $shadow;
@@ -36,8 +38,8 @@
 
 // 隐藏滚动条但保留滚动
 @mixin hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }

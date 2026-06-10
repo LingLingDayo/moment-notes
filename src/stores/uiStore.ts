@@ -9,7 +9,7 @@ export const useUiStore = defineStore('uiStore', () => {
 
   const askConfirm = (title: string, message: string): Promise<boolean> => {
     confirmState.value = { show: true, title, message };
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       confirmResolve = resolve;
     });
   };
@@ -29,7 +29,7 @@ export const useUiStore = defineStore('uiStore', () => {
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   const showToast = (
-    msg: string, 
+    msg: string,
     type: 'success' | 'info' | 'warning' | 'error' = 'success',
     position: 'top' | 'bottom' = 'top'
   ) => {

@@ -68,7 +68,9 @@ const getNoteCount = (categoryId: string) => {
     return store.notes.filter(n => n.isDeleted !== true).length;
   }
   const descendants = store.getCategoryDescendants(categoryId);
-  return store.notes.filter(n => (n.categoryId === categoryId || descendants.has(n.categoryId)) && n.isDeleted !== true).length;
+  return store.notes.filter(
+    n => (n.categoryId === categoryId || descendants.has(n.categoryId)) && n.isDeleted !== true
+  ).length;
 };
 
 // 拖动排序相关的状态与方法
@@ -96,7 +98,7 @@ const onDragOverItem = (event: DragEvent, cat: any) => {
 
   event.preventDefault();
   event.stopPropagation();
-  
+
   if (cat.isSystem) {
     dragOverCatId.value = null;
     dragPlacement.value = null;
@@ -142,11 +144,11 @@ const onContainerDrop = (event: DragEvent) => {
   if (!draggedCatId.value) return;
 
   const sourceId = draggedCatId.value;
-  
+
   if (dragOverCatId.value && dragPlacement.value) {
     const targetId = dragOverCatId.value;
     const targetCat = store.categories.find(c => c.id === targetId);
-    
+
     if (targetCat) {
       if (dragPlacement.value === 'inside') {
         store.moveCategory(sourceId, targetId, undefined, 'inside');
@@ -156,7 +158,9 @@ const onContainerDrop = (event: DragEvent) => {
         store.moveCategory(sourceId, targetCat.parentId, targetId, dragPlacement.value);
         const sourceCat = store.categories.find(c => c.id === sourceId);
         const placementText = dragPlacement.value === 'before' ? '上方' : '下方';
-        store.showToast(`已将分类 "${sourceCat?.name}" 移至 "${targetCat.name}" 的${placementText}`);
+        store.showToast(
+          `已将分类 "${sourceCat?.name}" 移至 "${targetCat.name}" 的${placementText}`
+        );
       }
     }
   } else if (isOverContainer.value) {
@@ -188,12 +192,12 @@ const hasParent = (id: string) => {
 const startAddSub = async (parentId: string) => {
   store.addingSubParentId = parentId;
   store.newSubCategoryName = '分类';
-  
+
   // 展开父分类
   if (store.collapsedCategoryIds.includes(parentId)) {
     store.toggleCategoryCollapse(parentId);
   }
-  
+
   await nextTick();
   if (subAddInputRef.value) {
     subAddInputRef.value.focus();
@@ -228,29 +232,28 @@ const handleCategoryDblClick = (cat: any) => {
     store.toggleCategoryCollapse(cat.id);
   }
 };
-
 </script>
 
 <template>
-  <div 
-    :class="{ 'uTools': isUTools() }" 
+  <div
+    :class="{ uTools: isUTools() }"
     class="sidebar-menu"
     @dragover="onDragOverContainer"
     @drop="onContainerDrop"
   >
-    <TransitionGroup 
-      tag="div" 
-      name="category-list" 
-      style="display: flex; flex-direction: column; gap: 6px;"
+    <TransitionGroup
+      tag="div"
+      name="category-list"
+      style="display: flex; flex-direction: column; gap: 6px"
     >
-      <div 
-        v-for="(cat, index) in store.orderedCategories" 
+      <div
+        v-for="cat in store.orderedCategories"
         :key="cat.id"
         class="menu-item"
-        :class="{ 
+        :class="{
           active: store.currentCategoryId === cat.id,
           'has-actions': !cat.isSystem && !cat.isVirtualAdd,
-          'dragging': draggedCatId === cat.id,
+          dragging: draggedCatId === cat.id,
           'drag-before': dragOverCatId === cat.id && dragPlacement === 'before',
           'drag-after': dragOverCatId === cat.id && dragPlacement === 'after',
           'drag-inside': dragOverCatId === cat.id && dragPlacement === 'inside'
@@ -264,9 +267,9 @@ const handleCategoryDblClick = (cat: any) => {
         @dragend="onDragEnd"
       >
         <div class="active-indicator"></div>
-        
+
         <!-- Toggle button for subcategories -->
-        <span 
+        <span
           v-if="!cat.isSystem && cat.hasChildren"
           class="collapse-toggle"
           @click.stop="store.toggleCategoryCollapse(cat.id)"
@@ -283,15 +286,15 @@ const handleCategoryDblClick = (cat: any) => {
           </div>
           <span class="item-badge">{{ getNoteCount('all') }}</span>
         </template>
-  
+
         <!-- 用户自定义分类 or 虚拟新增子分类 -->
         <template v-else>
           <!-- 虚拟新增分类状态 -->
           <div v-if="cat.isVirtualAdd" class="item-edit-wrapper" @click.stop>
-            <input 
+            <input
               :ref="setSubAddInputRef"
               v-model="store.newSubCategoryName"
-              type="text" 
+              type="text"
               placeholder="子分类名称..."
               class="item-edit-input"
               @keyup.enter="submitAddSub(cat.parentId)"
@@ -305,10 +308,10 @@ const handleCategoryDblClick = (cat: any) => {
 
           <!-- 编辑状态 -->
           <div v-else-if="editingId === cat.id" class="item-edit-wrapper" @click.stop>
-            <input 
+            <input
               :ref="setEditInputRef"
               v-model="editCategoryName"
-              type="text" 
+              type="text"
               class="item-edit-input"
               @keyup.enter="submitEdit(cat.id)"
               @keyup.esc="cancelEdit"
@@ -318,14 +321,14 @@ const handleCategoryDblClick = (cat: any) => {
               <Check class="btn-icon-small" />
             </button>
           </div>
-  
+
           <!-- 正常展示状态 -->
           <template v-else>
             <div class="item-left">
               <Folder class="item-icon" />
               <span class="item-name" :data-tooltip="cat.name">{{ cat.name }}</span>
             </div>
-            
+
             <div class="item-right" @click.stop>
               <span class="item-badge">{{ getNoteCount(cat.id) }}</span>
               <div class="item-actions">
@@ -334,10 +337,18 @@ const handleCategoryDblClick = (cat: any) => {
                   <Plus class="action-icon" />
                 </button>
 
-                <button class="action-btn" data-tooltip="编辑分类" @click="startEdit(cat.id, cat.name)">
+                <button
+                  class="action-btn"
+                  data-tooltip="编辑分类"
+                  @click="startEdit(cat.id, cat.name)"
+                >
                   <Edit3 class="action-icon" />
                 </button>
-                <button class="action-btn delete" data-tooltip="删除分类" @click="confirmDelete(cat.id, cat.name)">
+                <button
+                  class="action-btn delete"
+                  data-tooltip="删除分类"
+                  @click="confirmDelete(cat.id, cat.name)"
+                >
                   <Trash2 class="action-icon" />
                 </button>
               </div>
@@ -348,10 +359,10 @@ const handleCategoryDblClick = (cat: any) => {
     </TransitionGroup>
 
     <!-- 拖拽移出根级提示区 -->
-    <div 
-      v-if="draggedCatId && hasParent(draggedCatId)" 
+    <div
+      v-if="draggedCatId && hasParent(draggedCatId)"
       class="drag-out-zone"
-      :class="{ 'active': isOverContainer && !dragOverCatId }"
+      :class="{ active: isOverContainer && !dragOverCatId }"
       @dragover.prevent
     >
       <span>移出为一级分类</span>
@@ -361,7 +372,7 @@ const handleCategoryDblClick = (cat: any) => {
     <div class="menu-divider"></div>
 
     <!-- 垃圾箱分类 -->
-    <div 
+    <div
       class="menu-item trash-item"
       :class="{ active: store.currentCategoryId === 'trash' }"
       @click="store.currentCategoryId = 'trash'"
@@ -446,7 +457,9 @@ const handleCategoryDblClick = (cat: any) => {
       width: 12px;
       height: 12px;
       stroke-width: 2.5px;
-      transition: transform 0.2s ease, color 0.2s ease;
+      transition:
+        transform 0.2s ease,
+        color 0.2s ease;
     }
   }
 
@@ -460,7 +473,7 @@ const handleCategoryDblClick = (cat: any) => {
       opacity: 0;
       transform: scale(0.8);
     }
-    
+
     .item-actions {
       opacity: 1;
       transform: translateX(0);
@@ -494,8 +507,11 @@ const handleCategoryDblClick = (cat: any) => {
     border-color: var(--accent-color);
     border-style: dashed;
     box-shadow: none;
-    
-    .item-badge, .item-actions, .active-indicator, .collapse-toggle {
+
+    .item-badge,
+    .item-actions,
+    .active-indicator,
+    .collapse-toggle {
       opacity: 0 !important;
     }
   }
@@ -503,7 +519,9 @@ const handleCategoryDblClick = (cat: any) => {
   &.drag-inside {
     background: color-mix(in srgb, var(--accent-color) 12%, var(--item-hover-bg)) !important;
     border-color: var(--accent-color) !important;
-    box-shadow: 0 0 0 1px var(--accent-color), var(--shadow-sm) !important;
+    box-shadow:
+      0 0 0 1px var(--accent-color),
+      var(--shadow-sm) !important;
   }
 
   &.drag-before {
@@ -605,7 +623,7 @@ const handleCategoryDblClick = (cat: any) => {
   border: none;
   cursor: pointer;
   flex-shrink: 0;
-  
+
   &:hover {
     background: var(--item-hover-bg);
     color: var(--text-primary);
@@ -651,7 +669,7 @@ const handleCategoryDblClick = (cat: any) => {
   background: var(--accent-color);
   color: var(--text-on-accent);
   transition: all 0.2s ease;
-  
+
   &.confirm:hover {
     background: var(--accent-hover);
   }

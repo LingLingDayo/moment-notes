@@ -36,7 +36,7 @@ const colorStyle = computed(() => {
     '--card-btn-hover-bg': preset.lightBtnHoverBg,
     '--card-btn-hover-color': preset.lightBtnHoverColor,
     '--card-btn-hover-bg-dark': preset.darkBtnHoverBg,
-    '--card-btn-hover-color-dark': preset.darkBtnHoverColor,
+    '--card-btn-hover-color-dark': preset.darkBtnHoverColor
   };
 });
 
@@ -51,13 +51,14 @@ const enterEditMode = () => {
 // 保存编辑
 const saveEdit = () => {
   tagEditorRef.value?.addTag();
-  
+
   const titleChanged = editTitle.value.trim() !== (props.note.title || '').trim();
   const contentChanged = editContent.value !== props.note.content;
   const originalTags = props.note.tags || [];
-  const tagsChanged = editTags.value.length !== originalTags.length || 
-                      !editTags.value.every((t, i) => t === originalTags[i]);
-                      
+  const tagsChanged =
+    editTags.value.length !== originalTags.length ||
+    !editTags.value.every((t, i) => t === originalTags[i]);
+
   if (titleChanged || contentChanged || tagsChanged) {
     store.updateNote(props.note.id, {
       title: editTitle.value.trim(),
@@ -87,9 +88,13 @@ const handleDoubleClick = () => {
 // 切换置顶
 const togglePin = () => {
   if (props.note.isDeleted) return;
-  store.updateNote(props.note.id, {
-    isPinned: !props.note.isPinned
-  }, false);
+  store.updateNote(
+    props.note.id,
+    {
+      isPinned: !props.note.isPinned
+    },
+    false
+  );
   store.showToast(props.note.isPinned ? '便签已置顶' : '取消置顶');
 };
 
@@ -106,7 +111,7 @@ const handleDragStart = (e: DragEvent) => {
   }
 };
 
-const handleDragEnter = (e: DragEvent) => {
+const handleDragEnter = (_e: DragEvent) => {
   if (store.sortMode !== 'custom') return;
   const draggedId = store.draggedNoteId;
   if (draggedId && draggedId !== props.note.id) {
@@ -139,17 +144,17 @@ const handleMousedown = (event: MouseEvent) => {
 
 const handleClickOutside = (event: MouseEvent) => {
   if (!isEditing.value || !cardRef.value) return;
-  
+
   const clickTarget = event.target as Node;
   const isMousedownInside = cardRef.value.contains(mousedownTarget);
   const isClickInside = cardRef.value.contains(clickTarget);
-  
+
   if (!isMousedownInside && !isClickInside) {
     saveEdit();
   }
 };
 
-watch(isEditing, (editing) => {
+watch(isEditing, editing => {
   if (editing) {
     nextTick(() => {
       document.addEventListener('mousedown', handleMousedown, true);
@@ -176,12 +181,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div 
+  <div
     ref="cardRef"
     class="note-card"
-    :class="{ 
-      pinned: note.isPinned, 
-      editing: isEditing, 
+    :class="{
+      pinned: note.isPinned,
+      editing: isEditing,
       dragging: store.draggedNoteId === note.id,
       'is-in-trash': note.isDeleted
     }"
@@ -196,9 +201,9 @@ onMounted(() => {
     @mouseleave="handleMouseLeave"
   >
     <NoteCardHeader
+      v-model:title="editTitle"
       :note="note"
       :is-editing="isEditing"
-      v-model:title="editTitle"
       @toggle-pin="togglePin"
       @enter-edit="enterEditMode"
       @save-edit="saveEdit"
@@ -206,18 +211,14 @@ onMounted(() => {
     />
 
     <NoteCardBody
+      v-model:content="editContent"
       :note="note"
       :is-editing="isEditing"
-      v-model:content="editContent"
       @cancel-edit="cancelEdit"
       @save-edit="saveEdit"
     />
 
-    <NoteCardTagEditor
-      v-if="isEditing"
-      ref="tagEditorRef"
-      v-model:tags="editTags"
-    />
+    <NoteCardTagEditor v-if="isEditing" ref="tagEditorRef" v-model:tags="editTags" />
 
     <NoteCardFooter
       ref="footerRef"
@@ -278,7 +279,7 @@ onMounted(() => {
   &.pinned {
     box-shadow: 0 8px 20px -8px var(--accent-light);
     border-width: 1.5px;
-    
+
     :deep(.pin-icon) {
       transform: rotate(45deg);
       fill: currentColor;
@@ -301,9 +302,9 @@ onMounted(() => {
     box-shadow: none !important;
   }
 
-  &[draggable="true"] {
+  &[draggable='true'] {
     cursor: grab;
-    
+
     &:active {
       cursor: grabbing;
     }
@@ -314,7 +315,7 @@ onMounted(() => {
     transform: none !important;
     box-shadow: none !important;
     cursor: default !important;
-    
+
     &:hover {
       opacity: 0.85;
       transform: none !important;

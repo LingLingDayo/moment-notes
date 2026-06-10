@@ -17,7 +17,7 @@ const emit = defineEmits<{
 const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
   store.setGridColumns(cols);
   emit('close');
-  
+
   const label = cols === 'auto' ? '自动' : `${cols} 列`;
   store.showToast(`已强制设置卡片列数为：${label}`, 'success');
 };
@@ -25,21 +25,21 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
 
 <template>
   <div class="action-popover-wrapper" @click.stop>
-    <button 
-      class="icon-btn" 
+    <button
+      class="icon-btn"
       :class="{ active: isOpen }"
-      data-tooltip="列数设置" 
+      data-tooltip="列数设置"
       @click="emit('toggle')"
     >
       <LayoutGrid class="btn-icon" />
     </button>
-    
+
     <div v-if="isOpen" class="columns-popover">
       <div class="popover-title">列数设置</div>
       <div class="columns-list">
         <!-- 自动选项 -->
-        <button 
-          class="columns-item" 
+        <button
+          class="columns-item"
           :class="{ active: store.gridColumns === 'auto' }"
           @click="changeGridColumns('auto')"
         >
@@ -48,11 +48,11 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
         </button>
 
         <!-- 1-4 列 -->
-        <button 
+        <button
           v-for="cols in [1, 2, 3, 4]"
           :key="cols"
-          class="columns-item" 
-          :class="{ 
+          class="columns-item"
+          :class="{
             active: store.gridColumns === cols,
             disabled: cols > store.maxColumns
           }"

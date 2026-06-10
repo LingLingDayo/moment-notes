@@ -11,7 +11,7 @@ function createTooltip(): HTMLDivElement {
 }
 
 export function initTooltip() {
-  document.addEventListener('mouseover', (e) => {
+  document.addEventListener('mouseover', e => {
     const target = (e.target as HTMLElement).closest('[data-tooltip]') as HTMLElement;
     if (!target) {
       if (currentTarget) {
@@ -53,7 +53,7 @@ export function initTooltip() {
     }, 550);
   });
 
-  document.addEventListener('mouseout', (e) => {
+  document.addEventListener('mouseout', e => {
     const target = (e.target as HTMLElement).closest('[data-tooltip]') as HTMLElement;
     if (!target || target !== currentTarget) return;
 
@@ -84,7 +84,7 @@ function hideTooltip() {
 
 function updatePosition(target: HTMLElement, el: HTMLElement) {
   const targetRect = target.getBoundingClientRect();
-  
+
   // 必须先把 tooltip 放置在可见处（或通过它的默认布局），以获取渲染后的高宽
   // 此时 .show 可能已被添加，但 opacity/transform 变化不影响 offsetWidth/offsetHeight
   const elWidth = el.offsetWidth;

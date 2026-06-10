@@ -85,7 +85,7 @@ const moveCategory = (catId: string) => {
 const deleteSelf = async () => {
   const ok = await store.askConfirm(
     props.note.isDeleted ? '确认彻底删除' : '确认删除便签',
-    props.note.isDeleted 
+    props.note.isDeleted
       ? '确定要彻底删除这张便签吗？此操作不可逆，数据将永久丢失。'
       : '确定要删除这张便签吗？该便签将被移动到垃圾箱，随时可以恢复。'
   );
@@ -105,14 +105,11 @@ const deleteSelf = async () => {
   <!-- 卡片底部信息及悬浮工具栏 (非编辑态) -->
   <div v-else class="card-footer" @click.stop>
     <span class="updated-time">{{ formattedTime }} · {{ note.content.length }} 字</span>
-    
+
     <!-- 垃圾箱中卡片的专属操作栏：永久显示 -->
     <div v-if="note.isDeleted" class="card-actions is-deleted-actions">
       <!-- 原分组 -->
-      <div 
-        class="action-btn original-folder-btn" 
-        :data-tooltip="`原分组: ${originalCategoryName}`"
-      >
+      <div class="action-btn original-folder-btn" :data-tooltip="`原分组: ${originalCategoryName}`">
         <Folder class="action-icon" />
       </div>
 
@@ -131,18 +128,25 @@ const deleteSelf = async () => {
         <Trash2 class="action-icon" />
       </button>
     </div>
-    
+
     <!-- 正常卡片操作栏 -->
     <div v-else class="card-actions">
       <!-- 换色调色盘 -->
       <div class="action-popover-wrapper">
-        <button class="action-btn" data-tooltip="更改颜色" @click="showColorPicker = !showColorPicker; showFolderPicker = false">
+        <button
+          class="action-btn"
+          data-tooltip="更改颜色"
+          @click="
+            showColorPicker = !showColorPicker;
+            showFolderPicker = false;
+          "
+        >
           <Palette class="action-icon" />
         </button>
-        
+
         <div v-if="showColorPicker" class="color-picker-popover">
-          <button 
-            v-for="(preset, key) in COLOR_PRESETS" 
+          <button
+            v-for="(preset, key) in COLOR_PRESETS"
             :key="key"
             class="color-dot"
             :style="{ background: preset.lightBg, border: `1px solid ${preset.lightBorder}` }"
@@ -156,29 +160,36 @@ const deleteSelf = async () => {
 
       <!-- 移动分类 -->
       <div class="action-popover-wrapper">
-        <button class="action-btn" data-tooltip="移动分类" @click="showFolderPicker = !showFolderPicker; showColorPicker = false">
+        <button
+          class="action-btn"
+          data-tooltip="移动分类"
+          @click="
+            showFolderPicker = !showFolderPicker;
+            showColorPicker = false;
+          "
+        >
           <FolderInput class="action-icon" />
         </button>
-        
+
         <div v-if="showFolderPicker" class="folder-picker-popover">
           <div class="popover-title">移动至分类</div>
           <div class="folder-list">
-            <button 
-              class="folder-item" 
+            <button
+              class="folder-item"
               :class="{ active: note.categoryId === 'uncategorized' }"
               @click="moveCategory('uncategorized')"
             >
               未分类
             </button>
-            <button 
-              v-for="cat in store.orderedCategories.filter(c => !c.isSystem)" 
+            <button
+              v-for="cat in store.orderedCategories.filter(c => !c.isSystem)"
               :key="cat.id"
               class="folder-item"
               :style="{ paddingLeft: `${(cat.level || 0) * 12 + 8}px` }"
               :class="{ active: note.categoryId === cat.id }"
               @click="moveCategory(cat.id)"
             >
-              <span v-if="cat.level > 0" style="opacity: 0.5; margin-right: 4px;">└─</span>
+              <span v-if="cat.level > 0" style="opacity: 0.5; margin-right: 4px">└─</span>
               {{ cat.name }}
             </button>
           </div>
@@ -216,7 +227,7 @@ const deleteSelf = async () => {
     background: var(--btn-bg);
     color: inherit;
     border: 1px solid var(--btn-border);
-    
+
     &:hover {
       background: var(--card-btn-hover-bg);
       color: var(--card-btn-hover-color);
@@ -266,11 +277,11 @@ const deleteSelf = async () => {
   opacity: 0;
   transform: translateY(4px);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  
+
   &.is-deleted-actions {
     opacity: 0.75;
     transform: translateY(0);
-    
+
     &:hover {
       opacity: 1;
     }

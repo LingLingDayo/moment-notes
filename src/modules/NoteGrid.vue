@@ -30,7 +30,7 @@ onMounted(() => {
     updateMaxColumns(containerRef.value.clientWidth);
 
     if (typeof window !== 'undefined' && 'ResizeObserver' in window) {
-      resizeObserver = new ResizeObserver((entries) => {
+      resizeObserver = new ResizeObserver(entries => {
         for (const entry of entries) {
           updateMaxColumns(entry.contentRect.width);
         }
@@ -80,20 +80,20 @@ const handleAddNote = () => {
         <SearchX v-if="store.searchQuery" class="empty-icon animate-pulse" />
         <StickyNote v-else class="empty-icon" />
       </div>
-      
+
       <h3 class="empty-title">
         {{ store.searchQuery ? '没有找到匹配的便签' : '当前分类空空如也' }}
       </h3>
-      
+
       <p class="empty-desc">
-        {{ store.searchQuery ? '尝试换个关键词搜索，或者清除搜索条件。' : '在这个分类下还没有记录任何便签。' }}
+        {{
+          store.searchQuery
+            ? '尝试换个关键词搜索，或者清除搜索条件。'
+            : '在这个分类下还没有记录任何便签。'
+        }}
       </p>
 
-      <button 
-        v-if="!store.searchQuery" 
-        class="create-first-btn"
-        @click="handleAddNote"
-      >
+      <button v-if="!store.searchQuery" class="create-first-btn" @click="handleAddNote">
         <Plus class="btn-icon" />
         <span>添加第一张便签</span>
       </button>
@@ -101,11 +101,7 @@ const handleAddNote = () => {
 
     <!-- 便签网格 -->
     <TransitionGroup v-else name="notes-list" tag="div" class="notes-grid" :style="gridStyle">
-      <NoteCard 
-        v-for="note in store.filteredNotes" 
-        :key="note.id"
-        :note="note"
-      />
+      <NoteCard v-for="note in store.filteredNotes" :key="note.id" :note="note" />
     </TransitionGroup>
   </div>
 </template>
@@ -193,7 +189,8 @@ const handleAddNote = () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.35;
   }
   50% {
@@ -221,7 +218,7 @@ const handleAddNote = () => {
   position: absolute;
   pointer-events: none;
   // 保持卡片大致宽度，防止 absolute 时宽度坍缩
-  width: 250px; 
+  width: 250px;
 }
 
 @media (max-width: 1049px) {

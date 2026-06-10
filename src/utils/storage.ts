@@ -2,8 +2,7 @@
  * 检查当前是否在 uTools 环境下运行
  */
 export const isUTools = (): boolean => {
-  return typeof window !== 'undefined' && 
-         window.utools !== undefined;
+  return typeof window !== 'undefined' && window.utools !== undefined;
 };
 
 /**
@@ -95,22 +94,32 @@ export const pasteTextToCursor = async (text: string): Promise<boolean> => {
  * 浏览器环境降级为 Blob 触发文件下载
  * @returns {'success' | 'canceled' | 'fallback'} 保存状态
  */
-export const downloadOrWriteFile = (content: string, filename: string, mimeType: string = 'text/plain'): 'success' | 'canceled' | 'fallback' => {
+export const downloadOrWriteFile = (
+  content: string,
+  filename: string,
+  mimeType: string = 'text/plain'
+): 'success' | 'canceled' | 'fallback' => {
   if (isUTools()) {
     if (typeof window !== 'undefined' && window.services?.writeTextFile) {
       try {
         const downloadsPath = window.utools.getPath('downloads');
         const separator = downloadsPath.endsWith('/') || downloadsPath.endsWith('\\') ? '' : '/';
         const defaultPath = `${downloadsPath}${separator}${filename}`;
-        
+
         const extension = filename.split('.').pop() || 'txt';
         const savePath = window.utools.showSaveDialog({
           title: '选择保存路径',
           defaultPath: defaultPath,
           buttonLabel: '保存',
           filters: mimeType.includes('json')
-            ? [{ name: 'JSON Backup Files', extensions: [extension] }, { name: 'All Files', extensions: ['*'] }]
-            : [{ name: 'Text Files', extensions: [extension] }, { name: 'All Files', extensions: ['*'] }]
+            ? [
+                { name: 'JSON Backup Files', extensions: [extension] },
+                { name: 'All Files', extensions: ['*'] }
+              ]
+            : [
+                { name: 'Text Files', extensions: [extension] },
+                { name: 'All Files', extensions: ['*'] }
+              ]
         });
 
         if (savePath) {
@@ -120,7 +129,10 @@ export const downloadOrWriteFile = (content: string, filename: string, mimeType:
           return 'canceled';
         }
       } catch (e) {
-        console.error('uTools showSaveDialog or writeTextFile failed, falling back to download:', e);
+        console.error(
+          'uTools showSaveDialog or writeTextFile failed, falling back to download:',
+          e
+        );
       }
     }
   }

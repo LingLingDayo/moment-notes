@@ -36,7 +36,7 @@ const handleGlobalKeyDown = (e: KeyboardEvent) => {
 onMounted(() => {
   // 加载存储中的便签和分类数据
   store.loadData();
-  
+
   // 监听全局快捷键 (开发者/键盘流效率增强)
   window.addEventListener('keydown', handleGlobalKeyDown);
 });

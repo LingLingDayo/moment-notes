@@ -58,10 +58,10 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
           console.error('Failed to parse category order:', e);
         }
       }
-      
+
       const currentIds = new Set(categoryStore.categories.map(c => c.id));
       currentIds.add('all');
-      
+
       let finalOrder = loadedOrder.filter(id => currentIds.has(id));
       categoryStore.categories.forEach(c => {
         if (!finalOrder.includes(c.id)) {
@@ -71,7 +71,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       if (!finalOrder.includes('all')) {
         finalOrder.unshift('all');
       }
-      
+
       categoryStore.categoryOrder = finalOrder;
       if (!storedOrder) {
         categoryStore.saveCategoryOrder();
@@ -108,7 +108,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
             id: 'n1',
             categoryId: '1',
             title: '✨ 欢迎使用拾光便签',
-            content: '你好呀！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想。',
+            content:
+              '你好呀！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想。',
             color: 'yellow',
             isPinned: true,
             createdAt: Date.now(),
@@ -119,7 +120,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
             id: 'n2',
             categoryId: '1',
             title: '🚀 核心特色功能：双击粘贴',
-            content: '双击本便签卡片，本插件将自动隐藏并把便签内容直接粘贴到你的光标输入位置！非常适合存储客服话术、代码模板和常用邮箱地址等。',
+            content:
+              '双击本便签卡片，本插件将自动隐藏并把便签内容直接粘贴到你的光标输入位置！非常适合存储客服话术、代码模板和常用邮箱地址等。',
             color: 'blue',
             isPinned: false,
             createdAt: Date.now() - 1000,
@@ -130,7 +132,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
             id: 'n3',
             categoryId: '2',
             title: '💡 快捷操作指南',
-            content: '1. 点击卡片右上角大头针可以置顶便签。\n2. 点击下方调色盘图标一键切换便签主题颜色。\n3. 右侧工具栏支持一键搜索、清空分类或在当前分类下极速创建便签。',
+            content:
+              '1. 点击卡片右上角大头针可以置顶便签。\n2. 点击下方调色盘图标一键切换便签主题颜色。\n3. 右侧工具栏支持一键搜索、清空分类或在当前分类下极速创建便签。',
             color: 'green',
             isPinned: false,
             createdAt: Date.now() - 2000,
@@ -156,7 +159,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
 
   const deleteCategory = (id: string) => {
     categoryStore.deleteCategory(id);
-    
+
     // 更新属于该分类的便签为 'uncategorized'
     noteStore.notes = noteStore.notes.map(n => {
       if (n.categoryId === id) {
@@ -175,7 +178,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   const addNote = (categoryId: string, content = '', title = '', color = 'yellow') => {
     let targetCategoryId = categoryId;
     if (categoryId === 'all' || categoryId === 'trash') {
-      targetCategoryId = categoryStore.categories.length > 0 ? categoryStore.categories[0].id : 'uncategorized';
+      targetCategoryId =
+        categoryStore.categories.length > 0 ? categoryStore.categories[0].id : 'uncategorized';
     }
     return noteStore.addNote(targetCategoryId, content, title, color);
   };
@@ -196,7 +200,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       result = result.filter(n => n.isDeleted !== true);
       if (noteStore.currentCategoryId !== 'all') {
         const descendants = categoryStore.getCategoryDescendants(noteStore.currentCategoryId);
-        result = result.filter(n => n.categoryId === noteStore.currentCategoryId || descendants.has(n.categoryId));
+        result = result.filter(
+          n => n.categoryId === noteStore.currentCategoryId || descendants.has(n.categoryId)
+        );
       }
     }
 
@@ -232,14 +238,18 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         if (!titleA && titleB) return 1;
         if (titleA && !titleB) return -1;
         if (!titleA && !titleB) {
-          return noteStore.sortOrder === 'asc' ? a.updatedAt - b.updatedAt : b.updatedAt - a.updatedAt;
+          return noteStore.sortOrder === 'asc'
+            ? a.updatedAt - b.updatedAt
+            : b.updatedAt - a.updatedAt;
         }
-        
+
         const cmp = titleA.localeCompare(titleB, 'zh');
         if (cmp !== 0) {
           return noteStore.sortOrder === 'asc' ? cmp : -cmp;
         }
-        return noteStore.sortOrder === 'asc' ? a.updatedAt - b.updatedAt : b.updatedAt - a.updatedAt;
+        return noteStore.sortOrder === 'asc'
+          ? a.updatedAt - b.updatedAt
+          : b.updatedAt - a.updatedAt;
       } else if (noteStore.sortMode === 'tag') {
         const getRepresentTag = (note: Note): string => {
           if (!note.tags || note.tags.length === 0) return '';
@@ -260,14 +270,16 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         if (cmp !== 0) {
           return noteStore.sortOrder === 'asc' ? cmp : -cmp;
         }
-        return noteStore.sortOrder === 'asc' ? a.updatedAt - b.updatedAt : b.updatedAt - a.updatedAt;
+        return noteStore.sortOrder === 'asc'
+          ? a.updatedAt - b.updatedAt
+          : b.updatedAt - a.updatedAt;
       } else if (noteStore.sortMode === 'custom') {
         const indexA = noteStore.notes.findIndex(n => n.id === a.id);
         const indexB = noteStore.notes.findIndex(n => n.id === b.id);
         return indexA - indexB;
       } else {
-        return noteStore.sortOrder === 'desc' 
-          ? b.updatedAt - a.updatedAt 
+        return noteStore.sortOrder === 'desc'
+          ? b.updatedAt - a.updatedAt
           : a.updatedAt - b.updatedAt;
       }
     });
@@ -295,7 +307,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     helpers.exportSingleNoteAsTxt(note, uiStore.showToast);
   };
 
-  const handlePasteNote = async (content: string): Promise<{ success: boolean; isNative: boolean }> => {
+  const handlePasteNote = async (
+    content: string
+  ): Promise<{ success: boolean; isNative: boolean }> => {
     if (!content.trim()) {
       uiStore.showToast('便签内容为空，无法复制粘贴', 'warning');
       return { success: false, isNative: false };
