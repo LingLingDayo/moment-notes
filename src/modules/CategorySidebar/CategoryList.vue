@@ -214,6 +214,20 @@ const submitAddSub = (parentId?: string) => {
   cancelAddSub();
 };
 
+// 单击分类项处理
+const handleCategoryClick = (cat: any) => {
+  if (cat.isVirtualAdd) return;
+  store.currentCategoryId = cat.id;
+};
+
+// 双击分类项处理
+const handleCategoryDblClick = (cat: any) => {
+  if (cat.isVirtualAdd || cat.isSystem) return;
+  if (cat.hasChildren) {
+    store.toggleCategoryCollapse(cat.id);
+  }
+};
+
 </script>
 
 <template>
@@ -242,7 +256,8 @@ const submitAddSub = (parentId?: string) => {
         }"
         :draggable="editingId !== cat.id && !cat.isVirtualAdd"
         :style="{ '--item-level': cat.level || 0 }"
-        @click="store.currentCategoryId = cat.isVirtualAdd ? store.currentCategoryId : cat.id"
+        @click="handleCategoryClick(cat)"
+        @dblclick="handleCategoryDblClick(cat)"
         @dragstart="onDragStart($event, cat)"
         @dragover="onDragOverItem($event, cat)"
         @dragend="onDragEnd"
@@ -308,7 +323,7 @@ const submitAddSub = (parentId?: string) => {
           <template v-else>
             <div class="item-left">
               <Folder class="item-icon" />
-              <span class="item-name" :data-tooltip="cat.name" @dblclick="startEdit(cat.id, cat.name)">{{ cat.name }}</span>
+              <span class="item-name" :data-tooltip="cat.name">{{ cat.name }}</span>
             </div>
             
             <div class="item-right" @click.stop>
