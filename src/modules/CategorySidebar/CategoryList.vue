@@ -444,9 +444,9 @@ const onDragEnd = () => {
 
 .menu-divider {
   height: 1px;
-  background: var(--panel-border);
-  margin: 6px 4px;
-  opacity: 0.35;
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  // margin: 6px 4px;
+  opacity: 0.8;
 }
 
 .trash-item {
