@@ -11,12 +11,19 @@ const editingId = ref<string | null>(null);
 const editCategoryName = ref('');
 const editInputRef = ref<HTMLInputElement | null>(null);
 
+const setEditInputRef = (el: any) => {
+  editInputRef.value = el as HTMLInputElement | null;
+};
+
 // 开启编辑
 const startEdit = async (id: string, currentName: string) => {
   editingId.value = id;
   editCategoryName.value = currentName;
   await nextTick();
-  editInputRef.value?.focus();
+  if (editInputRef.value) {
+    editInputRef.value.focus();
+    editInputRef.value.select();
+  }
 };
 
 // 取消编辑
@@ -140,7 +147,7 @@ const onDragEnd = () => {
         <!-- 编辑状态 -->
         <div v-if="editingId === cat.id" class="item-edit-wrapper" @click.stop>
           <input 
-            ref="editInputRef"
+            :ref="setEditInputRef"
             v-model="editCategoryName"
             type="text" 
             class="item-edit-input"
