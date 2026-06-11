@@ -148,7 +148,7 @@ export const devResetNotes = (
       categoryId: '1',
       title: '✨ 欢迎使用拾光便签',
       content:
-        '👋 你好！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想。',
+        '哈喽！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想。',
       color: 'yellow',
       isPinned: true,
       createdAt: Date.now(),

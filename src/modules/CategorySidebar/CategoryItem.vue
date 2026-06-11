@@ -79,7 +79,7 @@ const vFocusSelect = {
           @keyup.esc="ctx.cancelEdit"
           @blur="ctx.submitEdit(cat.id)"
         />
-        <button class="edit-btn confirm" @click="ctx.submitEdit(cat.id)">
+        <button class="edit-btn confirm" @mousedown.prevent @click="ctx.submitEdit(cat.id)">
           <Check class="btn-icon-small" />
         </button>
       </div>
@@ -149,7 +149,7 @@ const vFocusSelect = {
               @keyup.esc="ctx.cancelAddSub"
               @blur="ctx.submitAddSub(cat.id)"
             />
-            <button class="edit-btn confirm" @click="ctx.submitAddSub(cat.id)">
+            <button class="edit-btn confirm" @mousedown.prevent @click="ctx.submitAddSub(cat.id)">
               <Check class="btn-icon-small" />
             </button>
           </div>

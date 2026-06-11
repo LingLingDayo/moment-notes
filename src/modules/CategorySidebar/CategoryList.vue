@@ -25,6 +25,7 @@ const cancelEdit = () => {
 
 // 提交编辑
 const submitEdit = (id: string) => {
+  if (editingId.value !== id) return;
   const name = editCategoryName.value.trim();
   if (name) {
     store.updateCategory(id, name);
@@ -297,6 +298,7 @@ const cancelAddSub = () => {
 };
 
 const submitAddSub = (parentId?: string) => {
+  if (store.addingSubParentId !== parentId) return;
   const name = store.newSubCategoryName.trim();
   if (name) {
     store.addCategory(name, parentId);

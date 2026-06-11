@@ -29,6 +29,7 @@ const cancelAdd = () => {
 
 // 提交新增
 const submitAdd = () => {
+  if (!isAdding.value) return;
   const name = newCategoryName.value.trim();
   if (name) {
     store.addCategory(name);
@@ -55,10 +56,10 @@ const submitAdd = () => {
         @blur="submitAdd"
       />
       <div class="add-actions">
-        <button class="add-confirm-btn" @click="submitAdd">
+        <button class="add-confirm-btn" @mousedown.prevent @click="submitAdd">
           <Check class="btn-icon" />
         </button>
-        <button class="add-cancel-btn" @click="cancelAdd">
+        <button class="add-cancel-btn" @mousedown.prevent @click="cancelAdd">
           <X class="btn-icon" />
         </button>
       </div>
