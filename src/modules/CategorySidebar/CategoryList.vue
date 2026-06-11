@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, provide, computed, watch } from 'vue';
+import { ref, provide, computed } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Folder, Trash2 } from 'lucide-vue-next';
 import { isUTools } from '@/utils/storage';
@@ -65,56 +65,53 @@ const dragPlacement = ref<'before' | 'after' | 'inside' | null>(null);
 const isOverOutZone = ref(false);
 
 // 拖拽指示线样式与层级计算
-const dragIndicatorStyle = ref<any>({});
-
 const getCategoryLevel = (id: string): number => {
   if (id === 'all' || id === 'trash') return 0;
   let level = 0;
   let current = store.categories.find(c => c.id === id);
   while (current && current.parentId) {
     level++;
-    current = store.categories.find(c => c.id === current.parentId);
+    const parentId = current.parentId;
+    current = store.categories.find(c => c.id === parentId);
   }
   return level;
 };
 
-watch(
-  () => [dragOverCatId.value, dragPlacement.value],
-  ([overId, placement]) => {
-    if (!overId || !placement || placement === 'inside') {
-      dragIndicatorStyle.value = {};
-      return;
-    }
+const dragIndicatorStyle = computed(() => {
+  const overId = dragOverCatId.value;
+  const placement = dragPlacement.value;
 
-    const containerEl = document.querySelector('.category-list-wrapper');
-    const targetEl = document.querySelector(`[data-id="${overId}"]`);
+  if (!overId || !placement || placement === 'inside') {
+    return {};
+  }
 
-    if (containerEl && targetEl) {
-      const containerRect = containerEl.getBoundingClientRect();
-      const targetRect = targetEl.getBoundingClientRect();
+  const containerEl = document.querySelector('.category-list-wrapper');
+  const targetEl = document.querySelector(`[data-id="${overId}"]`);
 
-      let top = targetRect.top - containerRect.top;
-      if (placement === 'before') {
-        top -= 4;
-      } else {
-        top += targetRect.height + 2;
-      }
+  if (containerEl && targetEl) {
+    const containerRect = containerEl.getBoundingClientRect();
+    const targetRect = targetEl.getBoundingClientRect();
 
-      let level = 0;
-      if (overId !== 'all') {
-        level = getCategoryLevel(overId);
-      }
-
-      dragIndicatorStyle.value = {
-        top: `${top}px`,
-        '--item-level': level
-      };
+    let top = targetRect.top - containerRect.top;
+    if (placement === 'before') {
+      top -= 4;
     } else {
-      dragIndicatorStyle.value = {};
+      top += targetRect.height + 2;
     }
-  },
-  { flush: 'post' }
-);
+
+    let level = 0;
+    if (overId !== 'all') {
+      level = getCategoryLevel(overId);
+    }
+
+    return {
+      top: `${top}px`,
+      '--item-level': level
+    };
+  }
+
+  return {};
+});
 
 // 寻找同级分类中的下一个兄弟节点
 const getNextSibling = (cat: any) => {
