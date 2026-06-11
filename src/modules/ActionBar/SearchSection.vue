@@ -143,7 +143,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   flex: 1;
-  max-width: 370px;
+  max-width: 320px;
 }
 
 .search-wrapper {
@@ -359,6 +359,9 @@ onUnmounted(() => {
 }
 
 @media (max-width: 1049px) {
+  .search-section {
+    max-width: 280px;
+  }
   .search-wrapper {
     height: 34px;
     border-radius: 10px;
