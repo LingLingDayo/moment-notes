@@ -93,7 +93,9 @@ onUnmounted(() => {
   <aside class="sidebar-container" :style="{ width: sidebarWidth + 'px' }">
     <div v-if="!isUTools()" class="sidebar-header">
       <img src="/logo.png" class="logo" alt="logo" />
-      <h2 class="header-title">拾光便签</h2>
+      <h2 class="header-title">
+        拾光便签
+      </h2>
     </div>
 
     <!-- 分类列表区域 -->

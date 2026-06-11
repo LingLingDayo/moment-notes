@@ -117,7 +117,9 @@ onUnmounted(() => {
         </button>
 
         <div v-if="showTargetPopover" class="target-popover">
-          <div class="popover-title">搜索范围</div>
+          <div class="popover-title">
+            搜索范围
+          </div>
           <div class="target-list">
             <button
               v-for="opt in targetOptions"

@@ -35,7 +35,9 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
     </button>
 
     <div v-if="isOpen" class="columns-popover">
-      <div class="popover-title">列数设置</div>
+      <div class="popover-title">
+        列数设置
+      </div>
       <div class="columns-list">
         <!-- 自动选项 -->
         <button

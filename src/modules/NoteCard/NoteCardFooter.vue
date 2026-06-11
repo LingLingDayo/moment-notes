@@ -98,8 +98,12 @@ const deleteSelf = async () => {
 <template>
   <!-- 编辑态底部的保存/取消按钮 -->
   <div v-if="isEditing" class="edit-footer" @click.stop>
-    <button class="edit-btn cancel" @click="emit('cancel-edit')">取消</button>
-    <button class="edit-btn save" @click="emit('save-edit')">保存</button>
+    <button class="edit-btn cancel" @click="emit('cancel-edit')">
+      取消
+    </button>
+    <button class="edit-btn save" @click="emit('save-edit')">
+      保存
+    </button>
   </div>
 
   <!-- 卡片底部信息及悬浮工具栏 (非编辑态) -->
@@ -172,7 +176,9 @@ const deleteSelf = async () => {
         </button>
 
         <div v-if="showFolderPicker" class="folder-picker-popover">
-          <div class="popover-title">移动至分类</div>
+          <div class="popover-title">
+            移动至分类
+          </div>
           <div class="folder-list">
             <button
               class="folder-item"

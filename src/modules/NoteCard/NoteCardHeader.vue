@@ -50,7 +50,9 @@ const emit = defineEmits<{
       @keyup.enter="emit('save-edit')"
       @keyup.esc="emit('cancel-edit')"
     />
-    <h3 v-else-if="note.title" class="card-title">{{ note.title }}</h3>
+    <h3 v-else-if="note.title" class="card-title">
+      {{ note.title }}
+    </h3>
   </div>
 </template>
 

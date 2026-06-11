@@ -52,16 +52,24 @@ onUnmounted(() => {
           <div class="warning-icon-wrapper">
             <AlertTriangle class="warning-icon" />
           </div>
-          <h3 class="modal-title">{{ title }}</h3>
+          <h3 class="modal-title">
+            {{ title }}
+          </h3>
         </div>
 
         <div class="modal-body">
-          <p class="modal-message">{{ message }}</p>
+          <p class="modal-message">
+            {{ message }}
+          </p>
         </div>
 
         <div class="modal-footer">
-          <button class="modal-btn cancel" @click="cancel">取消</button>
-          <button class="modal-btn confirm" @click="confirm">确定</button>
+          <button class="modal-btn cancel" @click="cancel">
+            取消
+          </button>
+          <button class="modal-btn confirm" @click="confirm">
+            确定
+          </button>
         </div>
       </div>
     </div>

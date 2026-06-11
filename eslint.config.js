@@ -1,6 +1,4 @@
 import js from '@eslint/js';
-import prettier from 'eslint-config-prettier';
-import prettierPlugin from 'eslint-plugin-prettier';
 import vuePlugin from 'eslint-plugin-vue';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
@@ -79,16 +77,7 @@ export default [
     }
   },
 
-  // 4. Prettier 配置（放在最后以覆盖前面的格式化规则）
-  prettier,
-  {
-    plugins: {
-      prettier: prettierPlugin
-    },
-    rules: {
-      'prettier/prettier': 'error'
-    }
-  },
+
 
   // 5. 自定义规则与全局配置
   {
@@ -129,7 +118,8 @@ export default [
         'error',
         {
           argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_'
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_'
         }
       ]
     }

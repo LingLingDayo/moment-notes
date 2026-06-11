@@ -86,7 +86,9 @@ defineExpose({
   <div class="tags-editor" @click.stop>
     <div v-for="(tag, idx) in tags" :key="idx" class="edit-tag-badge">
       <span>{{ tag }}</span>
-      <button class="delete-tag-btn" data-tooltip="删除标签" @click.stop="removeTag(idx)">×</button>
+      <button class="delete-tag-btn" data-tooltip="删除标签" @click.stop="removeTag(idx)">
+        ×
+      </button>
     </div>
     <div class="tag-input-wrapper">
       <input
@@ -118,7 +120,9 @@ defineExpose({
       </button>
 
       <div v-if="showDropdown" class="tags-dropdown" @mousedown.prevent>
-        <div v-if="allExistingTags.length === 0" class="dropdown-item empty">暂无已有标签</div>
+        <div v-if="allExistingTags.length === 0" class="dropdown-item empty">
+          暂无已有标签
+        </div>
         <div
           v-for="tag in allExistingTags"
           v-else

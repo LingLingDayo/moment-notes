@@ -44,7 +44,9 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
     </button>
 
     <div v-if="isOpen" class="sort-popover">
-      <div class="popover-title">排序方式</div>
+      <div class="popover-title">
+        排序方式
+      </div>
       <div class="sort-list">
         <button
           class="sort-item"
