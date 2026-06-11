@@ -6,7 +6,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  // gap: 6px;
 
   &.uTools {
     padding-top: 0;
@@ -368,11 +368,12 @@
 .menu-divider {
   height: 1px;
   background: color-mix(in srgb, var(--text-primary) 10%, transparent);
-  // margin: 6px 4px;
+  margin: 2px 0;
   opacity: 0.8;
 }
 
 .trash-item {
+  margin-top: 6px;
   &.active {
     .item-icon {
       color: var(--danger-color, #ff4d4f) !important;
