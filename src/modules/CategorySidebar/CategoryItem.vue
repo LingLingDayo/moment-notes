@@ -22,6 +22,16 @@ const getNoteCount = (categoryId: string) => {
     n => (n.categoryId === categoryId || descendants.has(n.categoryId)) && n.isDeleted !== true
   ).length;
 };
+
+// 自定义指令：用于在元素挂载时自动聚焦并全选内容，避免在更新时重复触发
+const vFocusSelect = {
+  mounted: (el: HTMLInputElement) => {
+    setTimeout(() => {
+      el.focus();
+      el.select();
+    }, 100);
+  }
+};
 </script>
 
 <template>
@@ -59,15 +69,8 @@ const getNoteCount = (categoryId: string) => {
       <!-- 编辑分类名称状态 -->
       <div v-if="ctx.editingId.value === cat.id" class="item-edit-wrapper" @click.stop>
         <input
-          :ref="
-            el => {
-              if (el) {
-                (el as HTMLInputElement).focus();
-                (el as HTMLInputElement).select();
-              }
-            }
-          "
           v-model="ctx.editCategoryName.value"
+          v-focus-select
           type="text"
           class="item-edit-input"
           @keyup.enter="ctx.submitEdit(cat.id)"
@@ -135,15 +138,8 @@ const getNoteCount = (categoryId: string) => {
         >
           <div class="item-edit-wrapper" @click.stop>
             <input
-              :ref="
-                el => {
-                  if (el) {
-                    (el as HTMLInputElement).focus();
-                    (el as HTMLInputElement).select();
-                  }
-                }
-              "
               v-model="store.newSubCategoryName"
+              v-focus-select
               type="text"
               placeholder="子分类名称..."
               class="item-edit-input"

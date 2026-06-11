@@ -38,6 +38,8 @@
 
   // 条目悬浮
   --item-hover-bg: rgba(15, 23, 42, 0.04);
+  --action-btn-hover-bg: #f1f5f9;
+  --action-btn-danger-hover-bg: #fee2e2;
 
   // 危险提示状态
   --danger-color: #ef4444;
@@ -90,6 +92,8 @@
     --btn-hover-color: var(--text-primary);
 
     --item-hover-bg: rgba(255, 255, 255, 0.08);
+    --action-btn-hover-bg: #1e293b;
+    --action-btn-danger-hover-bg: #2d1921;
     // 危险提示状态
     --danger-color: #f87171;
     --danger-hover-bg: rgba(248, 113, 113, 0.15);
@@ -140,6 +144,8 @@
   --btn-hover-color: var(--text-primary);
 
   --item-hover-bg: rgba(255, 255, 255, 0.08);
+  --action-btn-hover-bg: #1e293b;
+  --action-btn-danger-hover-bg: #2d1921;
 
   // 危险提示状态
   --danger-color: #f87171;
@@ -190,6 +196,8 @@
   --btn-hover-color: var(--accent-color);
 
   --item-hover-bg: rgba(15, 23, 42, 0.04);
+  --action-btn-hover-bg: #f1f5f9;
+  --action-btn-danger-hover-bg: #fee2e2;
 
   --danger-color: #ef4444;
   --danger-hover-bg: rgba(239, 68, 68, 0.1);

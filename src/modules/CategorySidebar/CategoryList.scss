@@ -294,12 +294,12 @@
   flex-shrink: 0;
 
   &:hover {
-    background: var(--item-hover-bg);
+    background: var(--action-btn-hover-bg);
     color: var(--text-primary);
   }
 
   &.delete:hover {
-    background: var(--danger-hover-bg);
+    background: var(--action-btn-danger-hover-bg);
     color: var(--danger-color);
   }
 
