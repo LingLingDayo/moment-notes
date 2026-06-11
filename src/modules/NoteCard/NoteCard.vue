@@ -310,18 +310,7 @@ onMounted(() => {
     }
   }
 
-  &.is-in-trash {
-    opacity: 0.65;
-    transform: none !important;
-    box-shadow: none !important;
-    cursor: default !important;
 
-    &:hover {
-      opacity: 0.85;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-  }
 }
 
 @media (max-width: 1049px) {
