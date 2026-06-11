@@ -53,10 +53,18 @@
   --modal-overlay-bg: rgba(15, 23, 42, 0.3);
   --warning-bg: rgba(245, 158, 11, 0.15);
   --warning-color: #f59e0b;
-  --toast-success-bg: rgba(16, 185, 129, 0.9);
-  --toast-info-bg: rgba(59, 130, 246, 0.9);
-  --toast-warning-bg: rgba(245, 158, 11, 0.9);
-  --toast-error-bg: rgba(239, 68, 68, 0.9);
+  --toast-success-bg: hsl(120, 75%, 92%, 0.85);
+  --toast-success-border: hsl(120, 75%, 82%);
+  --toast-success-text: hsl(120, 75%, 15%);
+  --toast-info-bg: hsl(200, 90%, 91%, 0.85);
+  --toast-info-border: hsl(200, 90%, 81%);
+  --toast-info-text: hsl(200, 85%, 15%);
+  --toast-warning-bg: hsl(48, 100%, 90%, 0.85);
+  --toast-warning-border: hsl(48, 100%, 78%);
+  --toast-warning-text: hsl(48, 85%, 15%);
+  --toast-error-bg: hsl(340, 85%, 92%, 0.85);
+  --toast-error-border: hsl(340, 85%, 83%);
+  --toast-error-text: hsl(340, 80%, 15%);
 }
 
 // 自动切换或类切换为暗黑模式
@@ -106,10 +114,18 @@
     --modal-overlay-bg: rgba(0, 0, 0, 0.5);
     --warning-bg: rgba(245, 158, 11, 0.2);
     --warning-color: #fbbf24;
-    --toast-success-bg: rgba(16, 185, 129, 0.8);
-    --toast-info-bg: rgba(59, 130, 246, 0.8);
-    --toast-warning-bg: rgba(245, 158, 11, 0.8);
-    --toast-error-bg: rgba(239, 68, 68, 0.8);
+    --toast-success-bg: hsl(120, 30%, 16%, 0.8);
+    --toast-success-border: hsl(120, 30%, 28%);
+    --toast-success-text: hsl(120, 85%, 85%);
+    --toast-info-bg: hsl(200, 40%, 17%, 0.8);
+    --toast-info-border: hsl(200, 40%, 30%);
+    --toast-info-text: hsl(200, 90%, 85%);
+    --toast-warning-bg: hsl(48, 40%, 18%, 0.8);
+    --toast-warning-border: hsl(48, 40%, 30%);
+    --toast-warning-text: hsl(48, 100%, 85%);
+    --toast-error-bg: hsl(340, 40%, 18%, 0.8);
+    --toast-error-border: hsl(340, 40%, 30%);
+    --toast-error-text: hsl(340, 90%, 85%);
   }
 }
 
@@ -159,10 +175,18 @@
   --modal-overlay-bg: rgba(0, 0, 0, 0.5);
   --warning-bg: rgba(245, 158, 11, 0.2);
   --warning-color: #fbbf24;
-  --toast-success-bg: rgba(16, 185, 129, 0.8);
-  --toast-info-bg: rgba(59, 130, 246, 0.8);
-  --toast-warning-bg: rgba(245, 158, 11, 0.8);
-  --toast-error-bg: rgba(239, 68, 68, 0.8);
+  --toast-success-bg: hsl(120, 30%, 16%, 0.8);
+  --toast-success-border: hsl(120, 30%, 28%);
+  --toast-success-text: hsl(120, 85%, 85%);
+  --toast-info-bg: hsl(200, 40%, 17%, 0.8);
+  --toast-info-border: hsl(200, 40%, 30%);
+  --toast-info-text: hsl(200, 90%, 85%);
+  --toast-warning-bg: hsl(48, 40%, 18%, 0.8);
+  --toast-warning-border: hsl(48, 40%, 30%);
+  --toast-warning-text: hsl(48, 100%, 85%);
+  --toast-error-bg: hsl(340, 40%, 18%, 0.8);
+  --toast-error-border: hsl(340, 40%, 30%);
+  --toast-error-text: hsl(340, 90%, 85%);
 }
 
 .light-theme {
@@ -210,10 +234,18 @@
   --modal-overlay-bg: rgba(15, 23, 42, 0.3);
   --warning-bg: rgba(245, 158, 11, 0.15);
   --warning-color: #f59e0b;
-  --toast-success-bg: rgba(16, 185, 129, 0.9);
-  --toast-info-bg: rgba(59, 130, 246, 0.9);
-  --toast-warning-bg: rgba(245, 158, 11, 0.9);
-  --toast-error-bg: rgba(239, 68, 68, 0.9);
+  --toast-success-bg: hsl(120, 75%, 92%, 0.85);
+  --toast-success-border: hsl(120, 75%, 82%);
+  --toast-success-text: hsl(120, 75%, 15%);
+  --toast-info-bg: hsl(200, 90%, 91%, 0.85);
+  --toast-info-border: hsl(200, 90%, 81%);
+  --toast-info-text: hsl(200, 85%, 15%);
+  --toast-warning-bg: hsl(48, 100%, 90%, 0.85);
+  --toast-warning-border: hsl(48, 100%, 78%);
+  --toast-warning-text: hsl(48, 85%, 15%);
+  --toast-error-bg: hsl(340, 85%, 92%, 0.85);
+  --toast-error-border: hsl(340, 85%, 83%);
+  --toast-error-text: hsl(340, 80%, 15%);
 }
 
 * {

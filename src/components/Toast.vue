@@ -51,8 +51,9 @@ const iconComponent = computed(() => {
   border-radius: 12px;
   box-shadow: var(--popover-shadow);
   z-index: 9999;
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--popover-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid transparent;
   max-width: 90%;
   pointer-events: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -74,40 +75,44 @@ const iconComponent = computed(() => {
 
 .toast-text {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.2px;
 }
 
 // 各种类型的样式定义
 .toast-success {
   background: var(--toast-success-bg);
-  color: var(--text-on-accent);
+  border-color: var(--toast-success-border);
+  color: var(--toast-success-text);
   .toast-icon {
-    color: var(--text-on-accent);
+    color: var(--toast-success-text);
   }
 }
 
 .toast-info {
   background: var(--toast-info-bg);
-  color: var(--text-on-accent);
+  border-color: var(--toast-info-border);
+  color: var(--toast-info-text);
   .toast-icon {
-    color: var(--text-on-accent);
+    color: var(--toast-info-text);
   }
 }
 
 .toast-warning {
   background: var(--toast-warning-bg);
-  color: var(--text-on-accent);
+  border-color: var(--toast-warning-border);
+  color: var(--toast-warning-text);
   .toast-icon {
-    color: var(--text-on-accent);
+    color: var(--toast-warning-text);
   }
 }
 
 .toast-error {
   background: var(--toast-error-bg);
-  color: var(--text-on-accent);
+  border-color: var(--toast-error-border);
+  color: var(--toast-error-text);
   .toast-icon {
-    color: var(--text-on-accent);
+    color: var(--toast-error-text);
   }
 }
 
