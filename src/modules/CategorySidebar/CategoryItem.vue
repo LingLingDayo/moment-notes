@@ -42,10 +42,9 @@ const vFocusSelect = {
         active: store.currentCategoryId === cat.id,
         'has-actions': true,
         dragging: ctx.draggedCatId.value === cat.id,
-        'drag-inside': ctx.dragOverCatId.value === cat.id && ctx.dragPlacement.value === 'inside',
-        'drag-before': ctx.dragOverCatId.value === cat.id && ctx.dragPlacement.value === 'before',
-        'drag-after': ctx.dragOverCatId.value === cat.id && ctx.dragPlacement.value === 'after'
+        'drag-inside': ctx.dragOverCatId.value === cat.id && ctx.dragPlacement.value === 'inside'
       }"
+      :data-id="cat.id"
       :draggable="ctx.editingId.value !== cat.id"
       :style="{ '--item-level': level }"
       @click="ctx.handleCategoryClick(cat)"
