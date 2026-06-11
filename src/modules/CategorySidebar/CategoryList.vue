@@ -271,6 +271,15 @@ const resetDragState = () => {
   dragPlacement.value = null;
 };
 
+const onSidebarDragOver = (event: DragEvent) => {
+  if (!draggedCatId.value) return;
+  const target = event.target as HTMLElement;
+  if (target && (target.classList.contains('sidebar-menu') || target.closest('.trash-item'))) {
+    dragOverCatId.value = null;
+    dragPlacement.value = null;
+  }
+};
+
 // 子分类增加逻辑
 const startAddSub = (parentId: string) => {
   store.addingSubParentId = parentId;
@@ -373,9 +382,10 @@ provide('categoryContext', {
   <div
     :class="{ uTools: isUTools(), 'is-dragging': draggedCatId !== null }"
     class="sidebar-menu"
+    @dragover="onSidebarDragOver"
     @drop="onContainerDrop"
   >
-    <div class="category-list-wrapper">
+    <div class="category-list-wrapper" @dragover.prevent>
       <!-- 用户自定义分类树 (包含 "全部便签") -->
       <CategoryItem v-for="cat in categoryTree" :key="cat.id" :cat="cat" :level="0" />
 
