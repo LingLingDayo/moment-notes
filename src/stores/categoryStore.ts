@@ -182,21 +182,33 @@ export const useCategoryStore = defineStore('categoryStore', () => {
     targetSiblingId: string | undefined,
     position: 'before' | 'after' | 'inside'
   ) => {
-    const cat = categories.value.find(c => c.id === categoryId);
-    if (!cat) return;
+    let cat = categories.value.find(c => c.id === categoryId);
+    if (!cat && categoryId !== 'all') return;
 
-    if (targetParentId === categoryId) return;
-    const descendants = getCategoryDescendants(categoryId);
-    if (targetParentId && descendants.has(targetParentId)) {
-      const uiStore = useUiStore();
-      uiStore.showToast('无法将分类移动到其子分类下', 'error');
-      return;
+    if (categoryId === 'all') {
+      if (targetParentId !== undefined) {
+        const uiStore = useUiStore();
+        uiStore.showToast('“全部便签”只能作为一级分类排序', 'error');
+        return;
+      }
+    } else {
+      if (targetParentId === categoryId) return;
+      const descendants = getCategoryDescendants(categoryId);
+      if (targetParentId && descendants.has(targetParentId)) {
+        const uiStore = useUiStore();
+        uiStore.showToast('无法将分类移动到其子分类下', 'error');
+        return;
+      }
+
+      cat!.parentId = targetParentId;
+      saveCategories();
     }
 
-    cat.parentId = targetParentId;
-    saveCategories();
-
     const order = [...categoryOrder.value];
+    if (!order.includes('all')) {
+      order.unshift('all');
+    }
+
     const currentIdx = order.indexOf(categoryId);
     if (currentIdx !== -1) {
       order.splice(currentIdx, 1);

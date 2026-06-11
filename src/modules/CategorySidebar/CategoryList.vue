@@ -62,17 +62,33 @@ const getNoteCount = (categoryId: string) => {
 const draggedCatId = ref<string | null>(null);
 const dragOverCatId = ref<string | null>(null);
 const dragPlacement = ref<'before' | 'after' | 'inside' | null>(null);
-const isOverContainer = ref(false);
+const isOverOutZone = ref(false);
 
 // 寻找同级分类中的下一个兄弟节点
 const getNextSibling = (cat: any) => {
-  const siblings = store.categories.filter(c => c.parentId === cat.parentId);
-  const getOrderIndex = (id: string) => {
-    const idx = store.categoryOrder.indexOf(id);
-    return idx === -1 ? Infinity : idx;
-  };
-  const sortFn = (a: any, b: any) => getOrderIndex(a.id) - getOrderIndex(b.id);
-  siblings.sort(sortFn);
+  if (cat.id === 'all') {
+    return categoryTree.value.find(c => !c.isSystem);
+  }
+
+  let siblings = [];
+  if (!cat.parentId) {
+    siblings = categoryTree.value;
+  } else {
+    const parent = store.categories.find(c => c.id === cat.parentId);
+    if (parent) {
+      const findChildren = (nodes: any[]): any[] | null => {
+        for (const node of nodes) {
+          if (node.id === parent.id) return node.children;
+          if (node.children) {
+            const res = findChildren(node.children);
+            if (res) return res;
+          }
+        }
+        return null;
+      };
+      siblings = findChildren(categoryTree.value) || [];
+    }
+  }
 
   const idx = siblings.findIndex(s => s.id === cat.id);
   if (idx !== -1 && idx < siblings.length - 1) {
@@ -82,51 +98,43 @@ const getNextSibling = (cat: any) => {
 };
 
 const onDragStart = (event: DragEvent, cat: any) => {
-  if (cat.isSystem) {
-    event.preventDefault();
-    return;
-  }
+  // 允许系统分类被拖拽换位
   draggedCatId.value = cat.id;
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', cat.id);
   }
-  isOverContainer.value = false;
+  isOverOutZone.value = false;
 };
 
 const onDragOverItem = (event: DragEvent, cat: any) => {
-  if (!draggedCatId.value || draggedCatId.value === cat.id) return;
+  if (!draggedCatId.value) return;
 
   event.preventDefault();
   event.stopPropagation();
 
-  if (cat.isSystem) {
+  if (draggedCatId.value === cat.id) {
     dragOverCatId.value = null;
     dragPlacement.value = null;
     return;
   }
 
-  // 限制：不能拖入自身的子孙分类中
-  const descendants = store.getCategoryDescendants(draggedCatId.value);
-  if (descendants.has(cat.id)) {
-    dragOverCatId.value = null;
-    dragPlacement.value = null;
-    return;
-  }
+  if (cat.isSystem && draggedCatId.value !== 'all') return;
 
-  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-  const clientY = event.clientY;
-  const relativeY = clientY - rect.top;
-  const threshold1 = rect.height * 0.25;
-  const threshold2 = rect.height * 0.75;
-
-  isOverContainer.value = false;
-
+  // 防止拖入自身或子孙节点
   const isValidTarget = (targetId: string) => {
     if (!draggedCatId.value || targetId === draggedCatId.value) return false;
+    if (draggedCatId.value === 'all') return true;
     const desc = store.getCategoryDescendants(draggedCatId.value);
     return !desc.has(targetId);
   };
+
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const relativeY = event.clientY - rect.top;
+  const threshold1 = rect.height * 0.25;
+  const threshold2 = rect.height * 0.75;
+
+  isOverOutZone.value = false;
 
   if (relativeY < threshold1) {
     if (isValidTarget(cat.id)) {
@@ -139,52 +147,103 @@ const onDragOverItem = (event: DragEvent, cat: any) => {
   } else if (relativeY > threshold2) {
     const isCollapsed = store.collapsedCategoryIds.includes(cat.id);
     const hasChildren = cat.children && cat.children.length > 0;
-    if (hasChildren && !isCollapsed) {
-      const targetId = cat.children[0].id;
-      if (isValidTarget(targetId)) {
-        dragOverCatId.value = targetId;
+
+    if (draggedCatId.value === 'all') {
+      const nextSibling = getNextSibling(cat);
+      if (nextSibling && !nextSibling.parentId && isValidTarget(nextSibling.id)) {
+        dragOverCatId.value = nextSibling.id;
         dragPlacement.value = 'before';
       } else {
-        dragOverCatId.value = null;
-        dragPlacement.value = null;
+        dragOverCatId.value = cat.id;
+        dragPlacement.value = 'after';
       }
     } else {
-      const nextSibling = getNextSibling(cat);
-      if (nextSibling) {
-        if (isValidTarget(nextSibling.id)) {
+      if (hasChildren && !isCollapsed) {
+        const targetId = cat.children[0].id;
+        if (isValidTarget(targetId)) {
+          dragOverCatId.value = targetId;
+          dragPlacement.value = 'before';
+        }
+      } else {
+        const nextSibling = getNextSibling(cat);
+        if (nextSibling && isValidTarget(nextSibling.id)) {
           dragOverCatId.value = nextSibling.id;
           dragPlacement.value = 'before';
         } else {
-          dragOverCatId.value = null;
-          dragPlacement.value = null;
-        }
-      } else {
-        if (isValidTarget(cat.id)) {
           dragOverCatId.value = cat.id;
           dragPlacement.value = 'after';
-        } else {
-          dragOverCatId.value = null;
-          dragPlacement.value = null;
         }
       }
     }
   } else {
-    if (isValidTarget(cat.id)) {
-      dragOverCatId.value = cat.id;
-      dragPlacement.value = 'inside';
-    } else {
+    // Middle 50% => inside
+    if (draggedCatId.value === 'all') {
       dragOverCatId.value = null;
       dragPlacement.value = null;
+    } else {
+      if (isValidTarget(cat.id)) {
+        dragOverCatId.value = cat.id;
+        dragPlacement.value = 'inside';
+      } else {
+        dragOverCatId.value = null;
+        dragPlacement.value = null;
+      }
     }
   }
 };
 
-const onDragOverContainer = (event: DragEvent) => {
+const onDragOverAllNotes = (event: DragEvent) => {
   if (!draggedCatId.value) return;
   event.preventDefault();
+  event.stopPropagation();
+
+  if (draggedCatId.value === 'all') {
+    dragOverCatId.value = null;
+    dragPlacement.value = null;
+    return;
+  }
+
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const relativeY = event.clientY - rect.top;
+
+  isOverOutZone.value = false;
+
+  if (relativeY < rect.height * 0.5) {
+    dragOverCatId.value = 'all';
+    dragPlacement.value = 'before';
+  } else {
+    const firstCustomCat = categoryTree.value.find(c => !c.isSystem);
+    if (firstCustomCat) {
+      dragOverCatId.value = firstCustomCat.id;
+      dragPlacement.value = 'before';
+    } else {
+      dragOverCatId.value = 'all';
+      dragPlacement.value = 'after';
+    }
+  }
+};
+
+const onDragOverOutZone = (event: DragEvent) => {
+  if (!draggedCatId.value) return;
+  event.preventDefault();
+  event.stopPropagation();
+
   dragOverCatId.value = null;
   dragPlacement.value = null;
-  isOverContainer.value = true;
+  isOverOutZone.value = true;
+};
+
+const onOutZoneDrop = (event: DragEvent) => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (!draggedCatId.value) return;
+
+  const sourceId = draggedCatId.value;
+  store.moveCategory(sourceId, undefined, undefined, 'after'); // 移动到一级分类末尾
+  const sourceCat = store.categories.find(c => c.id === sourceId);
+  store.showToast(`已将分类 "${sourceCat?.name}" 移出为一级分类`);
+
+  resetDragState();
 };
 
 const onContainerDrop = (event: DragEvent) => {
@@ -195,26 +254,34 @@ const onContainerDrop = (event: DragEvent) => {
 
   if (dragOverCatId.value && dragPlacement.value) {
     const targetId = dragOverCatId.value;
-    const targetCat = store.categories.find(c => c.id === targetId);
 
-    if (targetCat) {
-      if (dragPlacement.value === 'inside') {
-        store.moveCategory(sourceId, targetId, undefined, 'inside');
-        const sourceCat = store.categories.find(c => c.id === sourceId);
-        store.showToast(`已将分类 "${sourceCat?.name}" 移入 "${targetCat.name}" 内部`);
+    if (targetId === 'all') {
+      const firstRootCat = categoryTree.value.find(c => c.id !== sourceId && !c.isSystem);
+      if (firstRootCat && dragPlacement.value === 'after') {
+        store.moveCategory(sourceId, undefined, firstRootCat.id, 'before');
       } else {
-        store.moveCategory(sourceId, targetCat.parentId, targetId, dragPlacement.value);
-        const sourceCat = store.categories.find(c => c.id === sourceId);
-        const placementText = dragPlacement.value === 'before' ? '上方' : '下方';
-        store.showToast(
-          `已将分类 "${sourceCat?.name}" 移至 "${targetCat.name}" 的${placementText}`
-        );
+        // Drop 'before' all or 'after' all when no custom categories
+        store.moveCategory(sourceId, undefined, 'all', dragPlacement.value);
+      }
+      const sourceCat = store.categories.find(c => c.id === sourceId);
+      store.showToast(`已将分类 "${sourceCat?.name || '全部便签'}" 移至对应位置`);
+    } else {
+      const targetCat = store.categories.find(c => c.id === targetId);
+      if (targetCat) {
+        if (dragPlacement.value === 'inside') {
+          store.moveCategory(sourceId, targetId, undefined, 'inside');
+          const sourceCat = store.categories.find(c => c.id === sourceId);
+          store.showToast(`已将分类 "${sourceCat?.name}" 移入 "${targetCat.name}" 内部`);
+        } else {
+          store.moveCategory(sourceId, targetCat.parentId, targetId, dragPlacement.value);
+          const sourceCat = store.categories.find(c => c.id === sourceId);
+          const placementText = dragPlacement.value === 'before' ? '上方' : '下方';
+          store.showToast(
+            `已将分类 "${sourceCat?.name || '全部便签'}" 移至 "${targetCat.name}" 的${placementText}`
+          );
+        }
       }
     }
-  } else if (isOverContainer.value) {
-    store.moveCategory(sourceId, undefined, undefined, 'inside');
-    const sourceCat = store.categories.find(c => c.id === sourceId);
-    store.showToast(`已将分类 "${sourceCat?.name}" 移出为一级分类`);
   }
 
   resetDragState();
@@ -228,7 +295,7 @@ const resetDragState = () => {
   draggedCatId.value = null;
   dragOverCatId.value = null;
   dragPlacement.value = null;
-  isOverContainer.value = false;
+  isOverOutZone.value = false;
 };
 
 const hasParent = (id: string) => {
@@ -327,15 +394,23 @@ provide('categoryContext', {
   <div
     :class="{ uTools: isUTools(), 'is-dragging': draggedCatId !== null }"
     class="sidebar-menu"
-    @dragover="onDragOverContainer"
     @drop="onContainerDrop"
   >
     <div class="category-list-wrapper">
       <!-- 系统分类 (全部便签) -->
       <div
         class="menu-item"
-        :class="{ active: store.currentCategoryId === 'all' }"
+        :class="{
+          active: store.currentCategoryId === 'all',
+          'drag-after': dragOverCatId === 'all' && dragPlacement === 'after',
+          'drag-before': dragOverCatId === 'all' && dragPlacement === 'before',
+          dragging: draggedCatId === 'all'
+        }"
+        :draggable="editingId !== 'all'"
         @click="store.currentCategoryId = 'all'"
+        @dragover.prevent.stop="onDragOverAllNotes"
+        @dragstart="onDragStart($event, { id: 'all', isSystem: true })"
+        @dragend="onDragEnd"
       >
         <div class="active-indicator"></div>
         <div class="item-left">
@@ -353,8 +428,10 @@ provide('categoryContext', {
     <div
       v-if="draggedCatId && hasParent(draggedCatId)"
       class="drag-out-zone"
-      :class="{ active: isOverContainer && !dragOverCatId }"
-      @dragover.prevent
+      :class="{ active: isOverOutZone }"
+      @dragover.prevent.stop="onDragOverOutZone"
+      @dragleave="isOverOutZone = false"
+      @drop.prevent.stop="onOutZoneDrop"
     >
       <span>移出为一级分类</span>
     </div>
