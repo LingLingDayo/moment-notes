@@ -169,34 +169,6 @@
       var(--shadow-sm) !important;
   }
 
-  // 拖动前置指示线：绝对定位伪元素，直线，不受 border-radius 影响
-  &.drag-before::before {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--accent-color);
-    border-radius: 1px;
-    z-index: 20;
-    pointer-events: none;
-  }
-
-  // 拖动后置指示线
-  &.drag-after::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--accent-color);
-    border-radius: 1px;
-    z-index: 20;
-    pointer-events: none;
-  }
-
   &.category-list-move {
     transition: none;
   }
@@ -223,6 +195,27 @@
     padding-bottom: 0;
     border-top-width: 0;
     border-bottom-width: 0;
+  }
+}
+
+.drag-indicator-line {
+  position: absolute;
+  height: 2px;
+  background: var(--accent-color);
+  border-radius: 1px;
+  z-index: 100;
+  pointer-events: none;
+  --level-indent: 14px;
+  left: calc(14px + var(--item-level, 0) * var(--level-indent));
+  right: 10px;
+  transition:
+    top 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+    left 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (max-width: 1049px) {
+    --level-indent: 10px;
+    left: calc(10px + var(--item-level, 0) * var(--level-indent));
+    right: 6px;
   }
 }
 

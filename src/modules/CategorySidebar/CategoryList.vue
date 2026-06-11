@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, provide, computed } from 'vue';
+import { ref, provide, computed, watch } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Folder, Trash2 } from 'lucide-vue-next';
 import { isUTools } from '@/utils/storage';
@@ -63,6 +63,58 @@ const draggedCatId = ref<string | null>(null);
 const dragOverCatId = ref<string | null>(null);
 const dragPlacement = ref<'before' | 'after' | 'inside' | null>(null);
 const isOverOutZone = ref(false);
+
+// 拖拽指示线样式与层级计算
+const dragIndicatorStyle = ref<any>({});
+
+const getCategoryLevel = (id: string): number => {
+  if (id === 'all' || id === 'trash') return 0;
+  let level = 0;
+  let current = store.categories.find(c => c.id === id);
+  while (current && current.parentId) {
+    level++;
+    current = store.categories.find(c => c.id === current.parentId);
+  }
+  return level;
+};
+
+watch(
+  () => [dragOverCatId.value, dragPlacement.value],
+  ([overId, placement]) => {
+    if (!overId || !placement || placement === 'inside') {
+      dragIndicatorStyle.value = {};
+      return;
+    }
+
+    const containerEl = document.querySelector('.category-list-wrapper');
+    const targetEl = document.querySelector(`[data-id="${overId}"]`);
+
+    if (containerEl && targetEl) {
+      const containerRect = containerEl.getBoundingClientRect();
+      const targetRect = targetEl.getBoundingClientRect();
+
+      let top = targetRect.top - containerRect.top;
+      if (placement === 'before') {
+        top -= 4;
+      } else {
+        top += targetRect.height + 2;
+      }
+
+      let level = 0;
+      if (overId !== 'all') {
+        level = getCategoryLevel(overId);
+      }
+
+      dragIndicatorStyle.value = {
+        top: `${top}px`,
+        '--item-level': level
+      };
+    } else {
+      dragIndicatorStyle.value = {};
+    }
+  },
+  { flush: 'post' }
+);
 
 // 寻找同级分类中的下一个兄弟节点
 const getNextSibling = (cat: any) => {
@@ -400,10 +452,9 @@ provide('categoryContext', {
       <!-- 系统分类 (全部便签) -->
       <div
         class="menu-item"
+        data-id="all"
         :class="{
           active: store.currentCategoryId === 'all',
-          'drag-after': dragOverCatId === 'all' && dragPlacement === 'after',
-          'drag-before': dragOverCatId === 'all' && dragPlacement === 'before',
           dragging: draggedCatId === 'all'
         }"
         :draggable="editingId !== 'all'"
@@ -422,6 +473,13 @@ provide('categoryContext', {
 
       <!-- 用户自定义分类树 -->
       <CategoryItem v-for="cat in categoryTree" :key="cat.id" :cat="cat" :level="0" />
+
+      <!-- 拖拽指示线 -->
+      <div
+        v-if="dragOverCatId && dragPlacement && dragPlacement !== 'inside'"
+        class="drag-indicator-line"
+        :style="dragIndicatorStyle"
+      ></div>
     </div>
 
     <!-- 拖拽移出根级提示区 -->
