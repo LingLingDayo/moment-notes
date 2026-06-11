@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, provide, computed } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Folder, Trash2 } from 'lucide-vue-next';
+import { Trash2 } from 'lucide-vue-next';
 import { isUTools } from '@/utils/storage';
 import CategoryItem from './CategoryItem.vue';
 
@@ -47,22 +47,10 @@ const confirmDelete = async (id: string, name: string) => {
   }
 };
 
-// 获取某个分类下的便签总数
-const getNoteCount = (categoryId: string) => {
-  if (categoryId === 'all') {
-    return store.notes.filter(n => n.isDeleted !== true).length;
-  }
-  const descendants = store.getCategoryDescendants(categoryId);
-  return store.notes.filter(
-    n => (n.categoryId === categoryId || descendants.has(n.categoryId)) && n.isDeleted !== true
-  ).length;
-};
-
 // 拖动排序相关的状态与方法
 const draggedCatId = ref<string | null>(null);
 const dragOverCatId = ref<string | null>(null);
 const dragPlacement = ref<'before' | 'after' | 'inside' | null>(null);
-const isOverOutZone = ref(false);
 
 // 拖拽指示线样式与层级计算
 const getCategoryLevel = (id: string): number => {
@@ -115,10 +103,6 @@ const dragIndicatorStyle = computed(() => {
 
 // 寻找同级分类中的下一个兄弟节点
 const getNextSibling = (cat: any) => {
-  if (cat.id === 'all') {
-    return categoryTree.value.find(c => !c.isSystem);
-  }
-
   let siblings = [];
   if (!cat.parentId) {
     siblings = categoryTree.value;
@@ -153,7 +137,6 @@ const onDragStart = (event: DragEvent, cat: any) => {
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', cat.id);
   }
-  isOverOutZone.value = false;
 };
 
 const onDragOverItem = (event: DragEvent, cat: any) => {
@@ -168,8 +151,6 @@ const onDragOverItem = (event: DragEvent, cat: any) => {
     return;
   }
 
-  if (cat.isSystem && draggedCatId.value !== 'all') return;
-
   // 防止拖入自身或子孙节点
   const isValidTarget = (targetId: string) => {
     if (!draggedCatId.value || targetId === draggedCatId.value) return false;
@@ -182,8 +163,6 @@ const onDragOverItem = (event: DragEvent, cat: any) => {
   const relativeY = event.clientY - rect.top;
   const threshold1 = rect.height * 0.25;
   const threshold2 = rect.height * 0.75;
-
-  isOverOutZone.value = false;
 
   if (relativeY < threshold1) {
     if (isValidTarget(cat.id)) {
@@ -225,8 +204,8 @@ const onDragOverItem = (event: DragEvent, cat: any) => {
       }
     }
   } else {
-    // Middle 50% => inside
-    if (draggedCatId.value === 'all') {
+    // Middle 50% => inside (不能拖入系统分类或 all 本身)
+    if (draggedCatId.value === 'all' || cat.isSystem) {
       dragOverCatId.value = null;
       dragPlacement.value = null;
     } else {
@@ -239,60 +218,6 @@ const onDragOverItem = (event: DragEvent, cat: any) => {
       }
     }
   }
-};
-
-const onDragOverAllNotes = (event: DragEvent) => {
-  if (!draggedCatId.value) return;
-  event.preventDefault();
-  event.stopPropagation();
-
-  if (draggedCatId.value === 'all') {
-    dragOverCatId.value = null;
-    dragPlacement.value = null;
-    return;
-  }
-
-  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-  const relativeY = event.clientY - rect.top;
-
-  isOverOutZone.value = false;
-
-  if (relativeY < rect.height * 0.5) {
-    dragOverCatId.value = 'all';
-    dragPlacement.value = 'before';
-  } else {
-    const firstCustomCat = categoryTree.value.find(c => !c.isSystem);
-    if (firstCustomCat) {
-      dragOverCatId.value = firstCustomCat.id;
-      dragPlacement.value = 'before';
-    } else {
-      dragOverCatId.value = 'all';
-      dragPlacement.value = 'after';
-    }
-  }
-};
-
-const onDragOverOutZone = (event: DragEvent) => {
-  if (!draggedCatId.value) return;
-  event.preventDefault();
-  event.stopPropagation();
-
-  dragOverCatId.value = null;
-  dragPlacement.value = null;
-  isOverOutZone.value = true;
-};
-
-const onOutZoneDrop = (event: DragEvent) => {
-  event.preventDefault();
-  event.stopPropagation();
-  if (!draggedCatId.value) return;
-
-  const sourceId = draggedCatId.value;
-  store.moveCategory(sourceId, undefined, undefined, 'after'); // 移动到一级分类末尾
-  const sourceCat = store.categories.find(c => c.id === sourceId);
-  store.showToast(`已将分类 "${sourceCat?.name}" 移出为一级分类`);
-
-  resetDragState();
 };
 
 const onContainerDrop = (event: DragEvent) => {
@@ -344,12 +269,6 @@ const resetDragState = () => {
   draggedCatId.value = null;
   dragOverCatId.value = null;
   dragPlacement.value = null;
-  isOverOutZone.value = false;
-};
-
-const hasParent = (id: string) => {
-  const cat = store.categories.find(c => c.id === id);
-  return !!(cat && cat.parentId);
 };
 
 // 子分类增加逻辑
@@ -395,6 +314,17 @@ const handleCategoryDblClick = (cat: any) => {
 const categoryTree = computed(() => {
   const catMap = new Map(store.categories.map(c => [c.id, { ...c, children: [] as any[] }]));
   const rootCategories: any[] = [];
+
+  // 将 "全部便签" 作为特殊的系统根分类加入树中，使其参与拖拽排序
+  const allItem = {
+    id: 'all',
+    name: '全部便签',
+    isSystem: true,
+    createdAt: 0,
+    children: [] as any[]
+  };
+  catMap.set('all', allItem);
+  rootCategories.push(allItem);
 
   store.categories.forEach(c => {
     const item = catMap.get(c.id)!;
@@ -446,29 +376,7 @@ provide('categoryContext', {
     @drop="onContainerDrop"
   >
     <div class="category-list-wrapper">
-      <!-- 系统分类 (全部便签) -->
-      <div
-        class="menu-item"
-        data-id="all"
-        :class="{
-          active: store.currentCategoryId === 'all',
-          dragging: draggedCatId === 'all'
-        }"
-        :draggable="editingId !== 'all'"
-        @click="store.currentCategoryId = 'all'"
-        @dragover.prevent.stop="onDragOverAllNotes"
-        @dragstart="onDragStart($event, { id: 'all', isSystem: true })"
-        @dragend="onDragEnd"
-      >
-        <div class="active-indicator"></div>
-        <div class="item-left">
-          <Folder class="item-icon" />
-          <span class="item-name" data-tooltip="全部便签">全部便签</span>
-        </div>
-        <span class="item-badge">{{ getNoteCount('all') }}</span>
-      </div>
-
-      <!-- 用户自定义分类树 -->
+      <!-- 用户自定义分类树 (包含 "全部便签") -->
       <CategoryItem v-for="cat in categoryTree" :key="cat.id" :cat="cat" :level="0" />
 
       <!-- 拖拽指示线 -->
@@ -477,18 +385,6 @@ provide('categoryContext', {
         class="drag-indicator-line"
         :style="dragIndicatorStyle"
       ></div>
-    </div>
-
-    <!-- 拖拽移出根级提示区 -->
-    <div
-      v-if="draggedCatId && hasParent(draggedCatId)"
-      class="drag-out-zone"
-      :class="{ active: isOverOutZone }"
-      @dragover.prevent.stop="onDragOverOutZone"
-      @dragleave="isOverOutZone = false"
-      @drop.prevent.stop="onOutZoneDrop"
-    >
-      <span>移出为一级分类</span>
     </div>
 
     <!-- 分割线 -->

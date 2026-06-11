@@ -17,6 +17,9 @@ const isAddingSub = computed(() => store.addingSubParentId === props.cat.id);
 
 // 获取分类下的便签数
 const getNoteCount = (categoryId: string) => {
+  if (categoryId === 'all') {
+    return store.notes.filter(n => n.isDeleted !== true).length;
+  }
   const descendants = store.getCategoryDescendants(categoryId);
   return store.notes.filter(
     n => (n.categoryId === categoryId || descendants.has(n.categoryId)) && n.isDeleted !== true
@@ -40,7 +43,7 @@ const vFocusSelect = {
       class="menu-item"
       :class="{
         active: store.currentCategoryId === cat.id,
-        'has-actions': true,
+        'has-actions': !cat.isSystem,
         dragging: ctx.draggedCatId.value === cat.id,
         'drag-inside': ctx.dragOverCatId.value === cat.id && ctx.dragPlacement.value === 'inside'
       }"
@@ -90,7 +93,7 @@ const vFocusSelect = {
 
         <div class="item-right" @click.stop>
           <span class="item-badge">{{ getNoteCount(cat.id) }}</span>
-          <div class="item-actions">
+          <div v-if="!cat.isSystem" class="item-actions">
             <!-- 添加子分类 -->
             <button class="action-btn" data-tooltip="添加子分类" @click="ctx.startAddSub(cat.id)">
               <Plus class="action-icon" />
