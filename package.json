@@ -9,6 +9,7 @@
     "build": "vite build",
     "lint": "eslint src --fix",
     "lint:nocache": "eslint src --fix --no-cache",
+    "deploy": "node scripts/deploy.js",
     "prepare": "husky"
   },
   "dependencies": {
