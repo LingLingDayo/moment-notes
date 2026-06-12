@@ -75,6 +75,11 @@ const submitAdd = () => {
 <style lang="scss" scoped>
 .category-add-container {
   width: 100%;
+  height: 36px;
+
+  @media (max-width: 1049px) {
+    height: 34px;
+  }
 }
 
 .add-category-btn {
@@ -83,7 +88,8 @@ const submitAdd = () => {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 10px;
+  height: 100%;
+  padding: 0 10px;
   border-radius: 10px;
   background: var(--accent-light);
   color: var(--accent-color);
@@ -108,6 +114,7 @@ const submitAdd = () => {
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 100%;
 }
 
 .add-input {
@@ -115,7 +122,8 @@ const submitAdd = () => {
   background: var(--input-bg);
   border: 1px solid var(--input-border);
   border-radius: 8px;
-  padding: 8px 12px;
+  height: 100%;
+  padding: 0 12px;
   font-size: 13px;
   color: var(--text-primary);
   width: 100%;
@@ -129,11 +137,13 @@ const submitAdd = () => {
 .add-actions {
   display: flex;
   gap: 4px;
+  height: 100%;
 }
 
 .add-confirm-btn,
 .add-cancel-btn {
-  padding: 8px;
+  height: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 8px;
   display: flex;
   align-items: center;

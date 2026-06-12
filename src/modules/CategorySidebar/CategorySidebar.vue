@@ -144,7 +144,7 @@ onUnmounted(() => {
 }
 
 .sidebar-header {
-  padding: 24px;
+  padding: 18px;
   padding-bottom: 0;
   display: flex;
   align-items: center;
@@ -188,7 +188,8 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 0;
+  height: 34px;
+  line-height: 34px;
   border-radius: 8px;
   background: var(--btn-bg);
   border: 1px solid var(--btn-border);
@@ -228,7 +229,7 @@ onUnmounted(() => {
 
 @media (max-width: 1049px) {
   .sidebar-header {
-    padding: 16px;
+    padding: 14px;
     padding-bottom: 0;
     gap: 8px;
   }
