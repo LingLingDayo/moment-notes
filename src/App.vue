@@ -45,7 +45,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app-wrapper">
+  <div class="app-wrapper" :class="{ 'is-utools': isUTools() }">
     <Dashboard />
   </div>
 </template>

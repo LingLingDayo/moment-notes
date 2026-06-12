@@ -248,6 +248,7 @@ const handleAddNote = () => {
   gap: 8px;
   padding: 0 16px;
   height: 38px;
+  line-height: 38px;
   border-radius: 12px;
   background: var(--accent-color);
   color: #ffffff;
@@ -273,8 +274,8 @@ const handleAddNote = () => {
   }
 
   .btn-icon-plus {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
   }
 
   &.danger-btn {

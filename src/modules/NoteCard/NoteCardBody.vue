@@ -232,6 +232,7 @@ onBeforeUnmount(() => {
   padding-top: 4px;
   padding-bottom: 8px;
   overflow-y: auto;
+  overflow-y: overlay;
   position: relative;
 
   &.is-view-mode {
@@ -244,39 +245,40 @@ onBeforeUnmount(() => {
 .card-body-content {
   flex: 1;
   overflow-y: auto;
+  overflow-y: overlay;
+  background: transparent !important;
+  background-color: transparent !important;
 
   &::-webkit-scrollbar {
     width: 6px;
+    background: transparent !important;
   }
 
-  &::-webkit-scrollbar-track {
-    background: transparent;
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-track-piece,
+  &::-webkit-scrollbar-corner {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
   }
 
   // 1. 默认显示极其清淡淡雅的半透明颜色，既保持视觉纯净，又避开了 Chromium 隐藏滚动条不响应 hover 重绘的缺陷
   &::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.04);
     border-radius: 4px;
-  }
-
-  // 2. 悬停在内容区时，滚动条滑块加深
-  &:hover::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.15);
 
     &:hover {
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.15) !important;
     }
   }
 
   // --- 暗色主题适配 (类切换) ---
   .dark-theme &::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.04);
-  }
-  .dark-theme &:hover::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.18);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.32);
+      background: rgba(255, 255, 255, 0.18) !important;
     }
   }
 
@@ -284,24 +286,18 @@ onBeforeUnmount(() => {
   @media (prefers-color-scheme: dark) {
     &::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.04);
-    }
-    &:hover::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.18);
 
       &:hover {
-        background: rgba(255, 255, 255, 0.32);
+        background: rgba(255, 255, 255, 0.18) !important;
       }
     }
 
     // 系统是暗色，但手动切换为了亮色主题
     .light-theme &::-webkit-scrollbar-thumb {
       background: rgba(0, 0, 0, 0.04);
-    }
-    .light-theme &:hover::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.15);
 
       &:hover {
-        background: rgba(0, 0, 0, 0.3);
+        background: rgba(0, 0, 0, 0.15) !important;
       }
     }
   }
@@ -322,6 +318,7 @@ onBeforeUnmount(() => {
   min-height: 100px;
   max-height: 200px;
   overflow-y: auto;
+  overflow-y: overlay;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
   border-radius: 8px;

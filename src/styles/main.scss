@@ -283,35 +283,89 @@ html {
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
+  background: transparent !important;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece,
+::-webkit-scrollbar-corner {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.12);
-  background: color-mix(in srgb, var(--text-primary) 12%, transparent);
+  background: rgba(15, 23, 42, 0.08);
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
   border-radius: 4px;
 
   &:hover {
-    background: rgba(15, 23, 42, 0.25);
-    background: color-mix(in srgb, var(--text-primary) 25%, transparent);
+    background: rgba(15, 23, 42, 0.18);
+    background: color-mix(in srgb, var(--text-primary) 18%, transparent);
   }
 }
 
 .dark-theme ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
   &:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.18);
   }
 }
 
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
     &:hover {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.18);
+    }
+  }
+}
+
+/* uTools 环境下的精致 Fluent 风格滚动条与滚动平滑适配 */
+.is-utools {
+  .note-grid-container,
+  .sidebar-menu,
+  .note-card-body,
+  .tag-editor-tags,
+  .tag-list-scroll,
+  .card-body-content {
+    overflow-y: overlay !important;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background: transparent !important;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-track-piece,
+  ::-webkit-scrollbar-corner {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.08) padding-box;
+    border: 2px solid transparent;
+    border-radius: 6px;
+
+    &:hover {
+      background-color: rgba(15, 23, 42, 0.18) !important;
+    }
+  }
+
+  &.dark-theme ::-webkit-scrollbar-thumb,
+  .dark-theme & ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08) padding-box;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.18) !important;
     }
   }
 }
