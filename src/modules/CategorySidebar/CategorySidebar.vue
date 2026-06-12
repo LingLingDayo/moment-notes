@@ -31,8 +31,8 @@ const handleFileImport = (event: Event) => {
 };
 
 // 侧边栏宽度常量
-const DEFAULT_SIDEBAR_WIDTH = 240;
-const MIN_SIDEBAR_WIDTH = 180;
+const DEFAULT_SIDEBAR_WIDTH = 220;
+const MIN_SIDEBAR_WIDTH = 160;
 
 // 侧边栏宽度管理
 const sidebarWidth = ref(DEFAULT_SIDEBAR_WIDTH);
@@ -141,6 +141,7 @@ onUnmounted(() => {
   backdrop-filter: blur(var(--glass-blur));
   flex-shrink: 0;
   position: relative;
+  z-index: 2;
 }
 
 .sidebar-header {
@@ -213,16 +214,25 @@ onUnmounted(() => {
 .resize-handle {
   position: absolute;
   top: 0;
-  right: -2px;
-  width: 4px;
+  right: -5px;
+  width: 10px;
   height: 100%;
   cursor: col-resize;
   z-index: 10;
   background: transparent;
-  transition: background-color 0.2s ease;
+  display: flex;
+  justify-content: center;
 
-  &:hover,
-  &.resizing {
+  &::after {
+    content: '';
+    width: 3px;
+    height: 100%;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+  }
+
+  &:hover::after,
+  &.resizing::after {
     background-color: var(--accent-color);
   }
 }
