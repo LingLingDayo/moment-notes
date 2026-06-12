@@ -29,8 +29,8 @@ export function initTooltip() {
     const el = createTooltip();
 
     if (currentTarget === target) {
-      // 如果是同一个元素，但在 hover 期间 content 发生了更新，则实时更新文本与定位
-      if (el.textContent !== content) {
+      // 如果是同一个元素，但在 hover 期间 content 发生了更新，且 tooltip 已经显示，则实时更新文本与定位
+      if (el.classList.contains('show') && el.textContent !== content) {
         el.textContent = content;
         updatePosition(target, el);
       }
@@ -43,11 +43,12 @@ export function initTooltip() {
     }
 
     currentTarget = target;
-    el.textContent = content;
 
     // 延迟显示，防止鼠标快速划过引发闪烁
     showTimer = window.setTimeout(() => {
       if (currentTarget !== target) return;
+      const currentContent = target.getAttribute('data-tooltip') || '';
+      el.textContent = currentContent;
       el.classList.add('show');
       updatePosition(target, el);
     }, 550);
