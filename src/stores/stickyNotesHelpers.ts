@@ -140,7 +140,7 @@ export const exportSingleNoteAsTxt = (note: Note, showToast: (msg: string, type?
 export const getDefaultNotes = (): Note[] => [
   {
     id: 'n1',
-    categoryId: '1',
+    categoryId: 'uncategorized',
     title: '✨ 欢迎使用拾光便签',
     content:
       '嗨喽！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想！！',
@@ -152,7 +152,7 @@ export const getDefaultNotes = (): Note[] => [
   },
   {
     id: 'n2',
-    categoryId: '2',
+    categoryId: '1',
     title: '🌈 核心特色功能',
     content:
       `1. 双击快捷粘贴：双击便签卡片，将自动隐藏并把内容直接粘贴到你的光标输入位置，适合常用回复或模版。
@@ -177,7 +177,7 @@ export const getDefaultNotes = (): Note[] => [
   },
   {
     id: 'n4',
-    categoryId: '3',
+    categoryId: '2',
     title: '⌨️ 快捷键指南',
     content:
       `1. 极速新建：【Ctrl + Alt + N】可在当前分类下快速创建空白便签。

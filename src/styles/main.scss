@@ -324,6 +324,20 @@ html {
 
 /* uTools 环境下的精致 Fluent 风格滚动条与滚动平滑适配 */
 .is-utools {
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, #ebf0f5 100%);
+
+  .dark-theme & {
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, #070e22 100%);
+  }
+
+  .light-theme & {
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, #ebf0f5 100%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, #070e22 100%);
+  }
+
   .note-grid-container,
   .sidebar-menu,
   .note-card-body,
