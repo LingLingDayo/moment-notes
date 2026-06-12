@@ -32,7 +32,7 @@ jobs:
         run: |
           # 清理 tag 中的斜杠，防止因目录不存在导致打包失败（例如 release/v0.2.0）
           CLEANED_TAG=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
-          ZIP_NAME="utools-sticky-notes-${CLEANED_TAG}.zip"
+          ZIP_NAME="amber-notes-${CLEANED_TAG}.zip"
           git archive --format=zip --output="$ZIP_NAME" HEAD
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 

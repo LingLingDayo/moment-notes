@@ -17,7 +17,7 @@ export const exportBackup = (
   const pad = (n: number) => String(n).padStart(2, '0');
   const now = new Date();
   const timeStr = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())} ${pad(now.getHours())}.${pad(now.getMinutes())}.${pad(now.getSeconds())}`;
-  const filename = `sticky-notes-backup-${timeStr}.json`;
+  const filename = `amber-notes-backup-${timeStr}.json`;
 
   const result = downloadOrWriteFile(jsonStr, filename, 'application/json');
   if (result === 'success') {

@@ -1,4 +1,4 @@
-# 📌 uTools 拾光便签 (TimeNotes)
+# 📌 uTools 拾光便签 (AmberNotes)
 
 > 基于 **Vue 3 + TypeScript + Pinia + Vue Router + Sass** 构建的高颜值、生产力工具型 uTools 便签插件。
 >
@@ -38,7 +38,7 @@
 ## 📂 项目结构目录
 
 ```text
-sticky-notes/
+amber-notes/
 ├── public/                     # 插件静态资源及 uTools 底层定义
 │   ├── plugin.json             # uTools 插件配置文件
 │   └── preload/                # Node.js preload 底层写盘服务目录
