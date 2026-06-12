@@ -186,8 +186,6 @@ const handleAddNote = () => {
   justify-content: space-between;
   padding: 16px 24px;
   padding-bottom: 0;
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(var(--glass-blur));
   gap: 16px;
   position: relative;
   z-index: 50;
