@@ -358,6 +358,13 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     maxColumns: toRef(uiStore, 'maxColumns'),
     setGridColumns: uiStore.setGridColumns,
     setMaxColumns: uiStore.setMaxColumns,
+    showSettings: toRef(uiStore, 'showSettings'),
+    openSettings: uiStore.openSettings,
+    closeSettings: uiStore.closeSettings,
+    isDark: toRef(uiStore, 'isDark'),
+    initTheme: uiStore.initTheme,
+    toggleTheme: uiStore.toggleTheme,
+
 
     // 初始化与备份代理
     loadData,

@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Plus, Trash2, Sun, Moon } from 'lucide-vue-next';
-import { storage, isUTools } from '@utils/storage';
+import { isUTools } from '@utils/storage';
 import SearchSection from './SearchSection.vue';
 import SortPopover from './SortPopover.vue';
 import GridColumnsPopover from './GridColumnsPopover.vue';
@@ -20,9 +20,6 @@ const closePopover = () => {
   activePopover.value = null;
 };
 
-// 黑暗模式状态
-const isDark = ref(false);
-
 // 动态清空按钮的提示文字
 const clearTooltip = computed(() => {
   if (store.currentCategoryId === 'trash') {
@@ -36,55 +33,24 @@ onMounted(() => {
   // 监听全局点击以关闭所有下拉菜单
   document.addEventListener('click', closePopover);
 
-  // 1. 如果在 uTools 环境下，我们可以根据 uTools 的系统颜色设置
+  // 初始化主题并自动读取存储/系统设置
+  store.initTheme(isUTools());
+
+  // 如果在 uTools 环境下，监听每次插件切入以更新主题
   if (isUTools()) {
     try {
-      isDark.value = window.utools.isDarkColors();
-      applyTheme(isDark.value);
-
-      // 监听 uTools 主题切换
       window.utools.onPluginEnter(() => {
-        isDark.value = window.utools.isDarkColors();
-        applyTheme(isDark.value);
+        store.initTheme(true);
       });
-      return;
     } catch (e) {
-      console.error('Failed to get theme from uTools:', e);
+      console.error('Failed to register theme watcher on utools enter:', e);
     }
   }
-
-  // 2. 浏览器环境，从 localStorage 获取或跟随系统
-  const storedTheme = storage.getItem('sticky_notes_theme');
-  if (storedTheme) {
-    isDark.value = storedTheme === 'dark';
-  } else {
-    isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
-  applyTheme(isDark.value);
 });
 
 onUnmounted(() => {
   document.removeEventListener('click', closePopover);
 });
-
-// 切换主题
-const toggleTheme = () => {
-  isDark.value = !isDark.value;
-  applyTheme(isDark.value);
-  storage.setItem('sticky_notes_theme', isDark.value ? 'dark' : 'light');
-};
-
-// 应用主题类
-const applyTheme = (dark: boolean) => {
-  const root = document.documentElement;
-  if (dark) {
-    root.classList.remove('light-theme');
-    root.classList.add('dark-theme');
-  } else {
-    root.classList.remove('dark-theme');
-    root.classList.add('light-theme');
-  }
-};
 
 // 清空当前分类便签
 const handleClear = async () => {
@@ -130,8 +96,8 @@ const handleAddNote = () => {
     <!-- 按钮操作区 -->
     <div class="actions-wrapper">
       <!-- 切换主题 -->
-      <button class="icon-btn theme-toggle" data-tooltip="切换主题" @click="toggleTheme">
-        <Sun v-if="isDark" class="btn-icon" />
+      <button class="icon-btn theme-toggle" data-tooltip="切换主题" @click="store.toggleTheme">
+        <Sun v-if="store.isDark" class="btn-icon" />
         <Moon v-else class="btn-icon" />
       </button>
 

@@ -6,6 +6,7 @@ import ActionBar from '@modules/ActionBar/ActionBar.vue';
 import NoteGrid from '@modules/NoteGrid.vue';
 import Toast from '@components/Toast.vue';
 import ConfirmModal from '@components/ConfirmModal.vue';
+import SettingsModal from '@components/SettingsModal.vue';
 
 const store = useStickyNotesStore();
 
@@ -68,6 +69,9 @@ onUnmounted(() => {
 
     <!-- 全局确认弹窗 -->
     <ConfirmModal />
+
+    <!-- 全局设置弹窗 -->
+    <SettingsModal />
   </div>
 </template>
 

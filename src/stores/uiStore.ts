@@ -54,6 +54,57 @@ export const useUiStore = defineStore('uiStore', () => {
     maxColumns.value = val;
   };
 
+  // 设置弹窗显示状态
+  const showSettings = ref(false);
+
+  const openSettings = () => {
+    showSettings.value = true;
+  };
+
+  const closeSettings = () => {
+    showSettings.value = false;
+  };
+
+  // 黑暗模式主题管理
+  const isDark = ref(false);
+
+  const applyTheme = (dark: boolean) => {
+    const root = document.documentElement;
+    if (dark) {
+      root.classList.remove('light-theme');
+      root.classList.add('dark-theme');
+    } else {
+      root.classList.remove('dark-theme');
+      root.classList.add('light-theme');
+    }
+  };
+
+  const initTheme = (isUtoolsEnv: boolean) => {
+    if (isUtoolsEnv) {
+      try {
+        isDark.value = window.utools.isDarkColors();
+        applyTheme(isDark.value);
+        return;
+      } catch (e) {
+        console.error('Failed to get theme from uTools:', e);
+      }
+    }
+
+    const storedTheme = storage.getItem('sticky_notes_theme');
+    if (storedTheme) {
+      isDark.value = storedTheme === 'dark';
+    } else {
+      isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    applyTheme(isDark.value);
+  };
+
+  const toggleTheme = () => {
+    isDark.value = !isDark.value;
+    applyTheme(isDark.value);
+    storage.setItem('sticky_notes_theme', isDark.value ? 'dark' : 'light');
+  };
+
   return {
     confirmState,
     askConfirm,
@@ -65,6 +116,13 @@ export const useUiStore = defineStore('uiStore', () => {
     gridColumns,
     maxColumns,
     setGridColumns,
-    setMaxColumns
+    setMaxColumns,
+    showSettings,
+    openSettings,
+    closeSettings,
+    isDark,
+    initTheme,
+    toggleTheme
   };
 });
+

@@ -1,34 +1,12 @@
 <script lang="ts" setup>
 import { ref, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Download, Upload } from 'lucide-vue-next';
+import { Settings } from 'lucide-vue-next';
 import { isUTools } from '@utils/storage';
 import CategoryList from './CategoryList.vue';
 import CategoryAdd from './CategoryAdd.vue';
 
 const store = useStickyNotesStore();
-
-const fileInputRef = ref<HTMLInputElement | null>(null);
-
-const triggerFileInput = () => {
-  fileInputRef.value?.click();
-};
-
-const handleFileImport = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = e => {
-    const text = e.target?.result as string;
-    if (text) {
-      store.importBackup(text);
-    }
-    target.value = '';
-  };
-  reader.readAsText(file);
-};
 
 // 侧边栏宽度常量
 const DEFAULT_SIDEBAR_WIDTH = 220;
@@ -103,25 +81,17 @@ onUnmounted(() => {
 
     <!-- 侧边栏底部操作区 -->
     <div class="sidebar-footer">
-      <!-- 添加分类组件 -->
-      <CategoryAdd />
+      <div class="sidebar-footer-actions">
+        <!-- 添加分类组件 -->
+        <CategoryAdd class="category-add-wrapper" />
 
-      <!-- 备份管理区 (开发者效率与数据安全增强) -->
-      <div class="backup-section">
-        <input
-          ref="fileInputRef"
-          type="file"
-          accept=".json"
-          class="hidden-file-input"
-          @change="handleFileImport"
-        />
-        <button class="backup-btn" data-tooltip="导出备份为 JSON 文件" @click="store.exportBackup">
-          <Download class="backup-btn-icon" />
-          <span>导出备份</span>
-        </button>
-        <button class="backup-btn" data-tooltip="从 JSON 文件恢复数据" @click="triggerFileInput">
-          <Upload class="backup-btn-icon" />
-          <span>导入备份</span>
+        <!-- 设置按钮 (带微动效) -->
+        <button
+          class="settings-btn"
+          data-tooltip="打开设置"
+          @click="store.openSettings()"
+        >
+          <Settings class="settings-btn-icon" />
         </button>
       </div>
     </div>
@@ -172,42 +142,45 @@ onUnmounted(() => {
   // border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.backup-section {
+.sidebar-footer-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
-  margin-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
 }
 
-.hidden-file-input {
-  display: none;
-}
-
-.backup-btn {
+.category-add-wrapper {
   flex: 1;
+}
+
+.settings-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 34px;
-  line-height: 34px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background: var(--btn-bg);
   border: 1px solid var(--btn-border);
   color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 500;
+  cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 
   &:hover {
     background: var(--btn-hover-bg);
-    color: var(--btn-hover-color);
+    color: var(--accent-color);
     border-color: var(--btn-hover-border);
+
+    .settings-btn-icon {
+      transform: rotate(45deg);
+    }
   }
 
-  .backup-btn-icon {
-    width: 12px;
-    height: 12px;
+  .settings-btn-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
@@ -248,9 +221,15 @@ onUnmounted(() => {
     padding: 12px 8px;
   }
 
-  .backup-section {
-    margin-top: 8px;
-    gap: 6px;
+  .settings-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+
+    .settings-btn-icon {
+      width: 14px;
+      height: 14px;
+    }
   }
 }
 </style>
