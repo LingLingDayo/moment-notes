@@ -39,7 +39,7 @@ npm install
 ```bash
 npm run dev
 ```
-启动后，本地预览地址为：`http://localhost:5173/`。
+启动后，本地预览地址为：`http://localhost:4021/`。
 
 ### 3. 在 uTools 中调试
 1. 呼出 `uTools`，搜索并进入 **开发者工具**。
