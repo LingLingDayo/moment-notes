@@ -194,7 +194,7 @@ const deleteSelf = async () => {
               :class="{ active: note.categoryId === 'uncategorized' }"
               @click="moveCategory('uncategorized')"
             >
-              全部便签
+              <span class="folder-name-text">全部便签</span>
             </button>
             <button
               v-for="cat in store.orderedCategories.filter(c => !c.isSystem)"
@@ -205,7 +205,7 @@ const deleteSelf = async () => {
               @click="moveCategory(cat.id)"
             >
               <span v-if="cat.level > 0" style="opacity: 0.5; margin-right: 4px">└─</span>
-              {{ cat.name }}
+              <span class="folder-name-text">{{ cat.name }}</span>
             </button>
           </div>
         </div>
@@ -398,14 +398,14 @@ const deleteSelf = async () => {
 }
 
 .folder-item {
+  display: flex;
+  align-items: center;
   text-align: left;
   padding: 6px 8px;
   border-radius: 6px;
   font-size: 11px;
   color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0;
 
   &:hover {
     background: var(--item-hover-bg);
@@ -416,6 +416,14 @@ const deleteSelf = async () => {
     background: var(--accent-light);
     color: var(--accent-color);
     font-weight: 600;
+  }
+
+  .folder-name-text {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
