@@ -100,7 +100,9 @@ const handleClear = async () => {
   }
 
   const currentCat = store.categories.find(c => c.id === store.currentCategoryId);
-  const catName = currentCat ? `"${currentCat.name}"` : '所有';
+  const catName = store.currentCategoryId === 'all'
+    ? '"全部便签"'
+    : (currentCat ? `"${currentCat.name}"` : '当前分类');
 
   const ok = await store.askConfirm(
     '确认删除便签',
