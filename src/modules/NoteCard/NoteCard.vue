@@ -99,8 +99,14 @@ const togglePin = () => {
 };
 
 // 拖拽相关事件
+const isDragTriggered = ref(false);
+
+const handleGlobalMouseUp = () => {
+  isDragTriggered.value = false;
+};
+
 const handleDragStart = (e: DragEvent) => {
-  if (store.sortMode !== 'custom' || isEditing.value || props.note.isDeleted) {
+  if (store.sortMode !== 'custom' || isEditing.value || props.note.isDeleted || !isDragTriggered.value) {
     e.preventDefault();
     return;
   }
@@ -121,11 +127,13 @@ const handleDragEnter = (_e: DragEvent) => {
 
 const handleDragEnd = () => {
   store.draggedNoteId = null;
+  isDragTriggered.value = false;
 };
 
 const handleDrop = (e: DragEvent) => {
   e.preventDefault();
   store.draggedNoteId = null;
+  isDragTriggered.value = false;
 };
 
 // 鼠标移出卡片时，自动关闭已打开的选择面板
@@ -170,9 +178,11 @@ watch(isEditing, editing => {
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleMousedown, true);
   document.removeEventListener('click', handleClickOutside, true);
+  window.removeEventListener('mouseup', handleGlobalMouseUp);
 });
 
 onMounted(() => {
+  window.addEventListener('mouseup', handleGlobalMouseUp);
   if (store.editingNoteId === props.note.id) {
     enterEditMode();
     store.editingNoteId = null;
@@ -191,7 +201,7 @@ onMounted(() => {
       'is-in-trash': note.isDeleted
     }"
     :style="colorStyle"
-    :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted"
+    :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && isDragTriggered"
     @dblclick="handleDoubleClick"
     @dragstart="handleDragStart"
     @dragover.prevent
@@ -200,6 +210,14 @@ onMounted(() => {
     @drop="handleDrop"
     @mouseleave="handleMouseLeave"
   >
+    <!-- 拖拽手柄区域 -->
+    <div
+      v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted"
+      class="note-drag-handle"
+      @mousedown="isDragTriggered = true"
+      @dblclick.stop
+    ></div>
+
     <NoteCardHeader
       v-model:title="editTitle"
       :note="note"
@@ -304,6 +322,49 @@ onMounted(() => {
 
   &[draggable='true'] {
     cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .note-drag-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 18px;
+    z-index: 1;
+    cursor: grab;
+    border-radius: $radius-xl $radius-xl 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+
+    &::after {
+      content: '';
+      width: 24px;
+      height: 3px;
+      border-radius: 1.5px;
+      background: currentColor;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+      &::after {
+        opacity: 0.2;
+      }
+      
+      .dark-theme & {
+        background-color: rgba(255, 255, 255, 0.03);
+        &::after {
+          opacity: 0.3;
+        }
+      }
+    }
 
     &:active {
       cursor: grabbing;
