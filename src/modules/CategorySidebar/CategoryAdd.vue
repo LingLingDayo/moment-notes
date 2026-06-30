@@ -6,7 +6,7 @@ import { Plus, Check, X } from 'lucide-vue-next';
 const store = useStickyNotesStore();
 
 // 是否处于新增分类的编辑状态
-const isAdding = ref(false);
+const isAdding = defineModel<boolean>('isAdding', { default: false });
 const newCategoryName = ref('');
 const addInputRef = ref<HTMLInputElement | null>(null);
 

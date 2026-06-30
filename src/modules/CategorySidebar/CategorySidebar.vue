@@ -7,6 +7,7 @@ import CategoryList from './CategoryList.vue';
 import CategoryAdd from './CategoryAdd.vue';
 
 const store = useStickyNotesStore();
+const isAddingCategory = ref(false);
 
 // 侧边栏宽度常量
 const DEFAULT_SIDEBAR_WIDTH = 220;
@@ -83,11 +84,12 @@ onUnmounted(() => {
     <div class="sidebar-footer">
       <div class="sidebar-footer-actions">
         <!-- 添加分类组件 -->
-        <CategoryAdd class="category-add-wrapper" />
+        <CategoryAdd v-model:is-adding="isAddingCategory" class="category-add-wrapper" />
 
         <!-- 设置按钮 (带微动效) -->
         <button
           class="settings-btn"
+          :class="{ 'is-hidden': isAddingCategory }"
           data-tooltip="打开设置"
           @click="store.openSettings()"
         >
@@ -145,7 +147,6 @@ onUnmounted(() => {
 .sidebar-footer-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
   width: 100%;
 }
 
@@ -164,8 +165,10 @@ onUnmounted(() => {
   border: 1px solid var(--btn-border);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
+  margin-left: 8px;
+  overflow: hidden;
 
   &:hover {
     background: var(--btn-hover-bg);
@@ -181,6 +184,14 @@ onUnmounted(() => {
     width: 16px;
     height: 16px;
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &.is-hidden {
+    width: 0;
+    margin-left: 0;
+    opacity: 0;
+    border-color: transparent;
+    pointer-events: none;
   }
 }
 
@@ -225,6 +236,7 @@ onUnmounted(() => {
     width: 34px;
     height: 34px;
     border-radius: 8px;
+    margin-left: 6px;
 
     .settings-btn-icon {
       width: 14px;
