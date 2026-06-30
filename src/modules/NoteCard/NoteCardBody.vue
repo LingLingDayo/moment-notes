@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { Note } from '@type';
+import { useStickyNotesStore } from '@stores/stickyNotes';
+import { isUTools } from '@utils/storage';
 
 const props = defineProps<{
   note: Note;
@@ -13,6 +15,23 @@ const emit = defineEmits<{
   (e: 'cancel-edit'): void;
   (e: 'save-edit'): void;
 }>();
+
+const store = useStickyNotesStore();
+
+// 复制标签逻辑
+const copyTag = async (tag: string) => {
+  try {
+    if (isUTools()) {
+      window.utools.copyText(tag);
+    } else {
+      await navigator.clipboard.writeText(tag);
+    }
+    store.showToast(`已复制标签: #${tag}`, 'success');
+  } catch (err) {
+    console.error('Failed to copy tag:', err);
+    store.showToast('复制失败', 'error');
+  }
+};
 
 const contentInputRef = ref<HTMLTextAreaElement | null>(null);
 
@@ -205,7 +224,13 @@ onBeforeUnmount(() => {
       </div>
       <!-- 便签标签展示 -->
       <div v-if="note.tags && note.tags.length > 0" class="note-tags-list">
-        <span v-for="tag in visibleTags" :key="tag" class="note-tag-badge" :data-tooltip="tag">
+        <span
+          v-for="tag in visibleTags"
+          :key="tag"
+          class="note-tag-badge"
+          :data-tooltip="tag"
+          @click.stop="copyTag(tag)"
+        >
           # {{ tag }}
         </span>
         <span v-if="hasMore" class="note-tag-badge more" :data-tooltip="allTagsText"> ... </span>
@@ -367,6 +392,8 @@ onBeforeUnmount(() => {
   border: 1px solid var(--popover-border);
   color: inherit;
   opacity: 0.85;
+  cursor: pointer;
+  transition: background-color 0.15s, opacity 0.15s;
 
   max-width: 100%;
   display: -webkit-inline-box;
@@ -377,8 +404,19 @@ onBeforeUnmount(() => {
   word-break: break-all;
   white-space: normal;
 
+  &:hover {
+    opacity: 1;
+    background: var(--card-btn-hover-bg);
+    color: var(--card-btn-hover-color);
+  }
+
   &.more {
     cursor: help;
+    &:hover {
+      background: var(--badge-bg);
+      color: inherit;
+      opacity: 0.85;
+    }
   }
 }
 </style>
