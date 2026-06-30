@@ -159,4 +159,322 @@ const vFocusSelect = {
   </div>
 </template>
 
-<style lang="scss" scoped src="./CategoryList.scss"></style>
+<style lang="scss" scoped>
+.category-node {
+  display: block;
+}
+
+.sub-categories {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible; // 展开时可见，让拖动指示线能够正常溢出显示
+
+  .sub-categories-inner {
+    overflow: hidden;
+  }
+
+  &.is-collapsed {
+    grid-template-rows: 0fr;
+    overflow: hidden; // 折叠时裁剪
+  }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  --level-indent: 14px;
+  padding-left: calc(14px + var(--item-level, 0) * var(--level-indent));
+  padding-right: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+  position: relative;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+
+  .active-indicator {
+    position: absolute;
+    left: 0;
+    width: 3px;
+    height: 0;
+    background: var(--accent-color);
+    border-radius: 0 4px 4px 0;
+    transition: height 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .collapse-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+    margin-left: -4px;
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    z-index: 2;
+    flex-shrink: 0;
+    align-self: center;
+    background: transparent;
+
+    &:hover {
+      color: var(--text-primary);
+
+      .toggle-icon {
+        transform: scale(1.12);
+
+        &.is-expanded {
+          transform: rotate(90deg) scale(1.12);
+        }
+      }
+    }
+
+    .toggle-icon {
+      display: block;
+      width: 12px;
+      height: 12px;
+      stroke-width: 2.5px;
+      transition:
+        transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.2s ease;
+
+      &.is-expanded {
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  &:hover {
+    background: var(--item-hover-bg);
+    color: var(--text-primary);
+  }
+
+  &.has-actions:hover {
+    .item-badge {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+
+    .item-actions {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  &.active {
+    background: var(--panel-bg);
+    border-color: var(--panel-border);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
+
+    .active-indicator {
+      height: 16px;
+    }
+
+    .item-icon {
+      color: var(--accent-color);
+    }
+
+    .item-badge {
+      background: var(--accent-color);
+      color: var(--text-on-accent);
+    }
+  }
+
+  &.dragging {
+    opacity: 0.45;
+    background: var(--item-hover-bg);
+    border-color: var(--accent-color);
+    border-style: dashed;
+    box-shadow: none;
+
+    .item-badge,
+    .item-actions,
+    .active-indicator,
+    .collapse-toggle {
+      opacity: 0 !important;
+    }
+  }
+
+  &.drag-inside {
+    background: var(--drag-inside-bg) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow:
+      inset 0 0 0 1px var(--accent-color),
+      var(--shadow-sm) !important;
+  }
+
+  &.category-list-move {
+    transition: none;
+  }
+
+  .sidebar-menu.is-dragging & {
+    &.category-list-move {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+
+  &.category-list-enter-active,
+  &.category-list-leave-active {
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+
+  &.category-list-enter-from,
+  &.category-list-leave-to {
+    opacity: 0;
+    height: 0;
+    min-height: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+  }
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+
+  .item-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+
+  .item-name {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+  }
+}
+
+.item-right {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 48px;
+  height: 20px;
+  justify-content: flex-end;
+}
+
+.item-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--badge-bg);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: absolute;
+  right: 0;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.action-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--action-btn-hover-bg);
+    color: var(--text-primary);
+    color: var(--btn-hover-color);
+  }
+
+  &.delete:hover {
+    background: var(--action-btn-danger-hover-bg);
+    color: var(--danger-color);
+  }
+
+  .action-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.item-edit-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.item-edit-input {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.edit-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: var(--accent-color);
+  color: var(--text-on-accent);
+  transition: all 0.2s ease;
+
+  &.confirm:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-icon-small {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+@media (max-width: 1049px) {
+  .menu-item {
+    height: 36px;
+    padding-left: calc(10px + var(--item-level, 0) * 10px);
+    padding-right: 6px;
+  }
+
+  .item-left {
+    gap: 8px;
+  }
+}
+</style>
+
