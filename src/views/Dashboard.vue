@@ -6,7 +6,7 @@ import ActionBar from '@modules/ActionBar/ActionBar.vue';
 import NoteGrid from '@modules/NoteGrid.vue';
 import Toast from '@components/Toast.vue';
 import ConfirmModal from '@components/ConfirmModal.vue';
-import SettingsModal from '@components/SettingsModal.vue';
+import SettingsModal from '@modules/SettingsModal/SettingsModal.vue';
 
 const store = useStickyNotesStore();
 

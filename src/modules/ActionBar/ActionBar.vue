@@ -96,13 +96,19 @@ const handleAddNote = () => {
     <!-- 按钮操作区 -->
     <div class="actions-wrapper">
       <!-- 切换主题 -->
-      <button class="icon-btn theme-toggle" data-tooltip="切换主题" @click="store.toggleTheme">
+      <button
+        v-if="store.enabledActionBarButtons.includes('theme-toggle')"
+        class="icon-btn theme-toggle"
+        data-tooltip="切换主题"
+        @click="store.toggleTheme"
+      >
         <Sun v-if="store.isDark" class="btn-icon" />
         <Moon v-else class="btn-icon" />
       </button>
 
       <!-- 排序选择 -->
       <SortPopover
+        v-if="store.enabledActionBarButtons.includes('sort-select')"
         :is-open="activePopover === 'sort'"
         @toggle="togglePopover('sort')"
         @close="closePopover"
@@ -110,6 +116,7 @@ const handleAddNote = () => {
 
       <!-- 列数设置 -->
       <GridColumnsPopover
+        v-if="store.enabledActionBarButtons.includes('columns-select')"
         :is-open="activePopover === 'columns'"
         @toggle="togglePopover('columns')"
         @close="closePopover"
@@ -117,7 +124,7 @@ const handleAddNote = () => {
 
       <!-- 清空当前分类 (垃圾箱分类下隐藏) -->
       <button
-        v-if="store.currentCategoryId !== 'trash'"
+        v-if="store.currentCategoryId !== 'trash' && store.enabledActionBarButtons.includes('clear-notes')"
         class="icon-btn danger"
         :disabled="store.filteredNotes.length === 0"
         :data-tooltip="clearTooltip"
@@ -128,7 +135,7 @@ const handleAddNote = () => {
 
       <!-- 清空回收站 (在垃圾箱分类下显示) -->
       <button
-        v-if="store.currentCategoryId === 'trash'"
+        v-if="store.currentCategoryId === 'trash' && store.enabledActionBarButtons.includes('clear-notes')"
         class="primary-btn danger-btn"
         :disabled="store.filteredNotes.length === 0"
         data-tooltip="清空回收站"
@@ -138,8 +145,13 @@ const handleAddNote = () => {
         <span>清空回收站</span>
       </button>
 
-      <!-- 新建便签 -->
-      <button v-else class="primary-btn" data-tooltip="新建便签" @click="handleAddNote">
+      <!-- 新建便签 (垃圾箱分类下隐藏) -->
+      <button
+        v-if="store.currentCategoryId !== 'trash' && store.enabledActionBarButtons.includes('add-note')"
+        class="primary-btn"
+        data-tooltip="新建便签"
+        @click="handleAddNote"
+      >
         <Plus class="btn-icon-plus" />
         <span>新建便签</span>
       </button>

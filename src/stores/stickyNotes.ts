@@ -99,6 +99,15 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         }
       }
 
+      const storedEnabledButtons = storage.getItem('sticky_notes_enabled_action_bar_buttons');
+      if (storedEnabledButtons) {
+        try {
+          uiStore.enabledActionBarButtons = JSON.parse(storedEnabledButtons);
+        } catch (e) {
+          console.error('Failed to parse enabled action bar buttons:', e);
+        }
+      }
+
       if (storedNotes) {
         noteStore.notes = JSON.parse(storedNotes);
       } else {
@@ -364,7 +373,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     isDark: toRef(uiStore, 'isDark'),
     initTheme: uiStore.initTheme,
     toggleTheme: uiStore.toggleTheme,
-
+    enabledActionBarButtons: toRef(uiStore, 'enabledActionBarButtons'),
+    setEnabledActionBarButtons: uiStore.setEnabledActionBarButtons,
 
     // 初始化与备份代理
     loadData,

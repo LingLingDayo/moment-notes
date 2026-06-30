@@ -105,6 +105,19 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_theme', isDark.value ? 'dark' : 'light');
   };
 
+  const enabledActionBarButtons = ref<string[]>([
+    'theme-toggle',
+    'sort-select',
+    'columns-select',
+    'clear-notes',
+    'add-note'
+  ]);
+
+  const setEnabledActionBarButtons = (buttons: string[]) => {
+    enabledActionBarButtons.value = buttons;
+    storage.setItem('sticky_notes_enabled_action_bar_buttons', JSON.stringify(buttons));
+  };
+
   return {
     confirmState,
     askConfirm,
@@ -122,7 +135,9 @@ export const useUiStore = defineStore('uiStore', () => {
     closeSettings,
     isDark,
     initTheme,
-    toggleTheme
+    toggleTheme,
+    enabledActionBarButtons,
+    setEnabledActionBarButtons
   };
 });
 

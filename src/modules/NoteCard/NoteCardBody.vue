@@ -26,7 +26,7 @@ const copyTag = async (tag: string) => {
     } else {
       await navigator.clipboard.writeText(tag);
     }
-    store.showToast(`已复制标签: #${tag}`, 'success');
+    store.showToast(`已复制标签: ${tag}`, 'success');
   } catch (err) {
     console.error('Failed to copy tag:', err);
     store.showToast('复制失败', 'error');
