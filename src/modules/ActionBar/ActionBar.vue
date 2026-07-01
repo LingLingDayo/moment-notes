@@ -147,7 +147,7 @@ const handleAddNote = () => {
 
       <!-- 新建便签 (垃圾箱分类下隐藏) -->
       <button
-        v-if="store.currentCategoryId !== 'trash' && store.enabledActionBarButtons.includes('add-note')"
+        v-if="store.currentCategoryId !== 'trash'"
         class="primary-btn"
         data-tooltip="新建便签"
         @click="handleAddNote"

@@ -109,8 +109,7 @@ export const useUiStore = defineStore('uiStore', () => {
     'theme-toggle',
     'sort-select',
     'columns-select',
-    'clear-notes',
-    'add-note'
+    'clear-notes'
   ]);
 
   const setEnabledActionBarButtons = (buttons: string[]) => {

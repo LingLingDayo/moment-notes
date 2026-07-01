@@ -64,6 +64,7 @@ const buttonStyle = computed(() => {
   border: 1px solid transparent;
   font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
   transition: all 0.2s ease, filter 0.2s ease, background-color 0.2s ease;
   cursor: pointer;
   box-sizing: border-box;

@@ -1,5 +1,5 @@
 import { markRaw } from 'vue';
-import { Sun, Moon, Columns, Settings, Database, Info, Plus, Trash2 } from 'lucide-vue-next';
+import { Sun, Moon, Columns, Settings, Database, Info, Trash2 } from 'lucide-vue-next';
 import DataPanel from './DataPanel.vue';
 import AboutPanel from './AboutPanel.vue';
 
@@ -64,8 +64,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
           { label: '切换主题', value: 'theme-toggle' },
           { label: '排序方式', value: 'sort-select' },
           { label: '列数设置', value: 'columns-select' },
-          { label: '清空分类', value: 'clear-notes' },
-          { label: '新建便签', value: 'add-note' }
+          { label: '清空分类', value: 'clear-notes' }
         ]
       },
       {
@@ -119,16 +118,8 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         key: 'quickActions',
         label: '快捷操作',
         type: 'button-group',
-        desc: '在设置中快速触发新建便签或执行清空当前分类等动作。',
+        desc: '在设置中快速执行清空当前分类或清空回收站等动作。',
         buttons: [
-          {
-            label: '新建便签',
-            icon: markRaw(Plus),
-            variant: 'primary',
-            width: '120px',
-            minWidth: '80px',
-            actionKey: 'addNote'
-          },
           {
             label: (store: any) => {
               if (store.currentCategoryId === 'trash') {
@@ -138,8 +129,8 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
             },
             icon: markRaw(Trash2),
             variant: 'danger',
-            width: '120px',
-            minWidth: '80px',
+            width: 'auto',
+            minWidth: '100px',
             actionKey: 'clearNotes',
             disabled: (store: any) => store.filteredNotes.length === 0
           }
