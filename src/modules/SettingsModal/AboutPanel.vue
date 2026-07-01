@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const version = __APP_VERSION__
+</script>
+
 <template>
   <div class="about-wrapper">
     <div class="about-card">
@@ -7,7 +11,7 @@
           拾光便签
         </h5>
         <p class="app-version">
-          Version 1.1.0
+          Version {{ version }}
         </p>
       </div>
     </div>

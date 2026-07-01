@@ -88,7 +88,8 @@ export default [
         document: 'readonly',
         process: 'readonly',
         // 可以在这里添加 uTools 全局变量
-        utools: 'readonly'
+        utools: 'readonly',
+        __APP_VERSION__: 'readonly'
       }
     },
     rules: {

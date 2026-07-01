@@ -13,3 +13,6 @@ interface Window {
     writeImageFile(base64Url: string): string | undefined;
   };
 }
+
+declare const __APP_VERSION__: string
+
