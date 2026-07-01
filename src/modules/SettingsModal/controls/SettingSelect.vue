@@ -42,11 +42,11 @@ const handleClickOutside = (e: MouseEvent) => {
 };
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
+  document.addEventListener('click', handleClickOutside, true);
 });
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener('click', handleClickOutside, true);
 });
 
 const isSelected = (val: any) => {
@@ -139,13 +139,11 @@ const displayLabel = computed(() => {
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--input-focus-bg, rgba(0, 0, 0, 0.08));
     border-color: rgba(255, 255, 255, 0.15);
   }
 
   &.open {
     border-color: var(--accent-color);
-    background: var(--input-focus-bg, rgba(0, 0, 0, 0.08));
     box-shadow: 0 0 0 2px var(--accent-light);
   }
 }
@@ -186,6 +184,9 @@ const displayLabel = computed(() => {
   box-shadow: var(--popover-shadow);
   z-index: 1000;
   padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .dropdown-item {
