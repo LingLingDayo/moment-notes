@@ -182,6 +182,14 @@ const handleMouseLeave = () => {
   footerRef.value?.closePopovers();
 };
 
+// 点击卡片其他区域时，马上收起已打开的选择面板
+const handleCardClick = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  if (target && !target.closest('.action-popover-wrapper')) {
+    footerRef.value?.closePopovers();
+  }
+};
+
 // 用于判断外部点击的 Ref 引用
 const cardRef = ref<HTMLElement | null>(null);
 
@@ -249,6 +257,7 @@ onMounted(() => {
     @dragend="handleDragEnd"
     @drop="handleDrop"
     @mouseleave="handleMouseLeave"
+    @click.capture="handleCardClick"
   >
     <!-- 拖拽手柄区域 -->
     <div
