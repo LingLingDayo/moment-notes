@@ -59,6 +59,7 @@ const buttonStyle = computed(() => {
   justify-content: center;
   gap: 8px;
   height: 36px;
+  line-height: 36px;
   padding: 0 14px;
   border-radius: 10px;
   border: 1px solid transparent;

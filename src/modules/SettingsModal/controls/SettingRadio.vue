@@ -48,6 +48,7 @@ const selectOption = (val: any) => {
   justify-content: center;
   gap: 8px;
   height: 36px;
+  line-height: 36px;
   padding: 0 14px;
   border-radius: 10px;
   background: var(--btn-bg, rgba(255, 255, 255, 0.03));

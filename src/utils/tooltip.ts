@@ -5,14 +5,28 @@ let showTimer: number | null = null;
 function createTooltip(): HTMLDivElement {
   if (tooltipEl) return tooltipEl;
   tooltipEl = document.createElement('div');
+  tooltipEl.id = 'global-tooltip';
   tooltipEl.className = 'global-tooltip';
   document.body.appendChild(tooltipEl);
   return tooltipEl;
 }
 
+function updateTooltipContent(el: HTMLDivElement, target: HTMLElement) {
+  const custom = target.hasAttribute('data-tooltip-custom');
+  if (custom) {
+    return;
+  }
+
+  const content = target.getAttribute('data-tooltip') || '';
+  el.textContent = content;
+}
+
 export function initTooltip() {
+  // 提前生成 Tooltip Portal 挂载点，防止 Vue Teleport 找不到容器报错
+  createTooltip();
+
   document.addEventListener('mouseover', e => {
-    const target = (e.target as HTMLElement).closest('[data-tooltip]') as HTMLElement;
+    const target = (e.target as HTMLElement).closest('[data-tooltip], [data-tooltip-custom]') as HTMLElement;
     if (!target) {
       if (currentTarget) {
         hideTooltip();
@@ -21,7 +35,8 @@ export function initTooltip() {
     }
 
     const content = target.getAttribute('data-tooltip');
-    if (!content) {
+    const custom = target.hasAttribute('data-tooltip-custom');
+    if (!content && !custom) {
       if (currentTarget === target) hideTooltip();
       return;
     }
@@ -30,9 +45,11 @@ export function initTooltip() {
 
     if (currentTarget === target) {
       // 如果是同一个元素，但在 hover 期间 content 发生了更新，且 tooltip 已经显示，则实时更新文本与定位
-      if (el.classList.contains('show') && el.textContent !== content) {
-        el.textContent = content;
-        updatePosition(target, el);
+      if (el.classList.contains('show')) {
+        if (!custom && el.textContent !== content) {
+          el.textContent = content || '';
+          updatePosition(target, el);
+        }
       }
       return;
     }
@@ -43,24 +60,25 @@ export function initTooltip() {
     }
 
     currentTarget = target;
+    // 立即清空内容，防止残留旧 Tooltip 文本干扰新 Tooltip 的渲染
+    el.textContent = '';
 
     // 延迟显示，防止鼠标快速划过引发闪烁
     showTimer = window.setTimeout(() => {
       if (currentTarget !== target) return;
-      const currentContent = target.getAttribute('data-tooltip') || '';
-      el.textContent = currentContent;
+      updateTooltipContent(el, target);
       el.classList.add('show');
       updatePosition(target, el);
     }, 550);
   });
 
   document.addEventListener('mouseout', e => {
-    const target = (e.target as HTMLElement).closest('[data-tooltip]') as HTMLElement;
+    const target = (e.target as HTMLElement).closest('[data-tooltip], [data-tooltip-custom]') as HTMLElement;
     if (!target || target !== currentTarget) return;
 
     // 检查鼠标离开后是否进入了 tooltip 内部 (通常 global-tooltip 包含 pointer-events: none，但这里做双重保险)
     const toElement = e.relatedTarget as HTMLElement;
-    if (toElement && toElement.closest('[data-tooltip]') === currentTarget) {
+    if (toElement && toElement.closest('[data-tooltip], [data-tooltip-custom]') === currentTarget) {
       return;
     }
 
