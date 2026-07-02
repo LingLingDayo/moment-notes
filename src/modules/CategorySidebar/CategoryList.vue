@@ -418,7 +418,7 @@ provide('categoryContext', {
         <Trash2 class="item-icon" />
         <span class="item-name" data-tooltip="已删除的便签">垃圾箱</span>
       </div>
-      <span class="item-badge">{{ store.trashNotesCount }}</span>
+      <span v-if="store.trashNotesCount > 0" class="item-badge">{{ store.trashNotesCount }}</span>
     </div>
   </div>
 </template>
