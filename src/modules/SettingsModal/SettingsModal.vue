@@ -81,21 +81,40 @@ const handleButtonAction = (actionKey: string) => {
 
 <style lang="scss" scoped>
 .modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background: var(--modal-overlay-bg); display: flex; align-items: center; justify-content: center;
-  z-index: 9990; backdrop-filter: blur(8px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--modal-overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9990;
+  backdrop-filter: blur(8px);
 }
 
 .modal-container {
-  width: 90%; max-width: 600px; height: 460px; border-radius: 20px;
-  background: var(--popover-bg); border: 1px solid var(--popover-border);
-  box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
-  overflow: hidden; backdrop-filter: blur(20px);
+  width: 90%;
+  max-width: 620px;
+  height: 480px;
+  border-radius: 20px;
+  background: var(--popover-bg);
+  border: 1px solid var(--popover-border);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
 }
 
 .modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
 
   .header-title-area {
     display: flex;
@@ -150,7 +169,7 @@ const handleButtonAction = (actionKey: string) => {
   width: 140px;
   background: rgba(0, 0, 0, 0.02);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 16px 8px;
+  padding: 12px 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -161,7 +180,9 @@ const handleButtonAction = (actionKey: string) => {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 14px;
   border-radius: 10px;
   color: var(--text-secondary);
   font-size: 13px;

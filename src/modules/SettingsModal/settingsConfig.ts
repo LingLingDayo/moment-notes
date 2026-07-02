@@ -239,25 +239,29 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         key: 'addNote',
         label: '新建便签',
         type: 'shortcut',
-        tooltip: '在当前所在分类下极速新建一个空白便签'
+        tooltip: '在当前所在分类下极速新建一个空白便签',
+        controlWidth: '80%'
       },
       {
         key: 'focusSearch',
         label: '聚焦搜索',
         type: 'shortcut',
-        tooltip: '一键将输入光标聚焦到顶部的搜索框中'
+        tooltip: '一键将输入光标聚焦到顶部的搜索框中',
+        controlWidth: '80%'
       },
       {
         key: 'saveEdit',
         label: '保存编辑',
         type: 'shortcut',
-        tooltip: '在编辑便签内容时，快捷保存并结束编辑状态'
+        tooltip: '在编辑便签内容时，快捷保存并结束编辑状态',
+        controlWidth: '80%'
       },
       {
         key: 'cancelEdit',
         label: '取消编辑',
         type: 'shortcut',
-        tooltip: '在编辑便签内容时，放弃修改并退出编辑状态'
+        tooltip: '在编辑便签内容时，放弃修改并退出编辑状态',
+        controlWidth: '80%'
       },
       {
         key: 'shortcutTips',

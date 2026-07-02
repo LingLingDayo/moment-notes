@@ -58,23 +58,24 @@ const { fileInputRef, triggerFileInput, handleFileImport, exportBackup } = useSe
   line-height: 36px;
   padding: 0 14px;
   border-radius: 10px;
-  background: var(--btn-bg, rgba(255, 255, 255, 0.03));
-  border: 1px solid var(--btn-border, rgba(255, 255, 255, 0.05));
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
   color: var(--text-secondary);
   font-size: 12px;
   font-weight: 500;
   transition: all 0.2s ease;
   cursor: pointer;
+  background-clip: padding-box;
 
   &:hover {
-    background: var(--btn-hover-bg, rgba(255, 255, 255, 0.08));
-    color: var(--text-primary);
-    border-color: var(--btn-hover-border, rgba(255, 255, 255, 0.1));
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-color);
+    border-color: var(--btn-hover-border);
   }
 
   .control-icon {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
   }
 }
 </style>

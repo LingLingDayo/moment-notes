@@ -194,7 +194,9 @@ const displayLabel = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 12px;
   border-radius: 8px;
   font-size: 12px;
   color: var(--text-secondary);

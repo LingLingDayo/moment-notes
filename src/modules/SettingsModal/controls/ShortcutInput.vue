@@ -199,19 +199,21 @@ const handleClear = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: 1px solid var(--btn-border);
   background: var(--btn-bg);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  background-clip: padding-box;
 
   &:hover:not(:disabled) {
-    color: var(--text-primary);
     background: var(--btn-hover-bg);
+    color: var(--btn-hover-color);
+    border-color: var(--btn-hover-border);
   }
 
   &:disabled {
@@ -226,8 +228,8 @@ const handleClear = () => {
   }
 
   .control-icon {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
   }
 }
 
