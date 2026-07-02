@@ -60,7 +60,7 @@ const gridStyle = computed(() => {
   if (actualColumns.value === 'auto') {
     const minWidth = Math.max(100, Math.min(1000, store.minNoteWidth || 240));
     return {
-      gridTemplateColumns: `repeat(auto-fill, minmax(${minWidth}px, 1fr))`
+      gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${minWidth}px), 1fr))`
     };
   }
   return {
