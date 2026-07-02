@@ -1,9 +1,11 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
+import { useShortcutStore } from '@stores/shortcutStore';
 import { storage } from '@utils/storage';
 
 export function useSettings() {
   const store = useStickyNotesStore();
+  const shortcutStore = useShortcutStore();
   const activeTab = ref<string>('general');
   const fileInputRef = ref<HTMLInputElement | null>(null);
 
@@ -11,9 +13,18 @@ export function useSettings() {
   const getSettingValue = (key: string) => {
     return computed({
       get() {
+        const shortcut = shortcutStore.shortcuts.find(s => s.id === key);
+        if (shortcut) {
+          return shortcut.currentKey;
+        }
         return (store as any)[key];
       },
       set(val) {
+        const shortcut = shortcutStore.shortcuts.find(s => s.id === key);
+        if (shortcut) {
+          shortcutStore.updateShortcut(key, val);
+          return;
+        }
         if (key === 'isDark') {
           if (store.isDark !== val) {
             store.toggleTheme();

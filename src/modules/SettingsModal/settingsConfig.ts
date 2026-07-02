@@ -2,7 +2,7 @@ import { markRaw } from 'vue';
 import { Sun, Moon, Columns, Settings, Database, Info, Trash2, Keyboard } from 'lucide-vue-next';
 import DataPanel from './DataPanel.vue';
 import AboutPanel from './AboutPanel.vue';
-import ShortcutPanel from './ShortcutPanel.vue';
+
 
 export interface SettingOption {
   label: string;
@@ -138,7 +138,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
       },
       {
         key: 'minNoteWidth',
-        label: '便签自适应最小宽度 (px)',
+        label: '便签自适应最小宽度',
         type: 'input',
         desc: '在“自适应”展示列数模式下生效，单个便签卡片的最小宽度限制。默认值为 240，允许设置范围为 100 - 1000。',
         default: 240,
@@ -236,10 +236,37 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
     icon: markRaw(Keyboard),
     items: [
       {
-        key: 'shortcutSettings',
-        label: '快捷设置',
-        type: 'component',
-        component: markRaw(ShortcutPanel)
+        key: 'addNote',
+        label: '新建便签',
+        type: 'shortcut',
+        tooltip: '在当前所在分类下极速新建一个空白便签'
+      },
+      {
+        key: 'focusSearch',
+        label: '聚焦搜索',
+        type: 'shortcut',
+        tooltip: '一键将输入光标聚焦到顶部的搜索框中'
+      },
+      {
+        key: 'saveEdit',
+        label: '保存编辑',
+        type: 'shortcut',
+        tooltip: '在编辑便签内容时，快捷保存并结束编辑状态'
+      },
+      {
+        key: 'cancelEdit',
+        label: '取消编辑',
+        type: 'shortcut',
+        tooltip: '在编辑便签内容时，放弃修改并退出编辑状态'
+      },
+      {
+        key: 'shortcutTips',
+        label: '快捷操作指南',
+        type: 'text',
+        content: `<ul>
+          <li><strong>双击隐藏粘贴：</strong>双击便签卡片会直接自动收起窗口，并自动将便签内容填至您原先光标所在的输入位置。</li>
+          <li><strong>捕获外部文本：</strong>在 uTools 的超级面板中，可以直接选中文本一键导入并创建新便签。</li>
+        </ul>`
       }
     ]
   },
@@ -251,7 +278,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
     items: [
       {
         key: 'aboutInfo',
-        label: '版本信息',
+        label: '',
         type: 'component',
         component: markRaw(AboutPanel)
       }

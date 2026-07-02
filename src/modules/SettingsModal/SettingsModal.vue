@@ -190,7 +190,7 @@ const handleButtonAction = (actionKey: string) => {
 /* 右侧配置区域 */
 .settings-content {
   flex: 1;
-  padding: 24px;
+  padding: 20px;
   overflow-y: auto;
   background: transparent;
 }
@@ -198,7 +198,7 @@ const handleButtonAction = (actionKey: string) => {
 .settings-panel {
   display: flex;
   flex-flow: row wrap;
-  gap: 20px 16px;
+  gap: 16px 14px;
 }
 
 .panel-title {

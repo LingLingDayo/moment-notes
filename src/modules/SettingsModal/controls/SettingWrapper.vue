@@ -189,7 +189,6 @@ const controlStyle = computed(() => {
   width: 100%;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   box-sizing: border-box;
-  padding-bottom: 16px;
 
   &:last-child {
     border-bottom: none;
