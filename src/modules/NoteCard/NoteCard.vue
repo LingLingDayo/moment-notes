@@ -105,6 +105,16 @@ const handleGlobalMouseUp = () => {
   isDragTriggered.value = false;
 };
 
+const handleHandleMouseEnter = () => {
+  if (store.sortMode !== 'custom' || isEditing.value || props.note.isDeleted) return;
+  isDragTriggered.value = true;
+};
+
+const handleHandleMouseLeave = () => {
+  if (store.draggedNoteId === props.note.id) return;
+  isDragTriggered.value = false;
+};
+
 const handleDragStart = (e: DragEvent) => {
   if (store.sortMode !== 'custom' || isEditing.value || props.note.isDeleted || !isDragTriggered.value) {
     e.preventDefault();
@@ -117,10 +127,41 @@ const handleDragStart = (e: DragEvent) => {
   }
 };
 
-const handleDragEnter = (_e: DragEvent) => {
+const handleDragOver = (e: DragEvent) => {
   if (store.sortMode !== 'custom') return;
   const draggedId = store.draggedNoteId;
-  if (draggedId && draggedId !== props.note.id) {
+  if (!draggedId || draggedId === props.note.id) return;
+  if (e.clientX === 0 && e.clientY === 0) return;
+
+  const dragIndex = store.filteredNotes.findIndex(n => n.id === draggedId);
+  const hoverIndex = store.filteredNotes.findIndex(n => n.id === props.note.id);
+  if (dragIndex === -1 || hoverIndex === -1) return;
+
+  if (!cardRef.value) return;
+  const targetRect = cardRef.value.getBoundingClientRect();
+
+  const draggedElement = document.querySelector('.note-card.dragging');
+  if (!draggedElement) return;
+  const draggedRect = draggedElement.getBoundingClientRect();
+
+  const isSameRow = Math.abs(draggedRect.top - targetRect.top) < 20;
+
+  let shouldSwap = false;
+  if (isSameRow) {
+    if (dragIndex < hoverIndex) {
+      shouldSwap = e.clientX > targetRect.left + targetRect.width / 2;
+    } else {
+      shouldSwap = e.clientX < targetRect.left + targetRect.width / 2;
+    }
+  } else {
+    if (dragIndex < hoverIndex) {
+      shouldSwap = e.clientY > targetRect.top + targetRect.height / 2;
+    } else {
+      shouldSwap = e.clientY < targetRect.top + targetRect.height / 2;
+    }
+  }
+
+  if (shouldSwap) {
     store.moveNote(draggedId, props.note.id);
   }
 };
@@ -204,8 +245,7 @@ onMounted(() => {
     :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && isDragTriggered"
     @dblclick="handleDoubleClick"
     @dragstart="handleDragStart"
-    @dragover.prevent
-    @dragenter="handleDragEnter"
+    @dragover.prevent="handleDragOver"
     @dragend="handleDragEnd"
     @drop="handleDrop"
     @mouseleave="handleMouseLeave"
@@ -214,7 +254,9 @@ onMounted(() => {
     <div
       v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted"
       class="note-drag-handle"
-      @mousedown="isDragTriggered = true"
+      data-tooltip="按住拖动调整位置"
+      @mouseenter="handleHandleMouseEnter"
+      @mouseleave="handleHandleMouseLeave"
       @dblclick.stop
     ></div>
 
@@ -321,10 +363,10 @@ onMounted(() => {
   }
 
   &[draggable='true'] {
-    cursor: grab;
+    cursor: default;
 
     &:active {
-      cursor: grabbing;
+      cursor: default;
     }
   }
 
@@ -333,12 +375,12 @@ onMounted(() => {
     top: 0;
     left: 0;
     right: 0;
-    height: 18px;
+    height: 16px;
     z-index: 1;
-    cursor: grab;
+    cursor: default;
     border-radius: $radius-xl $radius-xl 0 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     transition: background-color 0.2s;
 
@@ -349,25 +391,18 @@ onMounted(() => {
       border-radius: 1.5px;
       background: currentColor;
       opacity: 0;
+      margin-top: 3.5px;
       transition: opacity 0.2s;
     }
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.03);
       &::after {
         opacity: 0.2;
-      }
-      
-      .dark-theme & {
-        background-color: rgba(255, 255, 255, 0.03);
-        &::after {
-          opacity: 0.3;
-        }
       }
     }
 
     &:active {
-      cursor: grabbing;
+      cursor: default;
     }
   }
 

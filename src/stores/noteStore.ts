@@ -141,13 +141,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     storage.setItem('sticky_notes_sort_order', sortOrder.value);
   };
 
-  let lastMoveTime = 0;
-
   const moveNote = (draggedId: string, targetId: string) => {
-    const now = Date.now();
-    if (now - lastMoveTime < 250) {
-      return;
-    }
     const fromIndex = notes.value.findIndex(n => n.id === draggedId);
     const toIndex = notes.value.findIndex(n => n.id === targetId);
     if (fromIndex !== -1 && toIndex !== -1) {
@@ -162,7 +156,6 @@ export const useNoteStore = defineStore('noteStore', () => {
         }
         const [movedNote] = notes.value.splice(fromIndex, 1);
         notes.value.splice(toIndex, 0, movedNote);
-        lastMoveTime = now;
         saveNotes();
       }
     }
