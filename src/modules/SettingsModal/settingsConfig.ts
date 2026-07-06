@@ -157,7 +157,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         key: 'sortMode',
         label: '默认便签排序方式',
         type: 'select',
-        desc: '设置默认 of 便签排序规则。',
+        desc: '设置默认的便签排序规则。',
         default: 'date',
         width: '50%',
         options: [

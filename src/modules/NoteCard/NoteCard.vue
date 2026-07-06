@@ -88,7 +88,7 @@ const cancelEdit = () => {
 // 双击粘贴逻辑
 const handleDoubleClick = () => {
   if (isEditing.value) return; // 如果在编辑中，不触发双击粘贴
-  store.handlePasteNote(props.note.content);
+  store.handlePasteNote(props.note.content, props.note.id);
 };
 
 // 切换置顶
@@ -112,7 +112,12 @@ const handleGlobalMouseUp = () => {
 };
 
 const handleHandleMouseEnter = () => {
-  if (store.sortMode !== 'custom' || isEditing.value || props.note.isDeleted) return;
+  if (
+    store.sortMode !== 'custom' ||
+    isEditing.value ||
+    props.note.isDeleted ||
+    store.currentCategoryId === 'recent'
+  ) return;
   isDragTriggered.value = true;
 };
 

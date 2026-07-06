@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, provide, computed } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Trash2 } from 'lucide-vue-next';
+import { Trash2, History } from 'lucide-vue-next';
 import { isUTools } from '@/utils/storage';
 import CategoryItem from './CategoryItem.vue';
 
@@ -60,7 +60,7 @@ const dragPlacement = ref<'before' | 'after' | 'inside' | null>(null);
 
 // 拖拽指示线样式与层级计算
 const getCategoryLevel = (id: string): number => {
-  if (id === 'all' || id === 'trash') return 0;
+  if (id === 'all' || id === 'trash' || id === 'recent') return 0;
   let level = 0;
   let current = store.categories.find(c => c.id === id);
   while (current && current.parentId) {
@@ -406,6 +406,20 @@ provide('categoryContext', {
 
     <!-- 分割线 -->
     <div class="menu-divider"></div>
+
+    <!-- 最近使用分类 -->
+    <div
+      class="menu-item recent-item"
+      :class="{ active: store.currentCategoryId === 'recent' }"
+      @click="store.currentCategoryId = 'recent'"
+    >
+      <div class="active-indicator"></div>
+      <div class="item-left">
+        <History class="item-icon" />
+        <span class="item-name" data-tooltip="最近复制/双击使用过的便签">最近使用</span>
+      </div>
+      <span v-if="store.recentNotesCount > 0" class="item-badge">{{ store.recentNotesCount }}</span>
+    </div>
 
     <!-- 垃圾箱分类 -->
     <div

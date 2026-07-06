@@ -163,6 +163,14 @@ export const useNoteStore = defineStore('noteStore', () => {
     }
   };
 
+  const updateNoteLastUsed = (id: string) => {
+    const note = notes.value.find(n => n.id === id);
+    if (note) {
+      note.lastUsedAt = Date.now();
+      saveNotes();
+    }
+  };
+
   return {
     notes,
     currentCategoryId,
@@ -181,6 +189,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     updateNote,
     clearNotes,
     setSortMode,
-    moveNote
+    moveNote,
+    updateNoteLastUsed
   };
 });

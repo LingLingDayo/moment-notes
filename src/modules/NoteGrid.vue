@@ -96,7 +96,7 @@ const handleAddNote = () => {
         }}
       </p>
 
-      <button v-if="!store.searchQuery && store.currentCategoryId !== 'trash'" class="create-first-btn" @click="handleAddNote">
+      <button v-if="!store.searchQuery && store.currentCategoryId !== 'trash' && store.currentCategoryId !== 'recent'" class="create-first-btn" @click="handleAddNote">
         <Plus class="btn-icon" />
         <span>添加第一张便签</span>
       </button>

@@ -122,9 +122,9 @@ const handleAddNote = () => {
         @close="closePopover"
       />
 
-      <!-- 清空当前分类 (垃圾箱分类下隐藏) -->
+      <!-- 清空当前分类 (垃圾箱分类和最近使用分类下隐藏) -->
       <button
-        v-if="store.currentCategoryId !== 'trash' && store.enabledActionBarButtons.includes('clear-notes')"
+        v-if="store.currentCategoryId !== 'trash' && store.currentCategoryId !== 'recent' && store.enabledActionBarButtons.includes('clear-notes')"
         class="icon-btn danger"
         :disabled="store.filteredNotes.length === 0"
         :data-tooltip="clearTooltip"
@@ -145,9 +145,9 @@ const handleAddNote = () => {
         <span>清空便签</span>
       </button>
 
-      <!-- 新建便签 (垃圾箱分类下隐藏) -->
+      <!-- 新建便签 (垃圾箱分类和最近使用分类下隐藏) -->
       <button
-        v-if="store.currentCategoryId !== 'trash'"
+        v-if="store.currentCategoryId !== 'trash' && store.currentCategoryId !== 'recent'"
         class="primary-btn"
         data-tooltip="新建便签"
         @click="handleAddNote"

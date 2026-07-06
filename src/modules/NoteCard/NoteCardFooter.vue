@@ -84,6 +84,7 @@ const copyNoteContent = async () => {
       await navigator.clipboard.writeText(props.note.content);
     }
     store.showToast('已复制便签内容', 'success');
+    store.updateNoteLastUsed(props.note.id);
   } catch (err) {
     console.error('Failed to copy:', err);
     store.showToast('复制失败', 'error');

@@ -17,6 +17,7 @@ export interface Note {
   tags?: string[];
   isDeleted?: boolean;
   deletedAt?: number;
+  lastUsedAt?: number;
 }
 
 export interface NoteColorPreset {

@@ -175,7 +175,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
 
   const addNote = (categoryId: string, content = '', title = '', color?: string) => {
     let targetCategoryId = categoryId;
-    if (categoryId === 'all' || categoryId === 'trash') {
+    if (categoryId === 'all' || categoryId === 'trash' || categoryId === 'recent') {
       targetCategoryId = 'uncategorized';
     }
     return noteStore.addNote(targetCategoryId, content, title, color);
@@ -193,6 +193,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     // 1. 分类与逻辑删除过滤
     if (noteStore.currentCategoryId === 'trash') {
       result = result.filter(n => n.isDeleted === true);
+    } else if (noteStore.currentCategoryId === 'recent') {
+      result = result.filter(n => n.isDeleted !== true && n.lastUsedAt !== undefined);
     } else {
       result = result.filter(n => n.isDeleted !== true);
       if (noteStore.currentCategoryId !== 'all') {
@@ -235,10 +237,16 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     }
 
     // 3. 排序
-    return [...result].sort((a, b) => {
+    const sortedResult = [...result].sort((a, b) => {
       // 置顶(isPinned)始终排在最前面
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
+
+      if (noteStore.currentCategoryId === 'recent') {
+        const timeA = a.lastUsedAt || 0;
+        const timeB = b.lastUsedAt || 0;
+        return timeB - timeA;
+      }
 
       if (noteStore.sortMode === 'title') {
         const titleA = a.title || '';
@@ -298,6 +306,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
           : a.updatedAt - b.updatedAt;
       }
     });
+
+    if (noteStore.currentCategoryId === 'recent') {
+      return sortedResult.slice(0, 30);
+    }
+    return sortedResult;
   });
 
   // 备份与粘贴代理方法
@@ -323,7 +336,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   };
 
   const handlePasteNote = async (
-    content: string
+    content: string,
+    noteId?: string
   ): Promise<{ success: boolean; isNative: boolean }> => {
     if (!content.trim()) {
       uiStore.showToast('便签内容为空，无法复制粘贴', 'warning');
@@ -334,6 +348,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       uiStore.showToast('已隐藏并粘贴到目标光标处！', 'success');
     } else {
       uiStore.showToast('已复制到剪贴板，请到目标位置粘贴', 'info');
+    }
+    if (noteId) {
+      noteStore.updateNoteLastUsed(noteId);
     }
     return { success: true, isNative };
   };
@@ -378,6 +395,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     draggedNoteId: toRef(noteStore, 'draggedNoteId'),
     editingNoteId: toRef(noteStore, 'editingNoteId'),
     filteredNotes,
+    recentNotesCount: computed(() => {
+      return noteStore.notes.filter(n => n.isDeleted !== true && n.lastUsedAt !== undefined).length;
+    }),
     trashNotesCount: computed(() => noteStore.trashNotesCount),
     addNote,
     deleteNote: noteStore.deleteNote,
@@ -387,6 +407,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     clearNotes,
     setSortMode: noteStore.setSortMode,
     moveNote: noteStore.moveNote,
+    updateNoteLastUsed: noteStore.updateNoteLastUsed,
 
     // UI 状态与方法 (UI Store 代理)
     toastMessage: toRef(uiStore, 'toastMessage'),
