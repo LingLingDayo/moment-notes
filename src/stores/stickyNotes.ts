@@ -206,21 +206,32 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     // 2. 搜索词过滤 (支持根据不同目标过滤)
     if (noteStore.searchQuery.trim()) {
       const q = noteStore.searchQuery.toLowerCase().trim();
-      result = result.filter(n => {
-        const titleMatch = n.title ? n.title.toLowerCase().includes(q) : false;
-        const contentMatch = n.content.toLowerCase().includes(q);
-        const tagsMatch = n.tags ? n.tags.some(tag => tag.toLowerCase().includes(q)) : false;
+      const keywords = q.split(/\s+/).filter(k => k.length > 0);
+      if (keywords.length > 0) {
+        result = result.filter(n => {
+          return keywords.every(kw => {
+            const term = kw.toLowerCase();
+            const noteTitle = (n.title || '').toLowerCase();
+            const noteContent = (n.content || '').toLowerCase();
 
-        if (noteStore.searchTarget.includes('all')) {
-          return titleMatch || contentMatch || tagsMatch;
-        }
+            const titleMatch = noteTitle.includes(term);
+            const contentMatch = noteContent.includes(term);
+            const tagsMatch = Array.isArray(n.tags)
+              ? n.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(term))
+              : false;
 
-        let match = false;
-        if (noteStore.searchTarget.includes('title') && titleMatch) match = true;
-        if (noteStore.searchTarget.includes('content') && contentMatch) match = true;
-        if (noteStore.searchTarget.includes('tag') && tagsMatch) match = true;
-        return match;
-      });
+            if (noteStore.searchTarget.includes('all')) {
+              return titleMatch || contentMatch || tagsMatch;
+            }
+
+            let match = false;
+            if (noteStore.searchTarget.includes('title') && titleMatch) match = true;
+            if (noteStore.searchTarget.includes('content') && contentMatch) match = true;
+            if (noteStore.searchTarget.includes('tag') && tagsMatch) match = true;
+            return match;
+          });
+        });
+      }
     }
 
     // 3. 排序

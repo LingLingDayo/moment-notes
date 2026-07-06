@@ -93,6 +93,7 @@ onUnmounted(() => {
         type="text"
         :placeholder="searchPlaceholder"
         class="search-input"
+        data-tooltip="支持空格分隔的多关键词检索"
       />
 
       <!-- 清除搜索按钮 -->
