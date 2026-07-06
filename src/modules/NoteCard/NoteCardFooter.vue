@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Palette, FolderInput, Check, Copy, Trash2, RotateCcw, Folder } from 'lucide-vue-next';
 import { Note } from '@type';
 import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
@@ -14,6 +14,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'save-edit'): void;
   (e: 'cancel-edit'): void;
+  (e: 'popover-state-change', isOpen: boolean): void;
 }>();
 
 const store = useStickyNotesStore();
@@ -22,11 +23,38 @@ const store = useStickyNotesStore();
 const showColorPicker = ref(false);
 // 是否显示移动分类面板
 const showFolderPicker = ref(false);
+// 下拉面板的位置 ('top' | 'bottom')
+const popoverPlacement = ref<'top' | 'bottom'>('top');
+// 移动分类包装器的 DOM 引用
+const folderWrapperRef = ref<HTMLElement | null>(null);
+
+const toggleFolderPicker = () => {
+  if (showFolderPicker.value) {
+    showFolderPicker.value = false;
+  } else {
+    showFolderPicker.value = true;
+    showColorPicker.value = false;
+
+    if (folderWrapperRef.value) {
+      const rect = folderWrapperRef.value.getBoundingClientRect();
+      // 如果上方空间小于 200px，则在下方显示
+      if (rect.top < 200) {
+        popoverPlacement.value = 'bottom';
+      } else {
+        popoverPlacement.value = 'top';
+      }
+    }
+  }
+};
 
 const closePopovers = () => {
   showColorPicker.value = false;
   showFolderPicker.value = false;
 };
+
+watch(() => showColorPicker.value || showFolderPicker.value, (isOpen) => {
+  emit('popover-state-change', isOpen);
+});
 
 // 暴露 closePopovers 方法给父组件调用
 defineExpose({
@@ -167,19 +195,20 @@ const deleteSelf = async () => {
       </div>
 
       <!-- 移动分类 -->
-      <div class="action-popover-wrapper">
+      <div ref="folderWrapperRef" class="action-popover-wrapper">
         <button
           class="action-btn"
           data-tooltip="移动分类"
-          @click="
-            showFolderPicker = !showFolderPicker;
-            showColorPicker = false;
-          "
+          @click="toggleFolderPicker"
         >
           <FolderInput class="action-icon" />
         </button>
 
-        <div v-if="showFolderPicker" class="folder-picker-popover">
+        <div
+          v-if="showFolderPicker"
+          class="folder-picker-popover"
+          :class="{ 'show-below': popoverPlacement === 'bottom' }"
+        >
           <div class="popover-title">
             移动至分类
           </div>
@@ -375,6 +404,12 @@ const deleteSelf = async () => {
   min-width: 120px;
   animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
+  &.show-below {
+    bottom: auto;
+    top: calc(100% + 8px);
+    animation: popoverFadeInBelow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
   .popover-title {
     font-size: 10px;
     font-weight: 700;
@@ -426,6 +461,17 @@ const deleteSelf = async () => {
   from {
     opacity: 0;
     transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popoverFadeInBelow {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
   }
   to {
     opacity: 1;

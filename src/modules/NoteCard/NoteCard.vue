@@ -23,6 +23,12 @@ const editTags = ref<string[]>([]);
 const tagEditorRef = ref<InstanceType<typeof NoteCardTagEditor> | null>(null);
 const footerRef = ref<InstanceType<typeof NoteCardFooter> | null>(null);
 
+// 是否有处于激活状态的下拉面板 (如颜色选择、分类移动等)
+const hasActivePopover = ref(false);
+const handlePopoverStateChange = (isOpen: boolean) => {
+  hasActivePopover.value = isOpen;
+};
+
 // 获取当前便签颜色的样式配置
 const colorStyle = computed(() => {
   const preset = COLOR_PRESETS[props.note.color] || COLOR_PRESETS.yellow;
@@ -247,7 +253,8 @@ onMounted(() => {
       pinned: note.isPinned,
       editing: isEditing,
       dragging: store.draggedNoteId === note.id,
-      'is-in-trash': note.isDeleted
+      'is-in-trash': note.isDeleted,
+      'has-active-popover': hasActivePopover
     }"
     :style="colorStyle"
     :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && isDragTriggered"
@@ -295,6 +302,7 @@ onMounted(() => {
       :is-editing="isEditing"
       @save-edit="saveEdit"
       @cancel-edit="cancelEdit"
+      @popover-state-change="handlePopoverStateChange"
     />
   </div>
 </template>
@@ -362,6 +370,10 @@ onMounted(() => {
     min-height: 220px;
     z-index: 10;
     cursor: default;
+  }
+
+  &.has-active-popover {
+    z-index: 10;
   }
 
   &.dragging {
