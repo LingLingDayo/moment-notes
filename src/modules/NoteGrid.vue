@@ -70,7 +70,7 @@ const gridStyle = computed(() => {
 
 // 创建新便签
 const handleAddNote = () => {
-  store.addNote(store.currentCategoryId, '', '', 'yellow');
+  store.addNote(store.currentCategoryId, '', '');
   store.showToast('已新建空便签，可以直接编辑');
 };
 </script>

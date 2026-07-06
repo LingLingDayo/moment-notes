@@ -120,6 +120,7 @@ const isVisible = computed(() => {
 
     <!-- 8. Text Content -->
     <SettingWrapper v-else-if="item.type === 'text'" :item="item">
+      <!-- eslint-disable-next-line vue/no-v-html -->
       <div class="setting-text-content" v-html="item.content"></div>
     </SettingWrapper>
 

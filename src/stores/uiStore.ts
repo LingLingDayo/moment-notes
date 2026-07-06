@@ -130,6 +130,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_date_format', dateFormat.value);
   };
 
+  const defaultNoteColor = ref<string>('yellow');
+
+  const setDefaultNoteColor = (val: string) => {
+    defaultNoteColor.value = val || 'yellow';
+    storage.setItem('sticky_notes_default_note_color', defaultNoteColor.value);
+  };
+
   return {
     confirmState,
     askConfirm,
@@ -153,7 +160,9 @@ export const useUiStore = defineStore('uiStore', () => {
     enabledActionBarButtons,
     setEnabledActionBarButtons,
     dateFormat,
-    setDateFormat
+    setDateFormat,
+    defaultNoteColor,
+    setDefaultNoteColor
   };
 });
 

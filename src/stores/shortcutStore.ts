@@ -134,7 +134,7 @@ export const useShortcutStore = defineStore('shortcutStore', () => {
   const triggerShortcut = (id: string) => {
     const stickyNotesStore = useStickyNotesStore();
     if (id === 'addNote') {
-      stickyNotesStore.addNote(stickyNotesStore.currentCategoryId, '', '', 'yellow');
+      stickyNotesStore.addNote(stickyNotesStore.currentCategoryId, '', '');
       stickyNotesStore.showToast('已快捷新建空便签，可以直接编辑');
     } else if (id === 'focusSearch') {
       const activeEl = document.activeElement;

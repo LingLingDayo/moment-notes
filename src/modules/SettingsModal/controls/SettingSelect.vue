@@ -3,6 +3,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { ChevronDown, Check } from 'lucide-vue-next';
 import SettingWrapper from './SettingWrapper.vue';
 import { SettingItem, SettingOption } from '../settingsConfig';
+import { useStickyNotesStore } from '@stores/stickyNotes';
+import { COLOR_PRESETS } from '@stores/colorPresets';
 
 const props = defineProps<{
   modelValue: any;
@@ -15,6 +17,7 @@ const emit = defineEmits<{
 
 const isOpen = ref(false);
 const selectRef = ref<HTMLElement | null>(null);
+const store = useStickyNotesStore();
 
 const options = computed(() => props.item.options || []);
 const multiple = computed(() => props.item.type === 'multiselect');
@@ -66,6 +69,23 @@ const handleSelect = (option: SettingOption) => {
   }
 };
 
+const selectedOption = computed(() => {
+  if (multiple.value) return null;
+  return options.value.find(opt => opt.value === props.modelValue) || null;
+});
+
+const getColorStyle = (colorName: string) => {
+  const preset = COLOR_PRESETS[colorName];
+  if (!preset) return {};
+  const isDark = store.isDark;
+  return {
+    backgroundColor: isDark ? preset.darkBg : preset.lightBg,
+    borderColor: isDark ? preset.darkBorder : preset.lightBorder,
+    borderWidth: '1px',
+    borderStyle: 'solid'
+  };
+};
+
 const displayLabel = computed(() => {
   if (multiple.value) {
     const values = Array.isArray(props.modelValue) ? props.modelValue : [];
@@ -90,9 +110,15 @@ const displayLabel = computed(() => {
           :class="{ open: isOpen }"
           @click="toggleDropdown"
         >
-          <span class="trigger-text" :class="{ placeholder: !multiple && (modelValue === undefined || modelValue === '') }">
-            {{ displayLabel }}
-          </span>
+          <div class="trigger-content">
+            <span v-if="!multiple && selectedOption && selectedOption.color" class="color-badge-dot" :style="getColorStyle(selectedOption.color)"></span>
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <span v-if="!multiple && selectedOption && selectedOption.html" class="trigger-text" v-html="selectedOption.html"></span>
+            <span v-else-if="!multiple && selectedOption" class="trigger-text">{{ selectedOption.label }}</span>
+            <span v-else class="trigger-text" :class="{ placeholder: modelValue === undefined || modelValue === '' || (multiple && (!modelValue || modelValue.length === 0)) }">
+              {{ displayLabel }}
+            </span>
+          </div>
           <ChevronDown class="arrow-icon" :class="{ rotate: isOpen }" />
         </div>
 
@@ -105,7 +131,12 @@ const displayLabel = computed(() => {
               :class="{ active: isSelected(option.value) }"
               @click="handleSelect(option)"
             >
-              <span class="item-label">{{ option.label }}</span>
+              <div class="item-content-wrapper">
+                <span v-if="option.color" class="color-badge-dot" :style="getColorStyle(option.color)"></span>
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <span v-if="option.html" class="item-label" v-html="option.html"></span>
+                <span v-else class="item-label">{{ option.label }}</span>
+              </div>
               <Check v-if="isSelected(option.value)" class="check-icon" />
             </div>
           </div>
@@ -146,11 +177,37 @@ const displayLabel = computed(() => {
   }
 }
 
+.trigger-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.item-content-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.color-badge-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
 .trigger-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-right: 8px;
   
   &.placeholder {
     color: var(--text-muted);
@@ -163,6 +220,7 @@ const displayLabel = computed(() => {
   color: var(--text-secondary);
   transition: transform 0.2s ease;
   flex-shrink: 0;
+  margin-left: 8px;
 
   &.rotate {
     transform: rotate(180deg);

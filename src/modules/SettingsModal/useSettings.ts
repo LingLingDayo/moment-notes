@@ -42,6 +42,8 @@ export function useSettings() {
           storage.setItem('sticky_notes_sort_order', val);
         } else if (key === 'dateFormat') {
           store.setDateFormat(val);
+        } else if (key === 'defaultNoteColor') {
+          store.setDefaultNoteColor(val);
         } else {
           (store as any)[key] = val;
         }
@@ -106,7 +108,7 @@ export function useSettings() {
   };
 
   const handleAddNote = () => {
-    store.addNote(store.currentCategoryId, '', '', 'yellow');
+    store.addNote(store.currentCategoryId, '', '');
     store.showToast('已新建空便签，可以直接编辑');
   };
 

@@ -83,7 +83,7 @@ const handleClear = async () => {
 // 创建新便签
 const handleAddNote = () => {
   // 创建一个空便签，放在最前端
-  store.addNote(store.currentCategoryId, '', '', 'yellow');
+  store.addNote(store.currentCategoryId, '', '');
   store.showToast('已新建空便签，可以直接编辑');
 };
 </script>

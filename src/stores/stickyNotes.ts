@@ -125,6 +125,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.dateFormat = storedDateFormat;
       }
 
+      const storedDefaultNoteColor = storage.getItem('sticky_notes_default_note_color');
+      if (storedDefaultNoteColor) {
+        uiStore.defaultNoteColor = storedDefaultNoteColor;
+      }
+
       if (storedNotes) {
         noteStore.notes = JSON.parse(storedNotes);
       } else {
@@ -168,7 +173,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     }
   };
 
-  const addNote = (categoryId: string, content = '', title = '', color = 'yellow') => {
+  const addNote = (categoryId: string, content = '', title = '', color?: string) => {
     let targetCategoryId = categoryId;
     if (categoryId === 'all' || categoryId === 'trash') {
       targetCategoryId = 'uncategorized';
@@ -396,6 +401,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setEnabledActionBarButtons: uiStore.setEnabledActionBarButtons,
     dateFormat: toRef(uiStore, 'dateFormat'),
     setDateFormat: uiStore.setDateFormat,
+    defaultNoteColor: toRef(uiStore, 'defaultNoteColor'),
+    setDefaultNoteColor: uiStore.setDefaultNoteColor,
 
     // 初始化与备份代理
     loadData,

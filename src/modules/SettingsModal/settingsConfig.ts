@@ -8,6 +8,8 @@ export interface SettingOption {
   label: string;
   value: any;
   icon?: any;
+  html?: string;
+  color?: string;
 }
 
 export type SettingType = 'input' | 'textarea' | 'select' | 'multiselect' | 'radio' | 'button-group' | 'component' | 'shortcut' | 'text';
@@ -189,6 +191,24 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
           type: 'text',
           style: 'max-width: 240px;'
         }
+      },
+      {
+        key: 'defaultNoteColor',
+        label: '默认便签颜色',
+        type: 'select',
+        desc: '新建便签或从外部捕获时，默认的卡片背景色。',
+        default: 'yellow',
+        props: {
+          style: 'max-width: 240px;'
+        },
+        options: [
+          { label: '暖阳黄', value: 'yellow', color: 'yellow', html: '<span style="font-weight: 500;">暖阳黄</span>' },
+          { label: '薄荷绿', value: 'green', color: 'green', html: '<span style="font-weight: 500;">薄荷绿</span>' },
+          { label: '晴空蓝', value: 'blue', color: 'blue', html: '<span style="font-weight: 500;">晴空蓝</span>' },
+          { label: '蔷薇粉', value: 'pink', color: 'pink', html: '<span style="font-weight: 500;">蔷薇粉</span>' },
+          { label: '熏衣紫', value: 'purple', color: 'purple', html: '<span style="font-weight: 500;">熏衣紫</span>' },
+          { label: '极简灰', value: 'gray', color: 'gray', html: '<span style="font-weight: 500;">极简灰</span>' }
+        ]
       },
       {
         key: 'quickActions',

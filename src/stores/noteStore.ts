@@ -18,13 +18,15 @@ export const useNoteStore = defineStore('noteStore', () => {
     storage.setItem('sticky_notes_notes', JSON.stringify(notes.value));
   };
 
-  const addNote = (categoryId: string, content = '', title = '', color = 'yellow') => {
+  const addNote = (categoryId: string, content = '', title = '', color?: string) => {
+    const uiStore = useUiStore();
+    const finalColor = color || uiStore.defaultNoteColor || 'yellow';
     const newNote: Note = {
       id: Date.now().toString(),
       categoryId,
       title: title.trim(),
       content: content,
-      color,
+      color: finalColor,
       isPinned: false,
       createdAt: Date.now(),
       updatedAt: Date.now(),
