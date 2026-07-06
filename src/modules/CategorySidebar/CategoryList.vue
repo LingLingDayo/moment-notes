@@ -45,7 +45,7 @@ const submitEdit = (id: string) => {
 const confirmDelete = async (id: string, name: string) => {
   const ok = await store.askConfirm(
     '确认删除分类',
-    `确定要删除分类 "${name}" 吗？该分类下的子分类会自动上移，该分类下的便签将被移至回收站。`
+    `确定要删除分类 "${name}" 吗？该分类下的子分类会自动上移，该分类下的便签将被移至最近删除。`
   );
   if (ok) {
     store.deleteCategory(id);
@@ -416,7 +416,7 @@ provide('categoryContext', {
       <div class="active-indicator"></div>
       <div class="item-left">
         <Trash2 class="item-icon" />
-        <span class="item-name" data-tooltip="已删除的便签">垃圾箱</span>
+        <span class="item-name" data-tooltip="已删除的便签">最近删除</span>
       </div>
       <span v-if="store.trashNotesCount > 0" class="item-badge">{{ store.trashNotesCount }}</span>
     </div>

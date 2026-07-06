@@ -110,7 +110,7 @@ const deleteSelf = async () => {
     props.note.isDeleted ? '确认彻底删除' : '确认删除便签',
     props.note.isDeleted
       ? '确定要彻底删除这张便签吗？此操作不可逆，数据将永久丢失。'
-      : '确定要删除这张便签吗？该便签将被移动到垃圾箱，随时可以恢复。'
+      : '确定要删除这张便签吗？该便签将被移动到最近删除，随时可以恢复。'
   );
   if (ok) {
     store.deleteNote(props.note.id);

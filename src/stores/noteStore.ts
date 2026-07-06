@@ -52,7 +52,7 @@ export const useNoteStore = defineStore('noteStore', () => {
       note.isDeleted = true;
       note.deletedAt = Date.now();
       note.isPinned = false;
-      uiStore.showToast('已将便签移至回收站', 'success');
+      uiStore.showToast('已将便签移至最近删除', 'success');
     }
     saveNotes();
   };
@@ -73,7 +73,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     notes.value = notes.value.filter(n => n.isDeleted !== true);
     saveNotes();
     const uiStore = useUiStore();
-    uiStore.showToast('已清空回收站的所有便签', 'success');
+    uiStore.showToast('已清空最近删除的所有便签', 'success');
   };
 
   const trashNotesCount = computed(() => {

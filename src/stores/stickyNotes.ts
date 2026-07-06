@@ -153,7 +153,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   const deleteCategory = (id: string) => {
     categoryStore.deleteCategory(id);
 
-    // 将属于该被删除分类的所有便签移至回收站
+    // 将属于该被删除分类的所有便签移至最近删除
     noteStore.notes = noteStore.notes.map(n => {
       if (n.categoryId === id) {
         return {

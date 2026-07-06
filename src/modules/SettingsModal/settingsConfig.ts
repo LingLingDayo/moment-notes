@@ -214,12 +214,12 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         key: 'quickActions',
         label: '快捷操作',
         type: 'button-group',
-        desc: '在设置中快速执行清空当前分类或清空回收站等管理动作。',
+        desc: '在设置中快速执行清空当前分类或清空最近删除等管理动作。',
         buttons: [
           {
             label: (store: any) => {
               if (store.currentCategoryId === 'trash') {
-                return '清空回收站';
+                return '清空最近删除';
               }
               return store.currentCategoryId === 'all' ? '清空所有便签' : '清空当前分类便签';
             },

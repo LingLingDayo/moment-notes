@@ -23,7 +23,7 @@ const closePopover = () => {
 // 动态清空按钮的提示文字
 const clearTooltip = computed(() => {
   if (store.currentCategoryId === 'trash') {
-    return '清空回收站';
+    return '清空便签';
   }
   return store.currentCategoryId === 'all' ? '清空所有便签' : '清空当前分类便签';
 });
@@ -56,8 +56,8 @@ onUnmounted(() => {
 const handleClear = async () => {
   if (store.currentCategoryId === 'trash') {
     const ok = await store.askConfirm(
-      '确认清空回收站吗？',
-      '⚠️ 警告：清空回收站将彻底从设备删除其中所有的便签，此操作不可逆，数据无法找回！'
+      '确认清空便签吗？',
+      '⚠️ 警告：清空便签将彻底从设备删除其中所有的便签，此操作不可逆，数据无法找回！'
     );
     if (ok) {
       store.clearTrash();
@@ -72,11 +72,11 @@ const handleClear = async () => {
 
   const ok = await store.askConfirm(
     '确认删除便签',
-    `⚠️ 警告：确定要清空 ${catName} 下的所有便签吗？这些便签将被移动到回收站。`
+    `⚠️ 警告：确定要清空 ${catName} 下的所有便签吗？这些便签将被移动到最近删除。`
   );
   if (ok) {
     store.clearNotes(store.currentCategoryId);
-    store.showToast('已将所有便签移至回收站');
+    store.showToast('已将所有便签移至最近删除');
   }
 };
 
@@ -133,16 +133,16 @@ const handleAddNote = () => {
         <Trash2 class="btn-icon" />
       </button>
 
-      <!-- 清空回收站 (在垃圾箱分类下显示) -->
+      <!-- 清空最近删除 (在垃圾箱分类下显示) -->
       <button
         v-if="store.currentCategoryId === 'trash' && store.enabledActionBarButtons.includes('clear-notes')"
         class="primary-btn danger-btn"
         :disabled="store.filteredNotes.length === 0"
-        data-tooltip="清空回收站"
+        data-tooltip="清空便签"
         @click="handleClear"
       >
         <Trash2 class="btn-icon-plus" />
-        <span>清空回收站</span>
+        <span>清空便签</span>
       </button>
 
       <!-- 新建便签 (垃圾箱分类下隐藏) -->
