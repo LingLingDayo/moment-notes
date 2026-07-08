@@ -35,17 +35,6 @@ onMounted(() => {
 
   // 初始化主题并自动读取存储/系统设置
   store.initTheme(isUTools());
-
-  // 如果在 uTools 环境下，监听每次插件切入以更新主题
-  if (isUTools()) {
-    try {
-      window.utools.onPluginEnter(() => {
-        store.initTheme(true);
-      });
-    } catch (e) {
-      console.error('Failed to register theme watcher on utools enter:', e);
-    }
-  }
 });
 
 onUnmounted(() => {

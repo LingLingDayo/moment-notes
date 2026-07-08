@@ -130,6 +130,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.defaultNoteColor = storedDefaultNoteColor;
       }
 
+      const storedSuperPanelCat = storage.getItem('sticky_notes_super_panel_default_category');
+      if (storedSuperPanelCat) {
+        uiStore.superPanelDefaultCategory = storedSuperPanelCat;
+      }
+
       if (storedNotes) {
         noteStore.notes = JSON.parse(storedNotes);
       } else {
@@ -435,6 +440,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setDateFormat: uiStore.setDateFormat,
     defaultNoteColor: toRef(uiStore, 'defaultNoteColor'),
     setDefaultNoteColor: uiStore.setDefaultNoteColor,
+    superPanelDefaultCategory: toRef(uiStore, 'superPanelDefaultCategory'),
+    setSuperPanelDefaultCategory: uiStore.setSuperPanelDefaultCategory,
 
     // 初始化与备份代理
     loadData,

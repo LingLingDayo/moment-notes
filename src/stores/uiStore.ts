@@ -137,6 +137,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_default_note_color', defaultNoteColor.value);
   };
 
+  const superPanelDefaultCategory = ref<string>('all');
+
+  const setSuperPanelDefaultCategory = (val: string) => {
+    superPanelDefaultCategory.value = val || 'all';
+    storage.setItem('sticky_notes_super_panel_default_category', superPanelDefaultCategory.value);
+  };
+
   return {
     confirmState,
     askConfirm,
@@ -162,7 +169,9 @@ export const useUiStore = defineStore('uiStore', () => {
     dateFormat,
     setDateFormat,
     defaultNoteColor,
-    setDefaultNoteColor
+    setDefaultNoteColor,
+    superPanelDefaultCategory,
+    setSuperPanelDefaultCategory
   };
 });
 

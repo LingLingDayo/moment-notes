@@ -48,6 +48,20 @@ const resolveButtonVisible = (btn: any) => {
 const isVisible = computed(() => {
   return evaluateVisibility(props.item.visible, store);
 });
+
+const resolvedOptions = computed(() => {
+  if (typeof props.item.options === 'function') {
+    return props.item.options(store);
+  }
+  return props.item.options || [];
+});
+
+const resolvedItem = computed(() => {
+  return {
+    ...props.item,
+    options: resolvedOptions.value
+  };
+});
 </script>
 
 <template>
@@ -74,8 +88,8 @@ const isVisible = computed(() => {
     <SettingSelect
       v-else-if="item.type === 'select' || item.type === 'multiselect'"
       v-model="value"
-      :item="item"
-      :options="item.options || []"
+      :item="resolvedItem"
+      :options="resolvedOptions"
       :multiple="item.type === 'multiselect'"
       :placeholder="item.placeholder"
       v-bind="item.props"
@@ -85,8 +99,8 @@ const isVisible = computed(() => {
     <SettingRadio
       v-else-if="item.type === 'radio'"
       v-model="value"
-      :item="item"
-      :options="item.options || []"
+      :item="resolvedItem"
+      :options="resolvedOptions"
     />
 
     <!-- 5. Button Group -->

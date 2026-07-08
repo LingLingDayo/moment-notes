@@ -44,6 +44,8 @@ export function useSettings() {
           store.setDateFormat(val);
         } else if (key === 'defaultNoteColor') {
           store.setDefaultNoteColor(val);
+        } else if (key === 'superPanelDefaultCategory') {
+          store.setSuperPanelDefaultCategory(val);
         } else {
           (store as any)[key] = val;
         }

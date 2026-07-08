@@ -29,14 +29,31 @@ onMounted(() => {
       // 触发数据加载以保证是最新的
       store.loadData();
 
-      // uTools 提供了强大的文本输入匹配能力，支持将用户选中的文本快速保存
-      // action.type 为 'text' 或 'over' (文本匹配指令)
-      if (action.type === 'over') {
-        const textPayload = action.payload;
-        if (textPayload && textPayload.trim()) {
-          // 在当前分类下极速导入文本便签
-          store.addNote(store.currentCategoryId, textPayload.trim(), '💡 快捷导入');
-          store.showToast('已自动从输入源新建便签');
+      // 自动同步/更新主题
+      store.initTheme(true);
+
+      // 判断是否是通过超级面板打开
+      const isSuperPanel = action.code === 'save_note' || action.type === 'over';
+
+      if (isSuperPanel) {
+        // 读取并校验超级面板默认的打开分类
+        const targetCategory = store.superPanelDefaultCategory || 'all';
+        const isSystemCat = ['all', 'recent', 'trash'].includes(targetCategory);
+        const exists = isSystemCat || store.categories.some((c: any) => c.id === targetCategory);
+        const finalCategory = exists ? targetCategory : 'all';
+
+        // 切换到目标分类
+        store.currentCategoryId = finalCategory;
+
+        // uTools 提供了强大的文本输入匹配能力，支持将用户选中的文本快速保存
+        // action.type 为 'text' 或 'over' (文本匹配指令)
+        if (action.type === 'over') {
+          const textPayload = action.payload;
+          if (textPayload && textPayload.trim()) {
+            // 新建便签保存到 targetCategory 分类下
+            store.addNote(finalCategory, textPayload.trim(), '💡 快捷导入');
+            store.showToast('已自动从输入源新建便签');
+          }
         }
       }
     });

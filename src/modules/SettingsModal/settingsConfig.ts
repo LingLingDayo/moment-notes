@@ -53,7 +53,7 @@ export interface SettingItem {
   desc?: string;
   default?: any;
   tooltip?: string;
-  options?: SettingOption[];
+  options?: SettingOption[] | ((store: any) => SettingOption[]);
   placeholder?: string;
   props?: SettingProps;
   width?: string;
@@ -209,6 +209,32 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
           { label: '熏衣紫', value: 'purple', color: 'purple', html: '<span style="font-weight: 500;">熏衣紫</span>' },
           { label: '极简灰', value: 'gray', color: 'gray', html: '<span style="font-weight: 500;">极简灰</span>' }
         ]
+      },
+      {
+        key: 'superPanelDefaultCategory',
+        label: '超级面板默认分类',
+        type: 'select',
+        desc: '配置通过 uTools 超级面板（如快捷导入、保存为便签等）唤醒插件时，默认自动跳转并切换到的分类。',
+        default: 'all',
+        props: {
+          style: 'max-width: 240px;'
+        },
+        options: (store: any) => {
+          const list = [
+            { label: '全部便签', value: 'all' },
+            { label: '最近使用', value: 'recent' },
+            { label: '最近删除', value: 'trash' }
+          ];
+          if (store.categories && Array.isArray(store.categories)) {
+            store.categories.forEach((cat: any) => {
+              list.push({
+                label: cat.name,
+                value: cat.id
+              });
+            });
+          }
+          return list;
+        }
       },
       {
         key: 'quickActions',
