@@ -1,12 +1,21 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import NoteCard from './NoteCard/NoteCard.vue';
 import { StickyNote, SearchX, Plus } from 'lucide-vue-next';
+import { useDragAutoScroll } from '@utils/useDragAutoScroll';
 
 const store = useStickyNotesStore();
 
 const containerRef = ref<HTMLElement | null>(null);
+
+const { handleDragOver: handleDragScroll, stopScroll: stopDragScroll } = useDragAutoScroll(containerRef);
+
+watch(() => store.draggedNoteId, (newId) => {
+  if (!newId) {
+    stopDragScroll();
+  }
+});
 let resizeObserver: ResizeObserver | null = null;
 
 // 根据容器的净宽度（contentRect.width）来计算允许的最大列数
@@ -76,7 +85,11 @@ const handleAddNote = () => {
 </script>
 
 <template>
-  <div ref="containerRef" class="note-grid-container">
+  <div
+    ref="containerRef"
+    class="note-grid-container"
+    @dragover="handleDragScroll"
+  >
     <!-- 空状态 -->
     <div v-if="store.filteredNotes.length === 0" class="empty-state">
       <div class="empty-illustration-wrapper">

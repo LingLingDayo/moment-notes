@@ -1,15 +1,17 @@
 <script lang="ts" setup>
-import { ref, provide, computed } from 'vue';
+import { ref, provide, computed, watch } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Trash2, History } from 'lucide-vue-next';
 import { isUTools } from '@/utils/storage';
 import CategoryItem from './CategoryItem.vue';
+import { useDragAutoScroll } from '@utils/useDragAutoScroll';
 
 const store = useStickyNotesStore();
 
 // 处于编辑重命名状态的分类ID
 const editingId = ref<string | null>(null);
 const editCategoryName = ref('');
+const sidebarMenuRef = ref<HTMLElement | null>(null);
 
 // 开启编辑
 const startEdit = (id: string, currentName: string) => {
@@ -57,6 +59,14 @@ const confirmDelete = async (id: string, name: string) => {
 const draggedCatId = ref<string | null>(null);
 const dragOverCatId = ref<string | null>(null);
 const dragPlacement = ref<'before' | 'after' | 'inside' | null>(null);
+
+const { handleDragOver: handleDragScroll, stopScroll: stopDragScroll } = useDragAutoScroll(sidebarMenuRef);
+
+watch(() => draggedCatId.value, (newId) => {
+  if (!newId) {
+    stopDragScroll();
+  }
+});
 
 // 拖拽指示线样式与层级计算
 const getCategoryLevel = (id: string): number => {
@@ -147,6 +157,7 @@ const onDragStart = (event: DragEvent, cat: any) => {
 
 const onDragOverItem = (event: DragEvent, cat: any) => {
   if (!draggedCatId.value) return;
+  handleDragScroll(event);
 
   event.preventDefault();
   event.stopPropagation();
@@ -279,6 +290,7 @@ const resetDragState = () => {
 
 const onSidebarDragOver = (event: DragEvent) => {
   if (!draggedCatId.value) return;
+  handleDragScroll(event);
   const target = event.target as HTMLElement;
   if (target && (target.classList.contains('sidebar-menu') || target.closest('.trash-item'))) {
     dragOverCatId.value = null;
@@ -387,6 +399,7 @@ provide('categoryContext', {
 
 <template>
   <div
+    ref="sidebarMenuRef"
     :class="{ uTools: isUTools(), 'is-dragging': draggedCatId !== null }"
     class="sidebar-menu"
     @dragover="onSidebarDragOver"
