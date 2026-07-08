@@ -127,7 +127,7 @@ const handleHandleMouseLeave = () => {
 };
 
 const handleDragStart = (e: DragEvent) => {
-  if (store.sortMode !== 'custom' || isEditing.value || props.note.isDeleted || !isDragTriggered.value) {
+  if (store.sortMode !== 'custom' || isEditing.value || props.note.isDeleted || props.note.isPinned || !isDragTriggered.value) {
     e.preventDefault();
     return;
   }
@@ -262,7 +262,7 @@ onMounted(() => {
       'has-active-popover': hasActivePopover
     }"
     :style="colorStyle"
-    :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && isDragTriggered"
+    :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned && isDragTriggered"
     @dblclick="handleDoubleClick"
     @dragstart="handleDragStart"
     @dragover.prevent="handleDragOver"
@@ -273,7 +273,7 @@ onMounted(() => {
   >
     <!-- 拖拽手柄区域 -->
     <div
-      v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted"
+      v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned"
       class="note-drag-handle"
       data-tooltip="按住拖动调整位置"
       @mouseenter="handleHandleMouseEnter"
