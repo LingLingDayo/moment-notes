@@ -23,7 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .temp/
-AGENTS.md
 docs/superpowers
 .utools
 release_notes.md
