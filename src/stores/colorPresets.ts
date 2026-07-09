@@ -4,7 +4,7 @@ import { NoteColorPreset } from '@type';
 export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
   yellow: {
     name: '暖阳黄',
-    lightBg: 'hsl(48, 100%, 88%, 0.75)',
+    lightBg: '#FFF6D1',
     darkBg: 'hsl(48, 40%, 18%, 0.75)',
     lightBorder: 'hsl(48, 100%, 75%)',
     darkBorder: 'hsl(48, 40%, 30%)',
@@ -17,7 +17,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
   },
   green: {
     name: '薄荷绿',
-    lightBg: 'hsl(120, 75%, 90%, 0.75)',
+    lightBg: '#DEFADE',
     darkBg: 'hsl(120, 30%, 16%, 0.75)',
     lightBorder: 'hsl(120, 75%, 80%)',
     darkBorder: 'hsl(120, 30%, 28%)',
@@ -30,7 +30,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
   },
   blue: {
     name: '晴空蓝',
-    lightBg: 'hsl(200, 90%, 90%, 0.75)',
+    lightBg: '#DBF2FD',
     darkBg: 'hsl(200, 40%, 17%, 0.75)',
     lightBorder: 'hsl(200, 90%, 80%)',
     darkBorder: 'hsl(200, 40%, 30%)',
@@ -43,7 +43,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
   },
   pink: {
     name: '蔷薇粉',
-    lightBg: 'hsl(340, 85%, 91%, 0.75)',
+    lightBg: '#FDDFE9',
     darkBg: 'hsl(340, 40%, 18%, 0.75)',
     lightBorder: 'hsl(340, 85%, 82%)',
     darkBorder: 'hsl(340, 40%, 30%)',
@@ -56,7 +56,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
   },
   purple: {
     name: '熏衣紫',
-    lightBg: 'hsl(270, 80%, 92%, 0.75)',
+    lightBg: '#F0E4FC',
     darkBg: 'hsl(270, 35%, 18%, 0.75)',
     lightBorder: 'hsl(270, 80%, 83%)',
     darkBorder: 'hsl(270, 35%, 30%)',
@@ -69,7 +69,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
   },
   gray: {
     name: '极简灰',
-    lightBg: 'hsl(0, 0%, 93%, 0.75)',
+    lightBg: '#F2F2F2',
     darkBg: 'hsl(0, 0%, 18%, 0.75)',
     lightBorder: 'hsl(0, 0%, 82%)',
     darkBorder: 'hsl(0, 0%, 30%)',

@@ -26,12 +26,13 @@
 
 // Hover 悬浮浮起动效
 @mixin hover-lift($translateY: -4px, $shadow: var(--shadow-md)) {
+  will-change: transform, box-shadow;
   transition:
     transform $transition-slow,
     box-shadow $transition-slow;
 
   &:hover {
-    transform: translateY($translateY);
+    transform: translate3d(0, $translateY, 0);
     box-shadow: $shadow;
   }
 }

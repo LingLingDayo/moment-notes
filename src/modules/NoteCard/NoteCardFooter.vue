@@ -299,6 +299,7 @@ const deleteSelf = async () => {
   font-size: 10px;
   color: inherit;
   opacity: 0.8;
+  transition: opacity 0.25s ease;
 }
 
 
@@ -313,12 +314,13 @@ const deleteSelf = async () => {
   align-items: center;
   gap: 4px;
   opacity: 0;
-  transform: translateY(4px);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(0, 4px, 0);
+  will-change: opacity, transform;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &.is-deleted-actions {
     opacity: 0.75;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
 
     &:hover {
       opacity: 1;
