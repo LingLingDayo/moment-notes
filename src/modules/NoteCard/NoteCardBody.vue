@@ -307,6 +307,23 @@ onBeforeUnmount(() => {
     border: none !important;
   }
 
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+  .dark-theme &:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:hover::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .light-theme &:hover::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.12);
+    }
+  }
+
   // 1. 默认显示极其清淡淡雅的半透明颜色，既保持视觉纯净，又避开了 Chromium 隐藏滚动条不响应 hover 重绘的缺陷
   &::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.04);

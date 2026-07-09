@@ -9,6 +9,7 @@ import { COLOR_PRESETS } from '@stores/colorPresets';
 const props = defineProps<{
   modelValue: any;
   item: SettingItem;
+  options?: SettingOption[];
 }>();
 
 const emit = defineEmits<{
@@ -19,7 +20,7 @@ const isOpen = ref(false);
 const selectRef = ref<HTMLElement | null>(null);
 const store = useStickyNotesStore();
 
-const options = computed(() => props.item.options || []);
+const options = computed(() => props.options || []);
 const multiple = computed(() => props.item.type === 'multiselect');
 const placeholder = computed(() => props.item.placeholder || '请选择...');
 const itemProps = computed(() => (props.item.props as any) || {});

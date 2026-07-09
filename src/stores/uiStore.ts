@@ -45,6 +45,7 @@ export const useUiStore = defineStore('uiStore', () => {
   const gridColumns = ref<'auto' | 1 | 2 | 3 | 4>('auto');
   const maxColumns = ref<1 | 2 | 3 | 4>(4);
   const minNoteWidth = ref<number>(240);
+  const noteMaxHeight = ref<number>(300);
 
   const setGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
     gridColumns.value = cols;
@@ -58,6 +59,11 @@ export const useUiStore = defineStore('uiStore', () => {
   const setMinNoteWidth = (val: number) => {
     minNoteWidth.value = Number(val) || 240;
     storage.setItem('sticky_notes_min_note_width', minNoteWidth.value.toString());
+  };
+
+  const setNoteMaxHeight = (val: number) => {
+    noteMaxHeight.value = Number(val) || 320;
+    storage.setItem('sticky_notes_note_max_height', noteMaxHeight.value.toString());
   };
 
   // 设置弹窗显示状态
@@ -171,7 +177,9 @@ export const useUiStore = defineStore('uiStore', () => {
     defaultNoteColor,
     setDefaultNoteColor,
     superPanelDefaultCategory,
-    setSuperPanelDefaultCategory
+    setSuperPanelDefaultCategory,
+    noteMaxHeight,
+    setNoteMaxHeight
   };
 });
 

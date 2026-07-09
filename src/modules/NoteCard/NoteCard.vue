@@ -241,6 +241,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('mouseup', handleGlobalMouseUp);
 });
 
+const cardMaxHeightStyle = computed(() => {
+  return {
+    '--card-max-height': isEditing.value ? 'none' : `${store.noteMaxHeight}px`
+  };
+});
+
 onMounted(() => {
   window.addEventListener('mouseup', handleGlobalMouseUp);
   if (store.editingNoteId === props.note.id) {
@@ -261,7 +267,7 @@ onMounted(() => {
       'is-in-trash': note.isDeleted,
       'has-active-popover': hasActivePopover
     }"
-    :style="colorStyle"
+    :style="[colorStyle, cardMaxHeightStyle]"
     :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned && isDragTriggered"
     @dblclick="handleDoubleClick"
     @dragstart="handleDragStart"
@@ -327,7 +333,7 @@ onMounted(() => {
   padding: 18px 20px 14px 20px;
   position: relative;
   min-height: 90px;
-  max-height: 320px;
+  max-height: var(--card-max-height, 300px);
   cursor: default;
   // user-select: none;
 

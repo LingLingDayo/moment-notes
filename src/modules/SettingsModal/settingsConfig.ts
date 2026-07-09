@@ -12,7 +12,7 @@ export interface SettingOption {
   color?: string;
 }
 
-export type SettingType = 'input' | 'textarea' | 'select' | 'multiselect' | 'radio' | 'button-group' | 'component' | 'shortcut' | 'text';
+export type SettingType = 'input' | 'textarea' | 'select' | 'multiselect' | 'radio' | 'button-group' | 'component' | 'shortcut' | 'text' | 'slider';
 
 export interface ButtonConfig {
   label: string | ((store: any) => string);
@@ -44,7 +44,14 @@ export interface SelectProps {
   style?: string;
 }
 
-export type SettingProps = TextInputProps | NumberInputProps | SelectProps;
+export interface SliderProps {
+  min?: number;
+  max?: number;
+  step?: number;
+  style?: string;
+}
+
+export type SettingProps = TextInputProps | NumberInputProps | SelectProps | SliderProps;
 
 export interface SettingItem {
   key: string;
@@ -152,6 +159,18 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
           max: 1000
         },
         visible: (store: any) => store.gridColumns === 'auto'
+      },
+      {
+        key: 'noteMaxHeight',
+        label: '便签卡片最大高度',
+        type: 'slider',
+        desc: '限制单个便签卡片在浏览模式下的最大展示高度。超出此限制时内部会自动出现滚动条。',
+        default: 300,
+        props: {
+          min: 150,
+          max: 600,
+          step: 10
+        }
       },
       {
         key: 'sortMode',

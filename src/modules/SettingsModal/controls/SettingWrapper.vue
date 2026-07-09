@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { SettingItem } from '../settingsConfig';
+import { useStickyNotesStore } from '@stores/stickyNotes';
 
 const props = withDefaults(
   defineProps<{
@@ -39,14 +40,17 @@ const getDefaultTooltip = (item: SettingItem) => {
   if (item.default === undefined) return undefined;
 
   let valStr = '';
-  if (item.options && item.options.length > 0) {
+  const store = useStickyNotesStore();
+  const options = typeof item.options === 'function' ? item.options(store) : (item.options || []);
+
+  if (options && options.length > 0) {
     if (Array.isArray(item.default)) {
-      const labels = item.options
+      const labels = options
           .filter(opt => item.default.includes(opt.value))
           .map(opt => opt.label);
       valStr = labels.join(', ');
     } else {
-      const opt = item.options.find(opt => opt.value === item.default);
+      const opt = options.find(opt => opt.value === item.default);
       valStr = opt ? opt.label : String(item.default);
     }
   } else {

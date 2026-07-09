@@ -111,6 +111,14 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         }
       }
 
+      const storedNoteMaxHeight = storage.getItem('sticky_notes_note_max_height');
+      if (storedNoteMaxHeight) {
+        const height = parseInt(storedNoteMaxHeight, 10);
+        if (!isNaN(height)) {
+          uiStore.noteMaxHeight = height;
+        }
+      }
+
       const storedEnabledButtons = storage.getItem('sticky_notes_enabled_action_bar_buttons');
       if (storedEnabledButtons) {
         try {
@@ -425,9 +433,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     gridColumns: gridColumnsRef,
     maxColumns: toRef(uiStore, 'maxColumns'),
     minNoteWidth: toRef(uiStore, 'minNoteWidth'),
+    noteMaxHeight: toRef(uiStore, 'noteMaxHeight'),
     setGridColumns: uiStore.setGridColumns,
     setMaxColumns: uiStore.setMaxColumns,
     setMinNoteWidth: uiStore.setMinNoteWidth,
+    setNoteMaxHeight: uiStore.setNoteMaxHeight,
     showSettings: toRef(uiStore, 'showSettings'),
     openSettings: uiStore.openSettings,
     closeSettings: uiStore.closeSettings,

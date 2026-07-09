@@ -7,6 +7,7 @@ import SettingRadio from './controls/SettingRadio.vue';
 import SettingButton from './controls/SettingButton.vue';
 import ShortcutInput from './controls/ShortcutInput.vue';
 import SettingWrapper from './controls/SettingWrapper.vue';
+import SettingSlider from './controls/SettingSlider.vue';
 import { SettingItem, evaluateVisibility } from './settingsConfig';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 
@@ -122,6 +123,13 @@ const resolvedItem = computed(() => {
         </template>
       </div>
     </SettingWrapper>
+
+    <!-- 6. Slider -->
+    <SettingSlider
+      v-else-if="item.type === 'slider'"
+      v-model="value"
+      :item="item"
+    />
 
     <!-- 7. Shortcut -->
     <ShortcutInput
