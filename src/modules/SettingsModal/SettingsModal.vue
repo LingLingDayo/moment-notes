@@ -92,6 +92,7 @@ const handleButtonAction = (actionKey: string) => {
   justify-content: center;
   z-index: 9990;
   backdrop-filter: blur(8px);
+  will-change: opacity;
 }
 
 .modal-container {
@@ -105,7 +106,7 @@ const handleButtonAction = (actionKey: string) => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  backdrop-filter: blur(20px);
+  will-change: transform, opacity;
 }
 
 .modal-header {
@@ -242,10 +243,10 @@ const handleButtonAction = (actionKey: string) => {
 /* 弹窗过渡动画 */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   .modal-container {
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
   }
 }
 
@@ -254,7 +255,7 @@ const handleButtonAction = (actionKey: string) => {
   opacity: 0;
 
   .modal-container {
-    transform: scale(0.92) translateY(12px);
+    transform: scale(0.92) translate3d(0, 12px, 0);
     opacity: 0;
   }
 }
