@@ -48,6 +48,16 @@ npm run dev
 2. 点击 **新建项目**，选择项目根目录下的 `public/plugin.json`。
 3. 确保本地 `npm run dev` 正常运行，在开发者工具中点击 **运行** 即可进行沙箱调试。
 
+### 4. 代码规范与 Git 提交规范
+为了确保代码质量与风格一致，本项目集成了 Husky, ESLint 和 commitlint：
+**代码格式化与校验**：在提交前，请运行以下命令修复代码中的格式或 Lint 问题：
+```bash
+npm run lint
+```
+**Git 提交信息**：提交信息须遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范，格式为 `<type>(<scope>): <subject>`，例如：
+- `feat: 新增便签多色主题选择`
+- `fix: 修复置顶便签重排时的动画卡顿问题`
+
 ---
 
 ## 📦 打包与发布
@@ -60,3 +70,41 @@ npm run build
 
 2. **打包 UPX**：
 在 `uTools 开发者工具` 项目面板中点击 **打包项目**，选择生成的 `dist/` 目录和 `public/` 下的图标，生成 `.upx` 格式的插件包，上传至 uTools 开放平台审核即可。
+
+---
+
+## 📂 项目结构
+
+```text
+moment-notes/
+├── .github/          # GitHub 工作流配置
+├── .utools/          # uTools 开发者配置
+├── docs/             # 项目文档及预览图
+├── public/           # 静态资源及 uTools 插件配置文件 (plugin.json)
+├── src/
+│   ├── components/   # 公用 UI 组件 (如便签卡片、弹窗等)
+│   ├── stores/       # Pinia 状态管理 (便签 CRUD 核心状态)
+│   ├── styles/       # 全局样式、SCSS 变量与 Mixins
+│   ├── types/        # TypeScript 类型定义
+│   ├── utils/        # 平台适配与工具函数 (如 storage、tooltip 等)
+│   ├── views/        # 主页面与配置页面视图
+│   ├── App.vue       # 主入口组件
+│   └── main.ts       # 入口文件
+├── vite.config.ts    # Vite 构建配置
+└── tsconfig.json     # TypeScript 配置
+```
+
+---
+
+## 🤝 参与贡献
+
+如果你发现了 Bug 或者有更好的功能建议，欢迎提交 **Issue** 或发起 **Pull Request**！
+在提 PR 前，请确保：
+1. 你的代码已经通过 `npm run lint` 检查且没有 TypeScript 编译报错。
+2. 保持组件行数在合理范围内，若组件逻辑较复杂，建议合理拆分出子组件或 Composable 函数。
+
+---
+
+## 📄 开源协议
+
+本项目采用 **MIT License** 开源协议。详情请参阅 [LICENSE](LICENSE) 文件。
