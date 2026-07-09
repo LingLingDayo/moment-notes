@@ -159,9 +159,14 @@ const handleKeyDown = (e: KeyboardEvent) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--card-bg);
   transition:
     opacity 0.2s,
     background 0.2s;
+
+  .dark-theme & {
+    background: var(--card-bg-dark);
+  }
 
   &:hover {
     background: var(--card-btn-hover-bg);

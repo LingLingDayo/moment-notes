@@ -421,7 +421,8 @@ onBeforeUnmount(() => {
 
 .note-tag-badge {
   font-size: 10px;
-  padding: 2px 8px;
+  line-height: 20px;
+  padding: 0 8px;
   border-radius: 99px;
   font-weight: 500;
   background: var(--badge-bg);
