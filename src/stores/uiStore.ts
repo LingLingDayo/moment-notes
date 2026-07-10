@@ -157,6 +157,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_enable_hover_animation', val ? 'true' : 'false');
   };
 
+  const showNoteCount = ref(true);
+
+  const setShowNoteCount = (val: boolean) => {
+    showNoteCount.value = val;
+    storage.setItem('sticky_notes_show_note_count', val ? 'true' : 'false');
+  };
+
   return {
     confirmState,
     askConfirm,
@@ -188,7 +195,9 @@ export const useUiStore = defineStore('uiStore', () => {
     noteMaxHeight,
     setNoteMaxHeight,
     enableHoverAnimation,
-    setEnableHoverAnimation
+    setEnableHoverAnimation,
+    showNoteCount,
+    setShowNoteCount
   };
 });
 

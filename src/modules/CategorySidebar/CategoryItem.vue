@@ -92,7 +92,7 @@ const vFocusSelect = {
         </div>
 
         <div class="item-right" @click.stop>
-          <span v-if="getNoteCount(cat.id) > 0" class="item-badge">{{ getNoteCount(cat.id) }}</span>
+          <span v-if="store.showNoteCount && getNoteCount(cat.id) > 0" class="item-badge">{{ getNoteCount(cat.id) }}</span>
           <div v-if="!cat.isSystem" class="item-actions">
             <!-- 添加子分类 -->
             <button class="action-btn" data-tooltip="添加子分类" @click="ctx.startAddSub(cat.id)">

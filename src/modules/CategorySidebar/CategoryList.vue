@@ -431,7 +431,7 @@ provide('categoryContext', {
         <History class="item-icon" />
         <span class="item-name" data-tooltip="最近复制/双击使用过的便签">最近使用</span>
       </div>
-      <span v-if="store.recentNotesCount > 0" class="item-badge">{{ store.recentNotesCount }}</span>
+      <span v-if="store.showNoteCount && store.recentNotesCount > 0" class="item-badge">{{ store.recentNotesCount }}</span>
     </div>
 
     <!-- 垃圾箱分类 -->
@@ -445,7 +445,7 @@ provide('categoryContext', {
         <Trash2 class="item-icon" />
         <span class="item-name" data-tooltip="已删除的便签">最近删除</span>
       </div>
-      <span v-if="store.trashNotesCount > 0" class="item-badge">{{ store.trashNotesCount }}</span>
+      <span v-if="store.showNoteCount && store.trashNotesCount > 0" class="item-badge">{{ store.trashNotesCount }}</span>
     </div>
   </div>
 </template>

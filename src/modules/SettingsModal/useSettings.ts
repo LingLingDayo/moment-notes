@@ -50,6 +50,8 @@ export function useSettings() {
           store.setSuperPanelDefaultCategory(val);
         } else if (key === 'enableHoverAnimation') {
           store.setEnableHoverAnimation(val);
+        } else if (key === 'showNoteCount') {
+          store.setShowNoteCount(val);
         } else {
           (store as any)[key] = val;
         }

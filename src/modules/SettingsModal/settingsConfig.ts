@@ -141,6 +141,17 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         ]
       },
       {
+        key: 'showNoteCount',
+        label: '显示分类便签数',
+        type: 'radio',
+        desc: '控制左侧分类列表中每一项右侧是否显示便签数量。',
+        default: true,
+        options: [
+          { label: '显示', value: true },
+          { label: '隐藏', value: false }
+        ]
+      },
+      {
         key: 'gridColumns',
         label: '便签展示列数',
         type: 'radio',
