@@ -143,6 +143,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.superPanelDefaultCategory = storedSuperPanelCat;
       }
 
+      const storedStartPageMode = storage.getItem('sticky_notes_start_page_mode');
+      if (storedStartPageMode && ['last', 'default'].includes(storedStartPageMode)) {
+        uiStore.startPageMode = storedStartPageMode as 'last' | 'default';
+      }
+
       const storedEnableHoverAnimation = storage.getItem('sticky_notes_enable_hover_animation');
       if (storedEnableHoverAnimation !== null) {
         uiStore.enableHoverAnimation = storedEnableHoverAnimation === 'true';
@@ -158,6 +163,20 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       } else {
         noteStore.notes = helpers.getDefaultNotes();
         noteStore.saveNotes();
+      }
+
+      // 初始化启动时的默认页面或上次分类页面
+      const mode = uiStore.startPageMode;
+      if (mode === 'default') {
+        const targetCategory = uiStore.superPanelDefaultCategory || 'all';
+        const isSystemCat = ['all', 'recent', 'trash'].includes(targetCategory);
+        const exists = isSystemCat || categoryStore.categories.some(c => c.id === targetCategory);
+        noteStore.currentCategoryId = exists ? targetCategory : 'all';
+      } else {
+        const lastCategoryId = storage.getItem('sticky_notes_last_category_id') || 'all';
+        const isSystemCat = ['all', 'recent', 'trash'].includes(lastCategoryId);
+        const exists = isSystemCat || categoryStore.categories.some(c => c.id === lastCategoryId);
+        noteStore.currentCategoryId = exists ? lastCategoryId : 'all';
       }
     } catch (e) {
       console.error('Failed to load sticky notes data:', e);
@@ -463,6 +482,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setDefaultNoteColor: uiStore.setDefaultNoteColor,
     superPanelDefaultCategory: toRef(uiStore, 'superPanelDefaultCategory'),
     setSuperPanelDefaultCategory: uiStore.setSuperPanelDefaultCategory,
+    startPageMode: toRef(uiStore, 'startPageMode'),
+    setStartPageMode: uiStore.setStartPageMode,
     enableHoverAnimation: toRef(uiStore, 'enableHoverAnimation'),
     setEnableHoverAnimation: uiStore.setEnableHoverAnimation,
     showNoteCount: toRef(uiStore, 'showNoteCount'),

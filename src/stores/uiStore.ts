@@ -150,6 +150,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_super_panel_default_category', superPanelDefaultCategory.value);
   };
 
+  const startPageMode = ref<'last' | 'default'>('last');
+
+  const setStartPageMode = (val: 'last' | 'default') => {
+    startPageMode.value = val || 'last';
+    storage.setItem('sticky_notes_start_page_mode', startPageMode.value);
+  };
+
   const enableHoverAnimation = ref(true);
 
   const setEnableHoverAnimation = (val: boolean) => {
@@ -192,6 +199,8 @@ export const useUiStore = defineStore('uiStore', () => {
     setDefaultNoteColor,
     superPanelDefaultCategory,
     setSuperPanelDefaultCategory,
+    startPageMode,
+    setStartPageMode,
     noteMaxHeight,
     setNoteMaxHeight,
     enableHoverAnimation,

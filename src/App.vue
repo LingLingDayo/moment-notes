@@ -42,18 +42,22 @@ onMounted(() => {
         const exists = isSystemCat || store.categories.some((c: any) => c.id === targetCategory);
         const finalCategory = exists ? targetCategory : 'all';
 
-        // 切换到目标分类
-        store.currentCategoryId = finalCategory;
-
         // uTools 提供了强大的文本输入匹配能力，支持将用户选中的文本快速保存
         // action.type 为 'text' 或 'over' (文本匹配指令)
         if (action.type === 'over') {
           const textPayload = action.payload;
           if (textPayload && textPayload.trim()) {
-            // 新建便签保存到 targetCategory 分类下
-            store.addNote(finalCategory, textPayload.trim(), '💡 快捷导入');
+            // 新建便签保存到 finalCategory 分类下
+            const newNote = store.addNote(finalCategory, textPayload.trim(), '💡 快捷导入');
             store.showToast('已自动从输入源新建便签');
+            if (newNote && newNote.categoryId) {
+              store.currentCategoryId = newNote.categoryId;
+            }
+          } else {
+            store.currentCategoryId = finalCategory;
           }
+        } else {
+          store.currentCategoryId = finalCategory;
         }
       }
     });

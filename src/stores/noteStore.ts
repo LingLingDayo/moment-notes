@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Note } from '@type';
 import { storage } from '@utils/storage';
 import { useUiStore } from './uiStore';
@@ -13,6 +13,12 @@ export const useNoteStore = defineStore('noteStore', () => {
   const sortOrder = ref<'asc' | 'desc'>('desc');
   const draggedNoteId = ref<string | null>(null);
   const editingNoteId = ref<string | null>(null);
+
+  watch(currentCategoryId, (newId) => {
+    if (newId) {
+      storage.setItem('sticky_notes_last_category_id', newId);
+    }
+  });
 
   const saveNotes = () => {
     storage.setItem('sticky_notes_notes', JSON.stringify(notes.value));

@@ -241,15 +241,27 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         ]
       },
       {
+        key: 'startPageMode',
+        label: '启动默认展示分类',
+        type: 'radio',
+        desc: '设置直接打开此插件时，是恢复展示上次离开时的分类，还是展示预设的默认分类。',
+        default: 'last',
+        options: [
+          { label: '上次分类', value: 'last' },
+          { label: '默认分类', value: 'default' }
+        ]
+      },
+      {
         key: 'superPanelDefaultCategory',
         label: '超级面板默认分类',
         type: 'select',
-        desc: '配置通过 uTools 超级面板（如快捷导入、保存为便签等）唤醒插件时，默认自动跳转并切换到的分类。',
+        desc: '配置直接打开插件（选择默认分类时）或通过 uTools 超级面板唤醒插件时，默认自动跳转并切换到的分类。',
         default: 'all',
         controlWidth: '240px',
         options: (store: any) => {
           return store.categoryOptions;
-        }
+        },
+        visible: (store: any) => store.startPageMode === 'default'
       },
       {
         key: 'quickActions',
