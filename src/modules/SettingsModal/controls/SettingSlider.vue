@@ -63,7 +63,7 @@ const handleWheel = (e: WheelEvent) => {
 .setting-slider-container {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
 }
 

@@ -110,9 +110,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         type: 'multiselect',
         desc: '配置要在右上角操作栏中显示的功能按钮。',
         default: ['theme-toggle', 'sort-select', 'columns-select', 'clear-notes'],
-        props: {
-          width: '320px'
-        },
+        controlWidth: '320px',
         options: [
           { label: '切换主题', value: 'theme-toggle' },
           { label: '排序方式', value: 'sort-select' },
@@ -162,6 +160,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         type: 'slider',
         desc: '在“自适应”展示列数模式下生效，单个便签卡片的最小宽度限制。默认值为 240，允许设置范围为 100 - 1000。',
         default: 240,
+        controlWidth: '280px',
         props: {
           min: 100,
           max: 1000,
@@ -175,6 +174,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         type: 'slider',
         desc: '限制单个便签卡片在浏览模式下的最大展示高度。超出此限制时内部会自动出现滚动条。',
         default: 300,
+        controlWidth: '280px',
         props: {
           min: 150,
           max: 600,
@@ -188,9 +188,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         desc: '设置默认的便签排序规则。',
         default: 'date',
         width: '58%',
-        props: {
-          style: 'max-width: 240px;'
-        },
+        controlWidth: '240px',
         options: [
           { label: '按日期排序', value: 'date' },
           { label: '按标题首字母排序', value: 'title' },
@@ -218,9 +216,9 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         default: 'YYYY.MM.DD HH:mm',
         placeholder: 'YYYY.MM.DD HH:mm',
         tooltip: '支持的格式说明:\nYYYY - 四位年 (如 2026)\nYY - 两位年 (如 26)\nMM - 两位月 (01-12)\nM - 一位月 (1-12)\nDD - 两位日 (01-31)\nD - 一位日 (1-31)\nHH - 两位24小时制小时 (00-23)\nH - 一位24小时制小时 (0-23)\nhh - 两位12小时制小时 (01-12)\nh - 一位12小时制小时 (1-12)\nmm - 两位分钟 (00-59)\nm - 一位分钟 (0-59)\nss - 两位秒数 (00-59)\ns - 一位秒数 (0-59)\nA - 上下午标记 (AM/PM)\na - 中文上下午标记 (上午/下午)\n示例: YYYY-MM-DD HH:mm:ss 或 YYYY/MM/DD',
+        controlWidth: '240px',
         props: {
-          type: 'text',
-          style: 'max-width: 240px;'
+          type: 'text'
         }
       },
       {
@@ -229,9 +227,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         type: 'select',
         desc: '新建便签或从外部捕获时，默认的卡片背景色。',
         default: 'yellow',
-        props: {
-          style: 'max-width: 240px;'
-        },
+        controlWidth: '240px',
         options: [
           { label: '暖阳黄', value: 'yellow', color: 'yellow', html: '<span style="font-weight: 500;">暖阳黄</span>' },
           { label: '薄荷绿', value: 'green', color: 'green', html: '<span style="font-weight: 500;">薄荷绿</span>' },
@@ -247,9 +243,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         type: 'select',
         desc: '配置通过 uTools 超级面板（如快捷导入、保存为便签等）唤醒插件时，默认自动跳转并切换到的分类。',
         default: 'all',
-        props: {
-          style: 'max-width: 240px;'
-        },
+        controlWidth: '240px',
         options: (store: any) => {
           const list = [
             { label: '全部便签', value: 'all' },
