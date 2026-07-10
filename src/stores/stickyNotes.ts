@@ -143,6 +143,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.superPanelDefaultCategory = storedSuperPanelCat;
       }
 
+      const storedEnableHoverAnimation = storage.getItem('sticky_notes_enable_hover_animation');
+      if (storedEnableHoverAnimation !== null) {
+        uiStore.enableHoverAnimation = storedEnableHoverAnimation === 'true';
+      }
+
       if (storedNotes) {
         noteStore.notes = JSON.parse(storedNotes);
       } else {
@@ -452,6 +457,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setDefaultNoteColor: uiStore.setDefaultNoteColor,
     superPanelDefaultCategory: toRef(uiStore, 'superPanelDefaultCategory'),
     setSuperPanelDefaultCategory: uiStore.setSuperPanelDefaultCategory,
+    enableHoverAnimation: toRef(uiStore, 'enableHoverAnimation'),
+    setEnableHoverAnimation: uiStore.setEnableHoverAnimation,
 
     // 初始化与备份代理
     loadData,

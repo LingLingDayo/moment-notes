@@ -132,6 +132,17 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         ]
       },
       {
+        key: 'enableHoverAnimation',
+        label: '便签悬浮动画效果',
+        type: 'radio',
+        desc: '控制当鼠标悬停在便签卡片上时，是否显示向上浮动和阴影渐变的动效。',
+        default: true,
+        options: [
+          { label: '开启', value: true },
+          { label: '关闭', value: false }
+        ]
+      },
+      {
         key: 'gridColumns',
         label: '便签展示列数',
         type: 'radio',

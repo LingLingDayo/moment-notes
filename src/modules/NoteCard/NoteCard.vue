@@ -265,7 +265,8 @@ onMounted(() => {
       editing: isEditing,
       dragging: store.draggedNoteId === note.id,
       'is-in-trash': note.isDeleted,
-      'has-active-popover': hasActivePopover
+      'has-active-popover': hasActivePopover,
+      'enable-hover-anim': store.enableHoverAnimation
     }"
     :style="[colorStyle, cardMaxHeightStyle]"
     :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned && isDragTriggered"
@@ -339,7 +340,10 @@ onMounted(() => {
 
   @include glass-panel(var(--card-bg), var(--card-border));
   color: var(--card-text);
-  @include hover-lift(-4px, var(--shadow-md));
+
+  &.enable-hover-anim {
+    @include hover-lift(-4px, var(--shadow-md));
+  }
 
   .dark-theme & {
     background: var(--card-bg-dark);

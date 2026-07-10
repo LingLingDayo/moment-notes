@@ -150,6 +150,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_super_panel_default_category', superPanelDefaultCategory.value);
   };
 
+  const enableHoverAnimation = ref(true);
+
+  const setEnableHoverAnimation = (val: boolean) => {
+    enableHoverAnimation.value = val;
+    storage.setItem('sticky_notes_enable_hover_animation', val ? 'true' : 'false');
+  };
+
   return {
     confirmState,
     askConfirm,
@@ -179,7 +186,9 @@ export const useUiStore = defineStore('uiStore', () => {
     superPanelDefaultCategory,
     setSuperPanelDefaultCategory,
     noteMaxHeight,
-    setNoteMaxHeight
+    setNoteMaxHeight,
+    enableHoverAnimation,
+    setEnableHoverAnimation
   };
 });
 

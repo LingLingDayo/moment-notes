@@ -48,6 +48,8 @@ export function useSettings() {
           store.setDefaultNoteColor(val);
         } else if (key === 'superPanelDefaultCategory') {
           store.setSuperPanelDefaultCategory(val);
+        } else if (key === 'enableHoverAnimation') {
+          store.setEnableHoverAnimation(val);
         } else {
           (store as any)[key] = val;
         }
