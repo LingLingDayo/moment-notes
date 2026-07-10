@@ -282,6 +282,70 @@ export const useCategoryStore = defineStore('categoryStore', () => {
     }
   };
 
+  const categoryOptions = computed(() => {
+    const list: Array<{ label: string; value: string }> = [];
+    list.push({ label: '全部便签', value: 'all' });
+
+    const getCategoryPath = (catId: string): string => {
+      const path: string[] = [];
+      let current = categories.value.find(c => c.id === catId);
+      while (current) {
+        path.unshift(current.name);
+        const parentId = current.parentId;
+        current = parentId ? categories.value.find(c => c.id === parentId) : undefined;
+      }
+      return path.join(' / ');
+    };
+
+    const getOrderIndex = (id: string) => {
+      const idx = categoryOrder.value.indexOf(id);
+      return idx === -1 ? Infinity : idx;
+    };
+    const sortFn = (a: Category, b: Category) => {
+      return getOrderIndex(a.id) - getOrderIndex(b.id);
+    };
+
+    const catMap = new Map(categories.value.map(c => [c.id, { ...c, children: [] as any[] }]));
+    const rootCategories: any[] = [];
+
+    categories.value.forEach(c => {
+      const item = catMap.get(c.id);
+      if (item) {
+        if (c.parentId && catMap.has(c.parentId)) {
+          catMap.get(c.parentId)!.children.push(item);
+        } else {
+          rootCategories.push(item);
+        }
+      }
+    });
+
+    rootCategories.sort(sortFn);
+    catMap.forEach((item: any) => item.children.sort(sortFn));
+
+    const flattenList: any[] = [];
+    const traverse = (nodes: any[]) => {
+      nodes.forEach(node => {
+        flattenList.push(node);
+        if (node.children && node.children.length > 0) {
+          traverse(node.children);
+        }
+      });
+    };
+    traverse(rootCategories);
+
+    flattenList.forEach((cat: any) => {
+      list.push({
+        label: getCategoryPath(cat.id),
+        value: cat.id
+      });
+    });
+
+    list.push({ label: '最近使用', value: 'recent' });
+    list.push({ label: '最近删除', value: 'trash' });
+
+    return list;
+  });
+
   return {
     categories,
     categoryOrder,
@@ -299,6 +363,7 @@ export const useCategoryStore = defineStore('categoryStore', () => {
     moveCategory,
     addCategory,
     deleteCategory,
-    updateCategory
+    updateCategory,
+    categoryOptions
   };
 });

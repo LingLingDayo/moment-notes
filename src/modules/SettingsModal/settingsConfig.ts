@@ -245,20 +245,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         default: 'all',
         controlWidth: '240px',
         options: (store: any) => {
-          const list = [
-            { label: '全部便签', value: 'all' },
-            { label: '最近使用', value: 'recent' },
-            { label: '最近删除', value: 'trash' }
-          ];
-          if (store.categories && Array.isArray(store.categories)) {
-            store.categories.forEach((cat: any) => {
-              list.push({
-                label: cat.name,
-                value: cat.id
-              });
-            });
-          }
-          return list;
+          return store.categoryOptions;
         }
       },
       {

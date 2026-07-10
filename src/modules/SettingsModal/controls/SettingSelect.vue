@@ -134,6 +134,7 @@ const displayLabel = computed(() => {
               :key="option.value"
               class="dropdown-item"
               :class="{ active: isSelected(option.value) }"
+              :data-tooltip="option.label"
               @click="handleSelect(option)"
             >
               <div class="item-content-wrapper">
@@ -198,6 +199,13 @@ const displayLabel = computed(() => {
   gap: 8px;
   flex: 1;
   overflow: hidden;
+}
+
+.item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .color-badge-dot {

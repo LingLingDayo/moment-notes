@@ -393,6 +393,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     addingSubParentId: toRef(categoryStore, 'addingSubParentId'),
     newSubCategoryName: toRef(categoryStore, 'newSubCategoryName'),
     orderedCategories: computed(() => categoryStore.orderedCategories),
+    categoryOptions: computed(() => categoryStore.categoryOptions),
     toggleCategoryCollapse: categoryStore.toggleCategoryCollapse,
     isCategoryCollapsed: categoryStore.isCategoryCollapsed,
     getCategoryDescendants: categoryStore.getCategoryDescendants,
