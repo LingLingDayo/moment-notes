@@ -12,7 +12,7 @@ export interface SettingOption {
   color?: string;
 }
 
-export type SettingType = 'input' | 'textarea' | 'select' | 'multiselect' | 'radio' | 'button-group' | 'component' | 'shortcut' | 'text' | 'slider';
+export type SettingType = 'input' | 'textarea' | 'select' | 'multiselect' | 'radio' | 'button-group' | 'component' | 'shortcut' | 'text' | 'slider' | 'switch';
 
 export interface ButtonConfig {
   label: string | ((store: any) => string);
@@ -132,24 +132,16 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
       {
         key: 'enableHoverAnimation',
         label: '便签悬浮动画效果',
-        type: 'radio',
+        type: 'switch',
         desc: '控制当鼠标悬停在便签卡片上时，是否显示向上浮动和阴影渐变的动效。',
-        default: true,
-        options: [
-          { label: '开启', value: true },
-          { label: '关闭', value: false }
-        ]
+        default: true
       },
       {
         key: 'showNoteCount',
         label: '显示分类便签数',
-        type: 'radio',
+        type: 'switch',
         desc: '控制左侧分类列表中每一项右侧是否显示便签数量。',
-        default: true,
-        options: [
-          { label: '显示', value: true },
-          { label: '隐藏', value: false }
-        ]
+        default: true
       },
       {
         key: 'gridColumns',

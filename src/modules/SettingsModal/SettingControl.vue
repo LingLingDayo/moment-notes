@@ -8,6 +8,7 @@ import SettingButton from './controls/SettingButton.vue';
 import ShortcutInput from './controls/ShortcutInput.vue';
 import SettingWrapper from './controls/SettingWrapper.vue';
 import SettingSlider from './controls/SettingSlider.vue';
+import SettingSwitch from './controls/SettingSwitch.vue';
 import { SettingItem, evaluateVisibility } from './settingsConfig';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 
@@ -102,6 +103,13 @@ const resolvedItem = computed(() => {
       v-model="value"
       :item="resolvedItem"
       :options="resolvedOptions"
+    />
+
+    <!-- 4.5 Switch -->
+    <SettingSwitch
+      v-else-if="item.type === 'switch'"
+      v-model="value"
+      :item="item"
     />
 
     <!-- 5. Button Group -->
