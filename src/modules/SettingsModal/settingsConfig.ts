@@ -163,11 +163,11 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         desc: '在“自适应”展示列数模式下生效，单个便签卡片的最小宽度限制。默认值为 240，允许设置范围为 100 - 1000。',
         default: 240,
         placeholder: '240',
-        controlWidth: '50%',
         props: {
           type: 'number',
           min: 100,
-          max: 1000
+          max: 1000,
+          style: 'max-width: 240px;'
         },
         visible: (store: any) => store.gridColumns === 'auto'
       },
@@ -189,7 +189,10 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         type: 'select',
         desc: '设置默认的便签排序规则。',
         default: 'date',
-        width: '50%',
+        width: '58%',
+        props: {
+          style: 'max-width: 240px;'
+        },
         options: [
           { label: '按日期排序', value: 'date' },
           { label: '按标题首字母排序', value: 'title' },
@@ -203,7 +206,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         type: 'radio',
         desc: '设置列表的默认排列顺序。',
         default: 'desc',
-        width: '50%',
+        width: '42%',
         options: [
           { label: '升序', value: 'asc' },
           { label: '降序', value: 'desc' }

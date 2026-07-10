@@ -6,6 +6,10 @@ import { SettingItem, SettingOption } from '../settingsConfig';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { COLOR_PRESETS } from '@stores/colorPresets';
 
+defineOptions({
+  inheritAttrs: false
+});
+
 const props = defineProps<{
   modelValue: any;
   item: SettingItem;

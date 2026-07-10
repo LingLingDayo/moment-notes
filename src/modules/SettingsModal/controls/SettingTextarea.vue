@@ -3,6 +3,10 @@ import { computed } from 'vue';
 import SettingWrapper from './SettingWrapper.vue';
 import { SettingItem } from '../settingsConfig';
 
+defineOptions({
+  inheritAttrs: false
+});
+
 const props = defineProps<{
   modelValue: string;
   item: SettingItem;
