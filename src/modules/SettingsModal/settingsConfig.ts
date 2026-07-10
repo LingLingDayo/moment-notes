@@ -159,15 +159,13 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
       {
         key: 'minNoteWidth',
         label: '便签自适应最小宽度',
-        type: 'input',
+        type: 'slider',
         desc: '在“自适应”展示列数模式下生效，单个便签卡片的最小宽度限制。默认值为 240，允许设置范围为 100 - 1000。',
         default: 240,
-        placeholder: '240',
         props: {
-          type: 'number',
           min: 100,
           max: 1000,
-          style: 'max-width: 240px;'
+          step: 5
         },
         visible: (store: any) => store.gridColumns === 'auto'
       },
@@ -180,7 +178,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         props: {
           min: 150,
           max: 600,
-          step: 10
+          step: 5
         }
       },
       {
