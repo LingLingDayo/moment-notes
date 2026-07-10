@@ -132,13 +132,12 @@
 .menu-divider {
   height: 1px;
   background: var(--divider-color);
-  margin: 2px 0;
+  margin: 2px 0 8px 0;
   opacity: 0.8;
   flex-shrink: 0;
 }
 
 .trash-item {
-  margin-top: 6px;
   &.active {
     .item-icon {
       color: var(--danger-color, #ff4d4f) !important;
@@ -154,7 +153,6 @@
   .sidebar-menu {
     padding: 10px 8px;
     margin-top: 8px;
-    gap: 4px;
 
     &.uTools {
       padding-top: 0;
@@ -173,10 +171,9 @@
   }
   
   .menu-divider {
-    margin: 0;
+    margin: 0 0 6px 0;
   }
 }
 
 .recent-item {
-  margin-top: 6px;
 }
