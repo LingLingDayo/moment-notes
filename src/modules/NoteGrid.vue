@@ -91,7 +91,7 @@ const handleAddNote = () => {
     @dragover="handleDragScroll"
   >
     <!-- 空状态 -->
-    <div v-if="store.filteredNotes.length === 0" class="empty-state">
+    <div v-if="store.filteredNotes.length === 0 && !store.isLoadingNotes" class="empty-state">
       <div class="empty-illustration-wrapper">
         <SearchX v-if="store.searchQuery" class="empty-icon animate-pulse" />
         <StickyNote v-else class="empty-icon" />

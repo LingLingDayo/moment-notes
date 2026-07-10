@@ -13,7 +13,7 @@ const store = useStickyNotesStore();
 // 获取所有已存在的标签
 const allExistingTags = computed(() => {
   const tagsSet = new Set<string>();
-  store.notes.forEach(note => {
+  store.allNotes.forEach(note => {
     if (note.tags) {
       note.tags.forEach(tag => {
         if (tag.trim()) {

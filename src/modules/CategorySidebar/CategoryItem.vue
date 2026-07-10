@@ -18,10 +18,10 @@ const isAddingSub = computed(() => store.addingSubParentId === props.cat.id);
 // 获取分类下的便签数
 const getNoteCount = (categoryId: string) => {
   if (categoryId === 'all') {
-    return store.notes.filter(n => n.isDeleted !== true).length;
+    return store.allNotes.filter(n => n.isDeleted !== true).length;
   }
   const descendants = store.getCategoryDescendants(categoryId);
-  return store.notes.filter(
+  return store.allNotes.filter(
     n => (n.categoryId === categoryId || descendants.has(n.categoryId)) && n.isDeleted !== true
   ).length;
 };

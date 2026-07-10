@@ -159,9 +159,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       }
 
       if (storedNotes) {
-        noteStore.notes = JSON.parse(storedNotes);
+        noteStore.allNotes = JSON.parse(storedNotes);
       } else {
-        noteStore.notes = helpers.getDefaultNotes();
+        noteStore.allNotes = helpers.getDefaultNotes();
         noteStore.saveNotes();
       }
 
@@ -178,6 +178,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         const exists = isSystemCat || categoryStore.categories.some(c => c.id === lastCategoryId);
         noteStore.currentCategoryId = exists ? lastCategoryId : 'all';
       }
+
+      // 显式执行一次初始化的分类便签加载
+      noteStore.loadNotesForCurrentCategory();
     } catch (e) {
       console.error('Failed to load sticky notes data:', e);
     }
@@ -196,7 +199,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     categoryStore.deleteCategory(id);
 
     // 将属于该被删除分类的所有便签移至最近删除
-    noteStore.notes = noteStore.notes.map(n => {
+    noteStore.allNotes = noteStore.allNotes.map(n => {
       if (n.categoryId === id) {
         return {
           ...n,
@@ -208,6 +211,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       return n;
     });
     noteStore.saveNotes();
+    noteStore.syncCurrentCategoryNotes();
 
     // 如果删除的分类是当前选中的，切回“全部”
     if (noteStore.currentCategoryId === id) {
@@ -231,21 +235,6 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   // 协调便签的检索排序过滤算法 (原为 noteStore.filteredNotes)
   const filteredNotes = computed(() => {
     let result = noteStore.notes;
-
-    // 1. 分类与逻辑删除过滤
-    if (noteStore.currentCategoryId === 'trash') {
-      result = result.filter(n => n.isDeleted === true);
-    } else if (noteStore.currentCategoryId === 'recent') {
-      result = result.filter(n => n.isDeleted !== true && n.lastUsedAt !== undefined);
-    } else {
-      result = result.filter(n => n.isDeleted !== true);
-      if (noteStore.currentCategoryId !== 'all') {
-        const descendants = categoryStore.getCategoryDescendants(noteStore.currentCategoryId);
-        result = result.filter(
-          n => n.categoryId === noteStore.currentCategoryId || descendants.has(n.categoryId)
-        );
-      }
-    }
 
     // 2. 搜索词过滤 (支持根据不同目标过滤)
     if (noteStore.searchQuery.trim()) {
@@ -357,20 +346,24 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
 
   // 备份与粘贴代理方法
   const exportBackup = () => {
-    helpers.exportBackup(categoryStore.categories, noteStore.notes, uiStore.showToast);
+    helpers.exportBackup(categoryStore.categories, noteStore.allNotes, uiStore.showToast);
   };
 
   const importBackup = (jsonStr: string): boolean => {
-    return helpers.importBackup(
+    const ok = helpers.importBackup(
       jsonStr,
       categoriesRef,
-      notesRef,
+      toRef(noteStore, 'allNotes'),
       categoryOrderRef,
       categoryStore.saveCategories,
       noteStore.saveNotes,
       categoryStore.saveCategoryOrder,
       uiStore.showToast
     );
+    if (ok) {
+      noteStore.loadNotesForCurrentCategory();
+    }
+    return ok;
   };
 
   const exportSingleNoteAsTxt = (note: Note) => {
@@ -398,11 +391,13 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   };
 
   const devResetNotes = () => {
-    helpers.devResetNotes(notesRef, noteStore.saveNotes, uiStore.showToast);
+    helpers.devResetNotes(toRef(noteStore, 'allNotes'), noteStore.saveNotes, uiStore.showToast);
+    noteStore.loadNotesForCurrentCategory();
   };
 
   const devResetTags = () => {
-    helpers.devResetTags(notesRef, noteStore.saveNotes, uiStore.showToast);
+    helpers.devResetTags(toRef(noteStore, 'allNotes'), noteStore.saveNotes, uiStore.showToast);
+    noteStore.loadNotesForCurrentCategory();
   };
 
   const devResetAllData = () => {
@@ -429,7 +424,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     updateCategory: categoryStore.updateCategory,
 
     // 便签状态与方法 (Note Store 代理)
+    allNotes: toRef(noteStore, 'allNotes'),
     notes: notesRef,
+    isLoadingNotes: toRef(noteStore, 'isLoadingNotes'),
     currentCategoryId: toRef(noteStore, 'currentCategoryId'),
     searchQuery: toRef(noteStore, 'searchQuery'),
     searchTarget: toRef(noteStore, 'searchTarget'),
@@ -439,7 +436,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     editingNoteId: toRef(noteStore, 'editingNoteId'),
     filteredNotes,
     recentNotesCount: computed(() => {
-      return noteStore.notes.filter(n => n.isDeleted !== true && n.lastUsedAt !== undefined).length;
+      return noteStore.allNotes.filter(n => n.isDeleted !== true && n.lastUsedAt !== undefined).length;
     }),
     trashNotesCount: computed(() => noteStore.trashNotesCount),
     addNote,
