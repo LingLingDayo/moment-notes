@@ -161,7 +161,7 @@ const deleteSelf = async () => {
     <div v-else class="card-actions">
       <!-- 分组 -->
       <button
-        v-if="store.currentCategoryId === 'all'"
+        v-if="['all', 'recent'].includes(store.currentCategoryId)"
         class="action-btn"
         :data-tooltip="`分组: ${originalCategoryName}`"
       >
