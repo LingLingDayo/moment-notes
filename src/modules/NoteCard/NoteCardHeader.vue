@@ -75,7 +75,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
       class="title-input"
       @keydown="handleKeyDown"
     />
-    <h3 v-else-if="note.title" class="card-title">
+    <h3
+      v-else-if="note.title"
+      class="card-title"
+      :data-tooltip="note.title"
+      data-tooltip-only-overflow
+    >
       {{ note.title }}
     </h3>
   </div>

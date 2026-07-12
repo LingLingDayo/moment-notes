@@ -41,6 +41,12 @@ export function initTooltip() {
       return;
     }
 
+    const onlyOverflow = target.hasAttribute('data-tooltip-only-overflow');
+    if (onlyOverflow && target.scrollWidth <= target.clientWidth) {
+      if (currentTarget === target) hideTooltip();
+      return;
+    }
+
     const el = createTooltip();
 
     if (currentTarget === target) {
