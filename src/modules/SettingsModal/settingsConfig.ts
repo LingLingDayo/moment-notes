@@ -144,6 +144,13 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         default: true
       },
       {
+        key: 'prefixTagWithHash',
+        label: '标签前显示 # 符号',
+        type: 'switch',
+        desc: '控制在便签卡片上显示标签时，标签文字前面是否自动添加 # 符号。',
+        default: true
+      },
+      {
         key: 'gridColumns',
         label: '便签展示列数',
         type: 'radio',

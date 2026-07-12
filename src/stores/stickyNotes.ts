@@ -158,6 +158,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.showNoteCount = storedShowNoteCount === 'true';
       }
 
+      const storedPrefixTagWithHash = storage.getItem('sticky_notes_prefix_tag_with_hash');
+      if (storedPrefixTagWithHash !== null) {
+        uiStore.prefixTagWithHash = storedPrefixTagWithHash === 'true';
+      }
+
       if (storedNotes) {
         noteStore.allNotes = JSON.parse(storedNotes);
       } else {
@@ -367,7 +372,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   };
 
   const exportSingleNoteAsTxt = (note: Note) => {
-    helpers.exportSingleNoteAsTxt(note, uiStore.showToast);
+    helpers.exportSingleNoteAsTxt(note, uiStore.showToast, uiStore.prefixTagWithHash);
   };
 
   const handlePasteNote = async (
@@ -485,6 +490,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setEnableHoverAnimation: uiStore.setEnableHoverAnimation,
     showNoteCount: toRef(uiStore, 'showNoteCount'),
     setShowNoteCount: uiStore.setShowNoteCount,
+    prefixTagWithHash: toRef(uiStore, 'prefixTagWithHash'),
+    setPrefixTagWithHash: uiStore.setPrefixTagWithHash,
 
     // 初始化与备份代理
     loadData,

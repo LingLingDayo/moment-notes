@@ -81,7 +81,7 @@ const calculateVisibleTags = () => {
     return;
   }
 
-  allTagsText.value = tags.map(t => `#${t}`).join(' ');
+  allTagsText.value = tags.map(t => store.prefixTagWithHash ? `#${t}` : t).join(' ');
 
   nextTick(() => {
     const container = measureContainerRef.value;
@@ -205,6 +205,14 @@ watch(
   { deep: true, immediate: true }
 );
 
+// 监听是否在标签前添加#的设置变化
+watch(
+  () => store.prefixTagWithHash,
+  () => {
+    calculateVisibleTags();
+  }
+);
+
 onMounted(() => {
   calculateVisibleTags();
   const container = measureContainerRef.value;
@@ -250,7 +258,7 @@ onBeforeUnmount(() => {
           :data-tooltip="tag"
           @click.stop="copyTag(tag)"
         >
-          # {{ tag }}
+          {{ store.prefixTagWithHash ? '# ' : '' }}{{ tag }}
         </span>
         <span v-if="hasMore" class="note-tag-badge more" :data-tooltip="allTagsText"> ... </span>
       </div>
@@ -261,7 +269,7 @@ onBeforeUnmount(() => {
         class="note-tags-list-measure"
       >
         <span v-for="tag in note.tags" :key="'measure-' + tag" class="note-tag-badge">
-          # {{ tag }}
+          {{ store.prefixTagWithHash ? '# ' : '' }}{{ tag }}
         </span>
         <span ref="measureEllipsisRef" class="note-tag-badge more">...</span>
       </div>

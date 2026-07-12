@@ -120,10 +120,16 @@ export const importBackup = (
   }
 };
 
-export const exportSingleNoteAsTxt = (note: Note, showToast: (msg: string, type?: any) => void) => {
+export const exportSingleNoteAsTxt = (
+  note: Note,
+  showToast: (msg: string, type?: any) => void,
+  prefixTagWithHash = true
+) => {
   const title = note.title || '无标题便签';
   const tagsStr =
-    note.tags && note.tags.length > 0 ? `标签: ${note.tags.map(t => `#${t}`).join(' ')}\n` : '';
+    note.tags && note.tags.length > 0
+      ? `标签: ${note.tags.map(t => (prefixTagWithHash ? `#${t}` : t)).join(' ')}\n`
+      : '';
   const content = `${title}\n创建时间: ${new Date(note.createdAt).toLocaleString()}\n${tagsStr}---------------------------\n\n${note.content}`;
   const filename = `${title.replace(/[\\/:*?"<>|]/g, '_')}.txt`;
 

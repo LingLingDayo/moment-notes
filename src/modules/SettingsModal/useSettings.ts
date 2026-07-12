@@ -54,6 +54,8 @@ export function useSettings() {
           store.setEnableHoverAnimation(val);
         } else if (key === 'showNoteCount') {
           store.setShowNoteCount(val);
+        } else if (key === 'prefixTagWithHash') {
+          store.setPrefixTagWithHash(val);
         } else {
           (store as any)[key] = val;
         }

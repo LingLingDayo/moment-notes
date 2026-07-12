@@ -171,6 +171,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_show_note_count', val ? 'true' : 'false');
   };
 
+  const prefixTagWithHash = ref(true);
+
+  const setPrefixTagWithHash = (val: boolean) => {
+    prefixTagWithHash.value = val;
+    storage.setItem('sticky_notes_prefix_tag_with_hash', val ? 'true' : 'false');
+  };
+
   return {
     confirmState,
     askConfirm,
@@ -206,7 +213,9 @@ export const useUiStore = defineStore('uiStore', () => {
     enableHoverAnimation,
     setEnableHoverAnimation,
     showNoteCount,
-    setShowNoteCount
+    setShowNoteCount,
+    prefixTagWithHash,
+    setPrefixTagWithHash
   };
 });
 
