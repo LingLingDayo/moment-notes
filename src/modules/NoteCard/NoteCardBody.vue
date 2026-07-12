@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { Note } from '@type';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { useShortcutStore } from '@stores/shortcutStore';
 import { isUTools } from '@utils/storage';
+import { useNoteTagMeasure } from '@utils/useNoteTagMeasure';
 
 const props = defineProps<{
   note: Note;
@@ -55,14 +56,6 @@ const copyTag = async (tag: string) => {
 
 const contentInputRef = ref<HTMLTextAreaElement | null>(null);
 
-// 标签测量与显示状态
-const measureContainerRef = ref<HTMLDivElement | null>(null);
-const measureEllipsisRef = ref<HTMLSpanElement | null>(null);
-const visibleTags = ref<string[]>([]);
-const hasMore = ref(false);
-const allTagsText = ref('');
-let resizeObserver: ResizeObserver | null = null;
-
 // 自适应调整输入框高度
 const adjustTextareaHeight = () => {
   const el = contentInputRef.value;
@@ -71,116 +64,15 @@ const adjustTextareaHeight = () => {
   el.style.height = `${el.scrollHeight}px`;
 };
 
-// 计算可见标签的核心逻辑
-const calculateVisibleTags = () => {
-  const tags = props.note.tags;
-  if (!tags || tags.length === 0) {
-    visibleTags.value = [];
-    hasMore.value = false;
-    allTagsText.value = '';
-    return;
-  }
-
-  allTagsText.value = tags.map(t => store.prefixTagWithHash ? `#${t}` : t).join(' ');
-
-  nextTick(() => {
-    const container = measureContainerRef.value;
-    if (!container) return;
-
-    const children = container.children;
-    if (children.length < 2) {
-      visibleTags.value = [...tags];
-      hasMore.value = false;
-      return;
-    }
-
-    const ellipsisEl = measureEllipsisRef.value;
-    const ellipsisWidth = ellipsisEl ? ellipsisEl.offsetWidth : 30;
-    const gap = 6;
-
-    const lineTops: number[] = [];
-    const elementsInfo: {
-      index: number;
-      offsetLeft: number;
-      offsetWidth: number;
-      offsetTop: number;
-    }[] = [];
-    const tagsCount = tags.length;
-
-    for (let i = 0; i < tagsCount; i++) {
-      const el = children[i] as HTMLElement;
-      if (!el) continue;
-      const offsetTop = el.offsetTop;
-      const offsetLeft = el.offsetLeft;
-      const offsetWidth = el.offsetWidth;
-
-      let lineIndex = lineTops.findIndex(top => Math.abs(top - offsetTop) < 5);
-      if (lineIndex === -1) {
-        lineTops.push(offsetTop);
-        lineTops.sort((a, b) => a - b);
-        lineIndex = lineTops.indexOf(offsetTop);
-      }
-
-      elementsInfo.push({
-        index: i,
-        offsetLeft,
-        offsetWidth,
-        offsetTop
-      });
-    }
-
-    const containerWidth = container.clientWidth;
-    const rows: (typeof elementsInfo)[] = lineTops.map(() => []);
-    elementsInfo.forEach(info => {
-      const lineIndex = lineTops.findIndex(top => Math.abs(top - info.offsetTop) < 5);
-      if (lineIndex !== -1) {
-        rows[lineIndex].push(info);
-      }
-    });
-
-    const totalLines = rows.length;
-
-    if (totalLines <= 2) {
-      visibleTags.value = [...tags];
-      hasMore.value = false;
-    } else {
-      hasMore.value = true;
-      let cutoffIndex = -1;
-      const secondRow = rows[1];
-
-      if (secondRow && secondRow.length > 0) {
-        for (let i = secondRow.length - 1; i >= 0; i--) {
-          const item = secondRow[i];
-          const remainingSpace = containerWidth - (item.offsetLeft + item.offsetWidth);
-          if (remainingSpace >= gap + ellipsisWidth) {
-            cutoffIndex = item.index;
-            break;
-          }
-        }
-      }
-
-      if (cutoffIndex === -1) {
-        const firstRow = rows[0];
-        if (firstRow && firstRow.length > 0) {
-          for (let i = firstRow.length - 1; i >= 0; i--) {
-            const item = firstRow[i];
-            const remainingSpace = containerWidth - (item.offsetLeft + item.offsetWidth);
-            if (remainingSpace >= gap + ellipsisWidth) {
-              cutoffIndex = item.index;
-              break;
-            }
-          }
-        }
-      }
-
-      if (cutoffIndex === -1) {
-        visibleTags.value = [];
-      } else {
-        visibleTags.value = tags.slice(0, cutoffIndex + 1);
-      }
-    }
-  });
-};
+// 提取的标签溢出测量 Hook
+const {
+  measureContainerRef,
+  measureEllipsisRef,
+  visibleTags,
+  hasMore,
+  allTagsText,
+  calculateVisibleTags
+} = useNoteTagMeasure(props.note);
 
 // 监听编辑状态
 watch(
@@ -191,45 +83,11 @@ watch(
       contentInputRef.value?.focus();
       adjustTextareaHeight();
     } else {
-      calculateVisibleTags();
+      // 退出编辑时强制重新计算一次
+      calculateVisibleTags(true);
     }
   }
 );
-
-// 监听便签的标签变化
-watch(
-  () => props.note.tags,
-  () => {
-    calculateVisibleTags();
-  },
-  { deep: true, immediate: true }
-);
-
-// 监听是否在标签前添加#的设置变化
-watch(
-  () => store.prefixTagWithHash,
-  () => {
-    calculateVisibleTags();
-  }
-);
-
-onMounted(() => {
-  calculateVisibleTags();
-  const container = measureContainerRef.value;
-  if (container && window.ResizeObserver) {
-    resizeObserver = new ResizeObserver(() => {
-      calculateVisibleTags();
-    });
-    resizeObserver.observe(container);
-  }
-});
-
-onBeforeUnmount(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-    resizeObserver = null;
-  }
-});
 </script>
 
 <template>
