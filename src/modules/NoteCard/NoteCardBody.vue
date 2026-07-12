@@ -286,10 +286,10 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   overflow-y: overlay;
   position: relative;
+  display: flex;
+  flex-direction: column;
 
   &.is-view-mode {
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
   }
 }
@@ -384,8 +384,7 @@ onBeforeUnmount(() => {
 .content-textarea {
   width: 100%;
   height: 100%;
-  min-height: 100px;
-  max-height: 200px;
+  min-height: 100%;
   overflow-y: auto;
   overflow-y: overlay;
   background: var(--input-bg);

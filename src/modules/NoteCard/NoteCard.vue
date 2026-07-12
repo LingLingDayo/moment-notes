@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
 
 const cardMaxHeightStyle = computed(() => {
   return {
-    '--card-max-height': isEditing.value ? 'none' : `${store.noteMaxHeight}px`
+    '--card-max-height': `${store.noteMaxHeight}px`
   };
 });
 
@@ -381,7 +381,6 @@ onMounted(() => {
   &.editing {
     transform: none !important;
     box-shadow: var(--shadow-md) !important;
-    max-height: none;
     min-height: 220px;
     z-index: 10;
     cursor: default;
