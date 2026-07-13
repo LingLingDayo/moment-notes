@@ -103,24 +103,9 @@ const toggle = () => {
   border-radius: 50%;
   background: var(--text-secondary, #cccccc);
   transition:
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-    background-color 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
-    width 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
-    left 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+    background-color 0.25s cubic-bezier(0.25, 1, 0.5, 1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
-// 模拟 Fluent Design 的微动效：点击时 thumb 拉伸（squish & stretch）
-.switch-track:active {
-  .switch-thumb {
-    width: 20px;
-  }
-}
-
-.switch-track.checked:active {
-  .switch-thumb {
-    width: 20px;
-    left: -2px; // 向左拉伸修正
-  }
-}
 </style>
