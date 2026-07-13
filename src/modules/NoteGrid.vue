@@ -221,7 +221,9 @@ const handleAddNote = () => {
 
 .notes-list-enter-active,
 .notes-list-leave-active {
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .notes-list-enter-from,

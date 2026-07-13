@@ -171,7 +171,12 @@ const displayLabel = computed(() => {
   color: var(--text-primary);
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 
   &:hover {
     border-color: var(--accent-color);
@@ -256,7 +261,6 @@ const displayLabel = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
@@ -272,7 +276,10 @@ const displayLabel = computed(() => {
   font-size: 12px;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
 
   &:hover {
     background: var(--item-hover-bg, rgba(255, 255, 255, 0.04));
@@ -295,7 +302,9 @@ const displayLabel = computed(() => {
 
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .slide-up-enter-from,

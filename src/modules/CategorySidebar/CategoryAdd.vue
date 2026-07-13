@@ -96,7 +96,11 @@ const submitAdd = () => {
   font-size: 13px;
   font-weight: 600;
   border: 1px dashed var(--accent-border-dashed);
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 
   &:hover {
     background: var(--accent-color);
@@ -148,7 +152,10 @@ const submitAdd = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 
   .btn-icon {
     width: 14px;

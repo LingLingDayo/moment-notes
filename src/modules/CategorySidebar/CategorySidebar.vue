@@ -110,7 +110,6 @@ onUnmounted(() => {
   border-right: 1px solid var(--panel-border);
   display: flex;
   flex-direction: column;
-  backdrop-filter: blur(var(--glass-blur));
   flex-shrink: 0;
   position: relative;
   z-index: 2;
@@ -165,7 +164,14 @@ onUnmounted(() => {
   border: 1px solid var(--btn-border);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
   margin-left: 8px;
   overflow: hidden;

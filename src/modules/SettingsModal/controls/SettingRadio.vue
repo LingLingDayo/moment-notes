@@ -61,7 +61,11 @@ const selectOption = (val: any) => {
   color: var(--text-secondary);
   font-size: 12px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
   cursor: pointer;
 
   &:hover {

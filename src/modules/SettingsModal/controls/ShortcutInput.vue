@@ -154,7 +154,11 @@ const handleClear = () => {
   font-size: 13px;
   cursor: pointer;
   outline: none;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
   user-select: none;
   box-sizing: border-box;
 
@@ -206,7 +210,12 @@ const handleClear = () => {
   background: var(--btn-bg);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
   flex-shrink: 0;
   background-clip: padding-box;
 

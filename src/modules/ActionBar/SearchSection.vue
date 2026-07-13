@@ -157,7 +157,10 @@ onUnmounted(() => {
   width: 100%;
   height: 38px;
   box-sizing: border-box;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   .light-theme & {
     background: rgba(255, 255, 255, 0.6);
@@ -215,7 +218,10 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
   padding: 0;
 
   &:hover {
@@ -253,7 +259,10 @@ onUnmounted(() => {
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
   padding: 0;
 
   &:hover,
@@ -320,7 +329,10 @@ onUnmounted(() => {
   width: 100%;
   background: transparent;
   border: none;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
   box-sizing: border-box;
 
   &:hover {

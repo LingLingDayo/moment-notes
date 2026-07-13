@@ -20,8 +20,6 @@
   --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
   --divider-color: rgba(15, 23, 42, 0.08);
   --drag-inside-bg: rgba(99, 102, 241, 0.12);
-  --glass-blur: 16px;
-
   // 弹出层与弹窗
   --popover-bg: #ffffff;
   --popover-border: rgba(15, 23, 42, 0.08);
@@ -390,7 +388,7 @@ button {
   border: none;
   background: none;
   font-family: inherit;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:active {
     transform: scale(0.95);
@@ -403,13 +401,18 @@ textarea {
   font-family: inherit;
   outline: none;
   border: 1px solid transparent;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 提示通知动画 */
 .toast-enter-active,
 .toast-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .toast-enter-from {
   transform: translateY(30px) scale(0.9);
@@ -433,7 +436,6 @@ textarea {
   border: 1px solid var(--panel-border);
   border-radius: 6px;
   box-shadow: var(--shadow-md);
-  backdrop-filter: blur(var(--glass-blur));
   pointer-events: none;
   opacity: 0;
   transform: translateY(4px) scale(0.95);

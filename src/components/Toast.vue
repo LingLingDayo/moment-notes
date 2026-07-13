@@ -51,12 +51,12 @@ const iconComponent = computed(() => {
   border-radius: 12px;
   box-shadow: var(--popover-shadow);
   z-index: 9999;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid transparent;
   max-width: 90%;
   pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   &.position-top {
     top: 64px;
@@ -119,7 +119,9 @@ const iconComponent = computed(() => {
 // 顶部 Toast 过渡动效
 .toast-container.toast-top-enter-active,
 .toast-container.toast-top-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .toast-container.toast-top-enter-from {
   transform: translate(-50%, -30px) scale(0.9);
@@ -133,7 +135,9 @@ const iconComponent = computed(() => {
 // 底部 Toast 过渡动效
 .toast-container.toast-bottom-enter-active,
 .toast-container.toast-bottom-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .toast-container.toast-bottom-enter-from {
   transform: translate(-50%, 30px) scale(0.9);

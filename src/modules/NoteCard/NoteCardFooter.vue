@@ -315,7 +315,6 @@ const deleteSelf = async () => {
   gap: 4px;
   opacity: 0;
   transform: translate3d(0, 4px, 0);
-  will-change: opacity, transform;
   transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &.is-deleted-actions {

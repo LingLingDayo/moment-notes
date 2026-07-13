@@ -55,7 +55,11 @@ const itemProps = computed(() => (props.item.props as any) || {});
   color: var(--text-primary);
   font-size: 13px;
   line-height: 1.5;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
   outline: none;
   resize: vertical;
   min-height: 60px;

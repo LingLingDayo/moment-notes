@@ -91,8 +91,6 @@ const handleButtonAction = (actionKey: string) => {
   align-items: center;
   justify-content: center;
   z-index: 9990;
-  backdrop-filter: blur(8px);
-  will-change: opacity;
 }
 
 .modal-container {
@@ -106,7 +104,6 @@ const handleButtonAction = (actionKey: string) => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  will-change: transform, opacity;
 }
 
 .modal-header {
@@ -144,7 +141,10 @@ const handleButtonAction = (actionKey: string) => {
     height: 28px;
     border-radius: 8px;
     color: var(--text-muted);
-    transition: all 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
     cursor: pointer;
 
     &:hover {
@@ -188,7 +188,10 @@ const handleButtonAction = (actionKey: string) => {
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
   width: 100%;
   cursor: pointer;
 
@@ -244,9 +247,11 @@ const handleButtonAction = (actionKey: string) => {
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
 
   .modal-container {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    will-change: transform, opacity;
   }
 }
 

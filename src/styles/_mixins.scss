@@ -4,8 +4,6 @@
 @mixin glass-panel($bg: var(--panel-bg), $border: var(--panel-border)) {
   background: $bg;
   border: 1px solid $border;
-  backdrop-filter: blur($blur-intensity);
-  -webkit-backdrop-filter: blur($blur-intensity);
 }
 
 // 快速居中对齐
@@ -26,7 +24,6 @@
 
 // Hover 悬浮浮起动效
 @mixin hover-lift($translateY: -4px, $shadow: var(--shadow-md)) {
-  will-change: transform, box-shadow;
   transition:
     transform $transition-slow,
     box-shadow $transition-slow;

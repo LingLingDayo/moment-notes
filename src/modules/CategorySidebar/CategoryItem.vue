@@ -191,7 +191,13 @@ const vFocusSelect = {
   border-radius: 10px;
   cursor: pointer;
   color: var(--text-secondary);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
   position: relative;
   margin-bottom: 6px;
@@ -218,7 +224,11 @@ const vFocusSelect = {
     border-radius: 4px;
     color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition:
+      opacity 0.15s ease,
+      background-color 0.15s ease,
+      color 0.15s ease,
+      transform 0.15s ease;
     z-index: 2;
     flex-shrink: 0;
     align-self: center;
@@ -324,7 +334,15 @@ const vFocusSelect = {
 
   &.category-list-enter-active,
   &.category-list-leave-active {
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      height 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      min-height 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      margin-bottom 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      padding-top 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      padding-bottom 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      border-top-width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      border-bottom-width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
   }
 
@@ -381,7 +399,11 @@ const vFocusSelect = {
   border-radius: 20px;
   background: var(--badge-bg);
   color: var(--text-secondary);
-  transition: all 0.2s;
+  transition:
+    opacity 0.2s,
+    background-color 0.2s,
+    color 0.2s,
+    transform 0.2s;
 }
 
 .item-actions {
@@ -392,7 +414,9 @@ const vFocusSelect = {
   right: 0;
   opacity: 0;
   transform: translateX(10px);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .action-btn {
@@ -453,7 +477,10 @@ const vFocusSelect = {
   border-radius: 6px;
   background: var(--accent-color);
   color: var(--text-on-accent);
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 
   &.confirm:hover {
     background: var(--accent-hover);

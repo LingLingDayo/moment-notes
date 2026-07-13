@@ -85,13 +85,14 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   background: rgba(255, 255, 255, 0.01);
-  backdrop-filter: blur(8px);
 }
 
 /* 分类切换时的淡入淡出滑动过渡 */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .fade-slide-enter-from {

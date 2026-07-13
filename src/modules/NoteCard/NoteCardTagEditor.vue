@@ -266,7 +266,10 @@ defineExpose({
     font-size: 11px;
     cursor: pointer;
     color: var(--text-secondary);
-    transition: all 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
 
     &:hover {
       background: var(--item-hover-bg);

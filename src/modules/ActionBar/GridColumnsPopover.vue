@@ -88,7 +88,11 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
   border: 1px solid var(--btn-border);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
   background-clip: padding-box;
 
   &:hover:not(:disabled) {
@@ -121,7 +125,6 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
   z-index: 100;
   min-width: 130px;
   animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(var(--glass-blur));
 
   .popover-title {
     font-size: 10px;
@@ -153,7 +156,10 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
   cursor: pointer;
   background: transparent;
   border: none;
-  transition: all 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
 
   &:hover:not(:disabled) {
     background: var(--item-hover-bg);
