@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, provide, computed, watch } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Trash2, History } from 'lucide-vue-next';
+import { Trash2, History } from '@lucide/vue';
 import { isUTools } from '@/utils/storage';
 import CategoryItem from './CategoryItem.vue';
 import { useDragAutoScroll } from '@utils/useDragAutoScroll';

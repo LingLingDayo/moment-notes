@@ -1,5 +1,5 @@
 import { markRaw } from 'vue';
-import { Sun, Moon, Columns, Settings, Database, Info, Trash2, Keyboard } from 'lucide-vue-next';
+import { Sun, Moon, Columns, Settings, Database, Info, Trash2, Keyboard } from '@lucide/vue';
 import DataPanel from './DataPanel.vue';
 import AboutPanel from './AboutPanel.vue';
 

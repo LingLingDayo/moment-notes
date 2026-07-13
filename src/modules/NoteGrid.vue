@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import NoteCard from './NoteCard/NoteCard.vue';
-import { StickyNote, SearchX, Plus } from 'lucide-vue-next';
+import { StickyNote, SearchX, Plus } from '@lucide/vue';
 import { useDragAutoScroll } from '@utils/useDragAutoScroll';
 
 const store = useStickyNotesStore();

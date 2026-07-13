@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Search, X, ChevronDown } from 'lucide-vue-next';
+import { Search, X, ChevronDown } from '@lucide/vue';
 
 const store = useStickyNotesStore();
 

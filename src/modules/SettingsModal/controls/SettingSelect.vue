@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { ChevronDown, Check } from 'lucide-vue-next';
+import { ChevronDown, Check } from '@lucide/vue';
 import SettingWrapper from './SettingWrapper.vue';
 import { SettingItem, SettingOption } from '../settingsConfig';
 import { useStickyNotesStore } from '@stores/stickyNotes';

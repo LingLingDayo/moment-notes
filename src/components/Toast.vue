@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { CheckCircle2, Info, AlertTriangle, XCircle } from 'lucide-vue-next';
+import { CheckCircle2, Info, AlertTriangle, XCircle } from '@lucide/vue';
 
 const store = useStickyNotesStore();
 

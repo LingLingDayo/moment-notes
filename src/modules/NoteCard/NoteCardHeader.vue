@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Pin, Edit2 } from 'lucide-vue-next';
+import { Pin, Edit2 } from '@lucide/vue';
 import { Note } from '@type';
 import { useShortcutStore } from '@stores/shortcutStore';
 

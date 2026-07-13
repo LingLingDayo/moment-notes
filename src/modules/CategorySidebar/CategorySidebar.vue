@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Settings } from 'lucide-vue-next';
+import { Settings } from '@lucide/vue';
 import { isUTools } from '@utils/storage';
 import CategoryList from './CategoryList.vue';
 import CategoryAdd from './CategoryAdd.vue';

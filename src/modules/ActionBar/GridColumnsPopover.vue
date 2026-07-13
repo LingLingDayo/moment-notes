@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { LayoutGrid } from 'lucide-vue-next';
+import { LayoutGrid } from '@lucide/vue';
 
 const store = useStickyNotesStore();
 

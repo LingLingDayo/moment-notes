@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
 import { useShortcutStore } from '@stores/shortcutStore';
-import { RefreshCw, X } from 'lucide-vue-next';
+import { RefreshCw, X } from '@lucide/vue';
 import SettingWrapper from './SettingWrapper.vue';
 import { SettingItem } from '../settingsConfig';
 

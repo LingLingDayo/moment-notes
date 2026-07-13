@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, watch, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { AlertTriangle } from 'lucide-vue-next';
+import { AlertTriangle } from '@lucide/vue';
 
 const store = useStickyNotesStore();
 

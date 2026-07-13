@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useSettings } from './useSettings';
-import { Download, Upload } from 'lucide-vue-next';
+import { Download, Upload } from '@lucide/vue';
 import SettingWrapper from './controls/SettingWrapper.vue';
 import { SettingItem } from './settingsConfig';
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, nextTick } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Plus, Check, X } from 'lucide-vue-next';
+import { Plus, Check, X } from '@lucide/vue';
 
 const store = useStickyNotesStore();
 

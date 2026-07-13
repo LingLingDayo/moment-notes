@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { inject, computed } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Folder, Edit3, Trash2, Check, ChevronRight, Plus } from 'lucide-vue-next';
+import { Folder, Edit3, Trash2, Check, ChevronRight, Plus } from '@lucide/vue';
 
 const props = defineProps<{
   cat: any;

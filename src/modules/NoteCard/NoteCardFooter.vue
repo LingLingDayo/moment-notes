@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue';
-import { Palette, FolderInput, Check, Copy, Trash2, RotateCcw, Folder } from 'lucide-vue-next';
+import { Palette, FolderInput, Check, Copy, Trash2, RotateCcw, Folder } from '@lucide/vue';
 import { Note } from '@type';
 import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
 import { isUTools } from '@utils/storage';

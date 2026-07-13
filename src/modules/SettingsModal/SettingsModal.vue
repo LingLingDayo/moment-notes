@@ -2,7 +2,7 @@
 import { useSettings } from './useSettings';
 import { SETTINGS_SCHEMA, evaluateVisibility } from './settingsConfig';
 import SettingControl from './SettingControl.vue';
-import { Settings, X } from 'lucide-vue-next';
+import { Settings, X } from '@lucide/vue';
 
 const {
   store,

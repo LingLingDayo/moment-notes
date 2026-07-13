@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Plus, Trash2, Sun, Moon } from 'lucide-vue-next';
+import { Plus, Trash2, Sun, Moon } from '@lucide/vue';
 import { isUTools } from '@utils/storage';
 import SearchSection from './SearchSection.vue';
 import SortPopover from './SortPopover.vue';
