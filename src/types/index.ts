@@ -18,7 +18,9 @@ export interface Note {
   isDeleted?: boolean;
   deletedAt?: number;
   lastUsedAt?: number;
+  useCount?: number;
 }
+
 
 export interface NoteColorPreset {
   name: string;

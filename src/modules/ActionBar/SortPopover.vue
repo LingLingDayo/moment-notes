@@ -14,7 +14,7 @@ const emit = defineEmits<{
 }>();
 
 // 切换排序方式
-const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
+const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom' | 'useCount') => {
   store.setSortMode(mode);
   emit('close');
 
@@ -25,8 +25,10 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
     modeName = store.sortOrder === 'asc' ? '标题首字母 (A-Z)' : '标题首字母 (Z-A)';
   } else if (mode === 'tag') {
     modeName = store.sortOrder === 'asc' ? '标签首字母 (A-Z)' : '标签首字母 (Z-A)';
+  } else if (mode === 'useCount') {
+    modeName = store.sortOrder === 'desc' ? '使用次数 (从多到少)' : '使用次数 (从少到多)';
   } else {
-    modeName = '自定义 (拖拽)';
+    modeName = '自定义';
   }
   store.showToast(`已切换排序方式为：${modeName}`, 'success');
 };
@@ -83,11 +85,22 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
         </button>
         <button
           class="sort-item"
+          :class="{ active: store.sortMode === 'useCount' }"
+          @click="changeSortMode('useCount')"
+        >
+          <span class="sort-item-icon">🔥</span>
+          <span>按使用次数</span>
+          <span v-if="store.sortMode === 'useCount'" class="sort-direction">
+            {{ store.sortOrder === 'desc' ? '↓' : '↑' }}
+          </span>
+        </button>
+        <button
+          class="sort-item"
           :class="{ active: store.sortMode === 'custom' }"
           @click="changeSortMode('custom')"
         >
           <span class="sort-item-icon">✍️</span>
-          <span>自定义排序 (拖拽)</span>
+          <span>自定义排序</span>
         </button>
       </div>
     </div>

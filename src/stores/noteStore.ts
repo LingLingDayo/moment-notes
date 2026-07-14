@@ -11,7 +11,7 @@ export const useNoteStore = defineStore('noteStore', () => {
   const currentCategoryId = ref<string>('all');
   const searchQuery = ref<string>('');
   const searchTarget = ref<Array<'all' | 'title' | 'content' | 'tag'>>(['all']);
-  const sortMode = ref<'date' | 'title' | 'tag' | 'custom'>('date');
+  const sortMode = ref<'date' | 'title' | 'tag' | 'custom' | 'useCount'>('date');
   const sortOrder = ref<'asc' | 'desc'>('desc');
   const draggedNoteId = ref<string | null>(null);
   const editingNoteId = ref<string | null>(null);
@@ -172,7 +172,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     uiStore.showToast('已清空当前分类下的便签', 'success');
   };
 
-  const setSortMode = (mode: 'date' | 'title' | 'tag' | 'custom') => {
+  const setSortMode = (mode: 'date' | 'title' | 'tag' | 'custom' | 'useCount') => {
     if (mode === sortMode.value) {
       if (mode !== 'custom') {
         sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
@@ -185,6 +185,8 @@ export const useNoteStore = defineStore('noteStore', () => {
         sortOrder.value = 'asc';
       } else if (mode === 'tag') {
         sortOrder.value = 'asc';
+      } else if (mode === 'useCount') {
+        sortOrder.value = 'desc';
       }
     }
     storage.setItem('sticky_notes_sort_mode', sortMode.value);
@@ -227,6 +229,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     const note = allNotes.value.find(n => n.id === id);
     if (note) {
       note.lastUsedAt = Date.now();
+      note.useCount = (note.useCount || 0) + 1;
       saveNotes();
       syncCurrentCategoryNotes();
     }

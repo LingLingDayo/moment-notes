@@ -201,9 +201,10 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         controlWidth: '240px',
         options: [
           { label: '按日期排序', value: 'date' },
-          { label: '按标题首字母排序', value: 'title' },
+          { label: '按标题首字母', value: 'title' },
           { label: '按标签排序', value: 'tag' },
-          { label: '自定义排序 (拖拽)', value: 'custom' }
+          { label: '按使用次数', value: 'useCount' },
+          { label: '自定义排序', value: 'custom' }
         ]
       },
       {

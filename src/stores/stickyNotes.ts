@@ -82,8 +82,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       }
 
       const storedSortMode = storage.getItem('sticky_notes_sort_mode');
-      if (storedSortMode && ['date', 'title', 'tag', 'custom'].includes(storedSortMode)) {
-        noteStore.sortMode = storedSortMode as 'date' | 'title' | 'tag' | 'custom';
+      if (storedSortMode && ['date', 'title', 'tag', 'custom', 'useCount'].includes(storedSortMode)) {
+        noteStore.sortMode = storedSortMode as 'date' | 'title' | 'tag' | 'custom' | 'useCount';
       }
 
       const storedSortOrder = storage.getItem('sticky_notes_sort_order');
@@ -321,6 +321,15 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         const cmp = tagA.localeCompare(tagB, 'zh');
         if (cmp !== 0) {
           return noteStore.sortOrder === 'asc' ? cmp : -cmp;
+        }
+        return noteStore.sortOrder === 'asc'
+          ? a.updatedAt - b.updatedAt
+          : b.updatedAt - a.updatedAt;
+      } else if (noteStore.sortMode === 'useCount') {
+        const countA = a.useCount || 0;
+        const countB = b.useCount || 0;
+        if (countA !== countB) {
+          return noteStore.sortOrder === 'asc' ? countA - countB : countB - countA;
         }
         return noteStore.sortOrder === 'asc'
           ? a.updatedAt - b.updatedAt
