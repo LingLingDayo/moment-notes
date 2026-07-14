@@ -137,7 +137,7 @@ const handleAddNote = () => {
       <!-- 新建便签 (垃圾箱分类和最近使用分类下隐藏) -->
       <button
         v-if="store.currentCategoryId !== 'trash' && store.currentCategoryId !== 'recent'"
-        class="primary-btn"
+        class="primary-btn add-btn"
         data-tooltip="新建便签"
         @click="handleAddNote"
       >
@@ -263,6 +263,17 @@ const handleAddNote = () => {
     &:hover:not(:disabled) {
       background: #ff7875;
       box-shadow: 0 6px 16px -2px rgba(255, 77, 79, 0.4);
+    }
+  }
+
+  &.add-btn {
+    &:hover:not(:disabled) {
+      box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.3);
+      transform: none;
+    }
+
+    &:active:not(:disabled) {
+      transform: none;
     }
   }
 }
