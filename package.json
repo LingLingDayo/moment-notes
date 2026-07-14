@@ -1,6 +1,6 @@
 {
   "name": "moment-notes",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "description": "拾光便签：一款基于 Vue 3 + TypeScript + Vite 构建的高颜值、高生产力的 uTools 便签插件。",
   "type": "module",
