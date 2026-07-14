@@ -54,7 +54,11 @@ const getDefaultTooltip = (item: SettingItem) => {
       valStr = opt ? opt.label : String(item.default);
     }
   } else {
-    valStr = String(item.default);
+    if (item.type === 'switch') {
+      valStr = item.default ? '开启' : '关闭';
+    } else {
+      valStr = String(item.default);
+    }
   }
 
   return `默认值: ${valStr}`;
