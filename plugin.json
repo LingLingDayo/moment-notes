@@ -1,0 +1,31 @@
+{
+  "main": "index.html",
+  "preload": "preload/services.js",
+  "logo": "logo.png",
+  "development": {
+    "main": "http://localhost:4021"
+  },
+  "features": [
+    {
+      "code": "notes",
+      "explain": "拾光便签：分类备忘",
+      "cmds": [
+        "拾光便签",
+        "时光便签",
+        "便签",
+        "备忘录",
+        "备忘"
+      ]
+    },
+    {
+      "code": "save_note",
+      "explain": "快速把选中的文本内容或剪贴板文本保存为便签",
+      "cmds": [
+        {
+          "type": "over",
+          "label": "保存为便签"
+        }
+      ]
+    }
+  ]
+}
