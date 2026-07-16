@@ -49,17 +49,12 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
           <span>自动适应</span>
         </button>
 
-        <!-- 1-4 列 -->
+        <!-- 1-4 列：固定列数始终可选，在容器宽度内等分，不设最小宽度门槛 -->
         <button
           v-for="cols in [1, 2, 3, 4]"
           :key="cols"
           class="columns-item"
-          :class="{
-            active: store.gridColumns === cols,
-            disabled: cols > store.maxColumns
-          }"
-          :disabled="cols > store.maxColumns"
-          :data-tooltip="cols > store.maxColumns ? '当前窗口宽度不足' : undefined"
+          :class="{ active: store.gridColumns === cols }"
           @click="changeGridColumns(cols as 1 | 2 | 3 | 4)"
         >
           <span class="columns-item-icon">📊</span>
@@ -161,7 +156,7 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
     color 0.15s ease,
     transform 0.15s ease;
 
-  &:hover:not(:disabled) {
+  &:hover {
     background: var(--item-hover-bg);
     color: var(--text-primary);
   }
@@ -170,14 +165,6 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
     background: var(--accent-light);
     color: var(--accent-color);
     font-weight: 600;
-  }
-
-  &:disabled,
-  &.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    // 故意保留 pointer-events 以便 tooltip 触发
-    pointer-events: auto;
   }
 
   .columns-item-icon {

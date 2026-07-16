@@ -43,17 +43,12 @@ export const useUiStore = defineStore('uiStore', () => {
   };
 
   const gridColumns = ref<'auto' | 1 | 2 | 3 | 4>('auto');
-  const maxColumns = ref<1 | 2 | 3 | 4>(4);
   const minNoteWidth = ref<number>(240);
   const noteMaxHeight = ref<number>(300);
 
   const setGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
     gridColumns.value = cols;
     storage.setItem('sticky_notes_grid_columns', cols.toString());
-  };
-
-  const setMaxColumns = (val: 1 | 2 | 3 | 4) => {
-    maxColumns.value = val;
   };
 
   const setMinNoteWidth = (val: number) => {
@@ -187,10 +182,8 @@ export const useUiStore = defineStore('uiStore', () => {
     toastPosition,
     showToast,
     gridColumns,
-    maxColumns,
     minNoteWidth,
     setGridColumns,
-    setMaxColumns,
     setMinNoteWidth,
     showSettings,
     openSettings,

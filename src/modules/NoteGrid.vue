@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import NoteCard from './NoteCard/NoteCard.vue';
 import { StickyNote, SearchX, Plus } from '@lucide/vue';
@@ -16,52 +16,14 @@ watch(() => store.draggedNoteId, (newId) => {
     stopDragScroll();
   }
 });
-let resizeObserver: ResizeObserver | null = null;
 
-// 根据容器的净宽度（contentRect.width）来计算允许的最大列数
-const updateMaxColumns = (width: number) => {
-  let maxCols: 1 | 2 | 3 | 4 = 1;
-  if (width >= 760) {
-    maxCols = 4;
-  } else if (width >= 540) {
-    maxCols = 3;
-  } else if (width >= 320) {
-    maxCols = 2;
-  } else {
-    maxCols = 1;
-  }
-  store.setMaxColumns(maxCols);
-};
-
-onMounted(() => {
-  if (containerRef.value) {
-    // 初始计算一次
-    updateMaxColumns(containerRef.value.clientWidth);
-
-    if (typeof window !== 'undefined' && 'ResizeObserver' in window) {
-      resizeObserver = new ResizeObserver(entries => {
-        for (const entry of entries) {
-          updateMaxColumns(entry.contentRect.width);
-        }
-      });
-      resizeObserver.observe(containerRef.value);
-    }
-  }
-});
-
-onUnmounted(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-    resizeObserver = null;
-  }
-});
-
-// 计算出应该应用的列数限制
+// 计算出应该应用的列数
 const actualColumns = computed(() => {
   if (store.gridColumns === 'auto') {
     return 'auto';
   }
-  return Math.min(store.gridColumns, store.maxColumns);
+  // 固定列数：严格按用户设置，不因容器宽度 / 最小宽度再裁剪
+  return store.gridColumns;
 });
 
 // 动态网格样式
@@ -69,12 +31,18 @@ const gridStyle = computed(() => {
   if (actualColumns.value === 'auto') {
     const minWidth = Math.max(100, Math.min(1000, store.minNoteWidth || 240));
     return {
-      gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${minWidth}px), 1fr))`
-    };
+      gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${minWidth}px), 1fr))`,
+      // 自适应列数未知，离场动画宽度回退为近似值
+      '--leave-card-width': `${minWidth}px`
+    } as Record<string, string>;
   }
+  // 固定列数：在容器宽度内等分（minmax(0, 1fr) 允许压缩，忽略内容 min-content / 最小宽度）
+  const cols = actualColumns.value;
   return {
-    gridTemplateColumns: `repeat(${actualColumns.value}, 1fr)`
-  };
+    gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+    // 离场 absolute 时按列数均分，保持与网格轨道一致
+    '--leave-card-width': `calc((100% - (var(--grid-gap, 20px) * ${cols - 1})) / ${cols})`
+  } as Record<string, string>;
 });
 
 // 创建新便签
@@ -134,7 +102,17 @@ const handleAddNote = () => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
+  --grid-gap: 20px;
   align-content: start;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+
+  // 允许网格项收缩，避免内容 min-content 把个别列撑宽
+  > * {
+    min-width: 0;
+    max-width: 100%;
+  }
 }
 
 .empty-state {
@@ -235,8 +213,10 @@ const handleAddNote = () => {
 .notes-list-leave-active {
   position: absolute;
   pointer-events: none;
-  // 保持卡片大致宽度，防止 absolute 时宽度坍缩
-  width: 250px;
+  // 与当前网格轨道同宽，防止 absolute 时宽度坍缩或撑破等列布局
+  width: var(--leave-card-width, 250px);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1049px) {
@@ -247,6 +227,7 @@ const handleAddNote = () => {
 
   .notes-grid {
     gap: 12px;
+    --grid-gap: 12px;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
