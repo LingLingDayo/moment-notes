@@ -58,7 +58,19 @@ export const storage = {
 export const pasteTextToCursor = async (text: string): Promise<boolean> => {
   if (isUTools()) {
     try {
-      window.utools.hideMainWindowPasteText(text);
+      if (window.utools.getWindowType() === 'detach') {
+        window.utools.copyText(text);
+        window.utools.outPlugin();
+        setTimeout(() => {
+          if (window.utools.isMacOS()) {
+            window.utools.simulateKeyboardTap('v', 'command');
+          } else {
+            window.utools.simulateKeyboardTap('v', 'control');
+          }
+        }, 60);
+      } else {
+        window.utools.hideMainWindowPasteText(text);
+      }
       return true;
     } catch (e) {
       console.error('uTools paste text failed:', e);
