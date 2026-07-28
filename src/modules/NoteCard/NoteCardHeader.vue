@@ -8,6 +8,7 @@ import { useStickyNotesStore } from '@stores/stickyNotes';
 const props = defineProps<{
   note: Note;
   isEditing: boolean;
+  isFullScreen?: boolean;
 }>();
 
 const title = defineModel<string>('title', { default: '' });
@@ -23,6 +24,7 @@ const shortcutStore = useShortcutStore();
 const store = useStickyNotesStore();
 
 const isPreviewActive = computed(() => store.previewNoteId === props.note.id);
+const isFullScreenMode = computed(() => props.isFullScreen || isPreviewActive.value);
 
 const handleKeyDown = (e: KeyboardEvent) => {
   const keyString = shortcutStore.getEventKeyString(e);
@@ -50,7 +52,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
 <template>
   <!-- 卡片左上角操作按钮组 (置顶 & 全屏显示) -->
-  <div v-if="!note.isDeleted" class="header-left-actions">
+  <div v-if="!note.isDeleted" class="header-left-actions" :class="{ 'is-full-screen': isFullScreenMode }">
     <!-- 置顶针和大头针效果 -->
     <button
       class="pin-btn"
@@ -113,6 +115,23 @@ const handleKeyDown = (e: KeyboardEvent) => {
   align-items: center;
   gap: 9px;
   z-index: 2;
+  transition: left 0.2s ease, gap 0.2s ease;
+
+  &.is-full-screen {
+    left: 24px;
+    gap: 12px;
+
+    .pin-btn,
+    .preview-btn {
+      padding: 7px;
+
+      .pin-icon,
+      .preview-icon {
+        width: 15px;
+        height: 15px;
+      }
+    }
+  }
 
   .pin-btn,
   .preview-btn {

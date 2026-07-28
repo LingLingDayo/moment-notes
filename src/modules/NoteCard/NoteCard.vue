@@ -299,6 +299,7 @@ onMounted(() => {
       v-model:title="editTitle"
       :note="note"
       :is-editing="isEditing"
+      :is-full-screen="isFullScreen"
       @toggle-pin="togglePin"
       @enter-edit="enterEditMode"
       @save-edit="saveEdit"
