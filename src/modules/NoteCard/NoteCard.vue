@@ -287,7 +287,7 @@ onMounted(() => {
   >
     <!-- 拖拽手柄区域 -->
     <div
-      v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned"
+      v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned && !isFullScreen"
       class="note-drag-handle"
       data-tooltip="按住拖动调整位置"
       @mouseenter="handleHandleMouseEnter"
@@ -457,6 +457,10 @@ onMounted(() => {
     box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
     padding: 20px 24px 16px 24px;
     z-index: 100;
+
+    .note-drag-handle {
+      display: none;
+    }
 
     :deep(.card-body) {
       font-size: 15px;
