@@ -138,6 +138,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.defaultNoteColor = storedDefaultNoteColor;
       }
 
+      const storedDefaultNoteType = storage.getItem('sticky_notes_default_note_type');
+      if (storedDefaultNoteType && ['text', 'markdown'].includes(storedDefaultNoteType)) {
+        uiStore.defaultNoteType = storedDefaultNoteType as any;
+      }
+
       const storedSuperPanelCat = storage.getItem('sticky_notes_super_panel_default_category');
       if (storedSuperPanelCat) {
         uiStore.superPanelDefaultCategory = storedSuperPanelCat;
@@ -489,6 +494,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setDateFormat: uiStore.setDateFormat,
     defaultNoteColor: toRef(uiStore, 'defaultNoteColor'),
     setDefaultNoteColor: uiStore.setDefaultNoteColor,
+    defaultNoteType: toRef(uiStore, 'defaultNoteType'),
+    setDefaultNoteType: uiStore.setDefaultNoteType,
     superPanelDefaultCategory: toRef(uiStore, 'superPanelDefaultCategory'),
     setSuperPanelDefaultCategory: uiStore.setSuperPanelDefaultCategory,
     startPageMode: toRef(uiStore, 'startPageMode'),

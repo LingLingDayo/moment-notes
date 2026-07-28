@@ -249,6 +249,18 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         ]
       },
       {
+        key: 'defaultNoteType',
+        label: '新增便签默认格式',
+        type: 'select',
+        desc: '新建便签或从外部捕获文本时，默认的卡片内容展示格式。',
+        default: 'text',
+        controlWidth: '240px',
+        options: [
+          { label: '纯文本', value: 'text' },
+          { label: 'Markdown 格式', value: 'markdown' }
+        ]
+      },
+      {
         key: 'startPageMode',
         label: '启动默认展示分类',
         type: 'radio',

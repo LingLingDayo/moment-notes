@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { storage } from '@utils/storage';
+import { NoteType } from '@type';
 
 export const useUiStore = defineStore('uiStore', () => {
   // 确认弹窗状态 (Promise 驱动)
@@ -138,6 +139,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_default_note_color', defaultNoteColor.value);
   };
 
+  const defaultNoteType = ref<NoteType>('text');
+
+  const setDefaultNoteType = (val: NoteType) => {
+    defaultNoteType.value = val || 'text';
+    storage.setItem('sticky_notes_default_note_type', defaultNoteType.value);
+  };
+
   const superPanelDefaultCategory = ref<string>('all');
 
   const setSuperPanelDefaultCategory = (val: string) => {
@@ -197,6 +205,8 @@ export const useUiStore = defineStore('uiStore', () => {
     setDateFormat,
     defaultNoteColor,
     setDefaultNoteColor,
+    defaultNoteType,
+    setDefaultNoteType,
     superPanelDefaultCategory,
     setSuperPanelDefaultCategory,
     startPageMode,
