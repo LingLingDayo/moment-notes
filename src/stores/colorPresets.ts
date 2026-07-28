@@ -10,7 +10,7 @@ export const COLOR_PRESETS: Record<string, NoteColorPreset> = {
     darkBorder: 'hsl(48, 40%, 30%)',
     lightText: 'hsl(48, 80%, 15%)',
     darkText: 'hsl(48, 100%, 85%)',
-    lightBtnHoverBg: 'hsl(48, 80%, 80%)',
+    lightBtnHoverBg: 'hsl(48, 100%, 79%)',
     lightBtnHoverColor: 'hsl(48, 90%, 12%)',
     darkBtnHoverBg: 'hsla(48, 60%, 55%, 0.13)',
     darkBtnHoverColor: 'hsl(48, 100%, 88%)'
