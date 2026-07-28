@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
-import { X } from '@lucide/vue';
 import { Note } from '@type';
 import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
 import NoteCardHeader from './NoteCardHeader.vue';
@@ -286,15 +285,6 @@ onMounted(() => {
     @mouseleave="handleMouseLeave"
     @click.capture="handleCardClick"
   >
-    <!-- 全屏模式右侧的圆形灰色关闭按钮 -->
-    <button
-      v-if="isFullScreen"
-      class="full-screen-close-btn"
-      data-tooltip="关闭全屏 (Esc)"
-      @click.stop="store.closeNotePreview"
-    >
-      <X class="close-icon" />
-    </button>
     <!-- 拖拽手柄区域 -->
     <div
       v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned"
@@ -483,44 +473,27 @@ onMounted(() => {
       line-height: 1.75;
     }
 
-    :deep(.absolute-edit-btn) {
-      right: 52px;
+    :deep(.card-footer) {
+      opacity: 1;
+      padding-top: 12px;
     }
-  }
-}
 
-.full-screen-close-btn {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.08);
-  border: none;
-  color: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 5;
-  opacity: 0.75;
-  transition: all 0.2s ease;
+    :deep(.card-actions) {
+      opacity: 1 !important;
+      transform: translate3d(0, 0, 0) !important;
+      gap: 6px !important;
+    }
 
-  .dark-theme & {
-    background: rgba(255, 255, 255, 0.12);
-  }
+    :deep(.action-btn) {
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 7px !important;
 
-  &:hover {
-    opacity: 1;
-    background: rgba(239, 68, 68, 0.85);
-    color: #ffffff;
-    transform: scale(1.08);
-  }
-
-  .close-icon {
-    width: 15px;
-    height: 15px;
+      .action-icon {
+        width: 14px !important;
+        height: 14px !important;
+      }
+    }
   }
 }
 
