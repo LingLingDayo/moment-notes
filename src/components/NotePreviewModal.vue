@@ -68,7 +68,6 @@ onUnmounted(() => {
   user-select: text;
 }
 
-// 页面右上角的圆形灰色关闭按钮
 .page-close-btn {
   position: fixed;
   top: 24px;
@@ -87,7 +86,12 @@ onUnmounted(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.15s ease;
 
   .light-theme & {
     background: rgba(0, 0, 0, 0.25);
@@ -98,12 +102,21 @@ onUnmounted(() => {
     background: rgba(239, 68, 68, 0.9);
     border-color: rgba(239, 68, 68, 0.9);
     color: #ffffff;
-    transform: scale(1.1);
+    box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+
+    .close-icon {
+      transform: scale(1.15) rotate(90deg);
+    }
+  }
+
+  &:active {
+    transform: scale(0.92);
   }
 
   .close-icon {
     width: 18px;
     height: 18px;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
