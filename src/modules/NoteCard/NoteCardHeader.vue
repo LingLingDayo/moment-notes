@@ -49,28 +49,29 @@ const handleKeyDown = (e: KeyboardEvent) => {
 </script>
 
 <template>
-  <!-- 置顶针和大头针效果 -->
-  <button
-    v-if="!note.isDeleted"
-    class="pin-btn"
-    :class="{ active: note.isPinned }"
-    :data-tooltip="note.isPinned ? '取消置顶' : '置顶便签'"
-    @click.stop="emit('toggle-pin')"
-  >
-    <Pin class="pin-icon" />
-  </button>
+  <!-- 卡片左上角操作按钮组 (置顶 & 全屏显示) -->
+  <div v-if="!note.isDeleted" class="header-left-actions">
+    <!-- 置顶针和大头针效果 -->
+    <button
+      class="pin-btn"
+      :class="{ active: note.isPinned }"
+      :data-tooltip="note.isPinned ? '取消置顶' : '置顶便签'"
+      @click.stop="emit('toggle-pin')"
+    >
+      <Pin class="pin-icon" />
+    </button>
 
-  <!-- 全屏显示/收起按钮 (位于置顶便签按钮旁) -->
-  <button
-    v-if="!note.isDeleted"
-    class="preview-btn"
-    :class="{ active: isPreviewActive }"
-    :data-tooltip="isPreviewActive ? '收起全屏' : '全屏显示便签'"
-    @click.stop="store.toggleNotePreview(note.id)"
-  >
-    <Minimize2 v-if="isPreviewActive" class="preview-icon" />
-    <Maximize2 v-else class="preview-icon" />
-  </button>
+    <!-- 全屏显示/收起按钮 -->
+    <button
+      class="preview-btn"
+      :class="{ active: isPreviewActive }"
+      :data-tooltip="isPreviewActive ? '收起全屏' : '全屏显示便签'"
+      @click.stop="store.toggleNotePreview(note.id)"
+    >
+      <Minimize2 v-if="isPreviewActive" class="preview-icon" />
+      <Maximize2 v-else class="preview-icon" />
+    </button>
+  </div>
 
   <!-- 只读时，编辑按钮作为绝对定位元素在右上角展示 -->
   <button
@@ -104,69 +105,54 @@ const handleKeyDown = (e: KeyboardEvent) => {
 </template>
 
 <style lang="scss" scoped>
-.pin-btn {
+.header-left-actions {
   position: absolute;
   top: -8px;
   left: 20px;
-  padding: 6px;
-  border-radius: 50%;
-  background: var(--card-border);
-  color: var(--card-text);
-  box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 9px;
   z-index: 2;
 
-  .dark-theme & {
-    background: var(--card-border-dark);
-    color: var(--card-text-dark);
+  .pin-btn,
+  .preview-btn {
+    padding: 6px;
+    border-radius: 50%;
+    background: var(--card-border);
+    color: var(--card-text);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, color 0.2s;
+
+    .dark-theme & {
+      background: var(--card-border-dark);
+      color: var(--card-text-dark);
+    }
+
+    .pin-icon,
+    .preview-icon {
+      width: 13px;
+      height: 13px;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
   }
 
-  &:hover {
-    transform: scale(1.1) rotate(15deg);
-    background: var(--card-btn-hover-bg);
-    color: var(--card-btn-hover-color);
+  .pin-btn {
+    &:hover {
+      transform: scale(1.1) rotate(15deg);
+      background: var(--card-btn-hover-bg);
+      color: var(--card-btn-hover-color);
+    }
   }
 
-  .pin-icon {
-    width: 13px;
-    height: 13px;
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-}
-
-.preview-btn {
-  position: absolute;
-  top: -8px;
-  left: 54px;
-  padding: 6px;
-  border-radius: 50%;
-  background: var(--card-border);
-  color: var(--card-text);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, color 0.2s;
-
-  .dark-theme & {
-    background: var(--card-border-dark);
-    color: var(--card-text-dark);
-  }
-
-  &:hover {
-    transform: scale(1.1);
-    background: var(--card-btn-hover-bg);
-    color: var(--card-btn-hover-color);
-  }
-
-
-  .preview-icon {
-    width: 13px;
-    height: 13px;
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  .preview-btn {
+    &:hover {
+      transform: scale(1.1);
+      background: var(--card-btn-hover-bg);
+      color: var(--card-btn-hover-color);
+    }
   }
 }
 
