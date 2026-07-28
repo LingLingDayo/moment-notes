@@ -514,6 +514,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     prefixTagWithHash: toRef(uiStore, 'prefixTagWithHash'),
     setPrefixTagWithHash: uiStore.setPrefixTagWithHash,
     previewNoteId: toRef(uiStore, 'previewNoteId'),
+    openedFullscreenForEditNoteId: toRef(uiStore, 'openedFullscreenForEditNoteId'),
     openNotePreview: uiStore.openNotePreview,
     closeNotePreview: uiStore.closeNotePreview,
     toggleNotePreview: uiStore.toggleNotePreview,

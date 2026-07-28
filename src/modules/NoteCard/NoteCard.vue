@@ -56,6 +56,7 @@ const colorStyle = computed(() => {
 const enterEditMode = () => {
   if (!props.isFullScreen && store.defaultEditMode === 'fullscreen') {
     store.editingNoteId = props.note.id;
+    store.openedFullscreenForEditNoteId = props.note.id;
     store.openNotePreview(props.note.id);
     return;
   }
@@ -88,6 +89,11 @@ const saveEdit = () => {
     isEditing.value = false;
   } else {
     cancelEdit();
+    return;
+  }
+
+  if (store.openedFullscreenForEditNoteId === props.note.id) {
+    store.closeNotePreview();
   }
 };
 
@@ -97,6 +103,10 @@ const cancelEdit = () => {
   editTitle.value = props.note.title || '';
   editContent.value = props.note.content;
   editTags.value = [];
+
+  if (store.openedFullscreenForEditNoteId === props.note.id) {
+    store.closeNotePreview();
+  }
 };
 
 // 双击粘贴逻辑
