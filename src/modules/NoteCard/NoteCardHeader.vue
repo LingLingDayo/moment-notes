@@ -162,10 +162,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
     color: var(--card-btn-hover-color);
   }
 
-  &.active {
-    background: var(--accent-color);
-    color: #ffffff;
-  }
 
   .preview-icon {
     width: 13px;
