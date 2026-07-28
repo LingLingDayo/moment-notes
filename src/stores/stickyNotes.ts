@@ -506,6 +506,10 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setShowNoteCount: uiStore.setShowNoteCount,
     prefixTagWithHash: toRef(uiStore, 'prefixTagWithHash'),
     setPrefixTagWithHash: uiStore.setPrefixTagWithHash,
+    previewNoteId: toRef(uiStore, 'previewNoteId'),
+    openNotePreview: uiStore.openNotePreview,
+    closeNotePreview: uiStore.closeNotePreview,
+    toggleNotePreview: uiStore.toggleNotePreview,
 
     // 初始化与备份代理
     loadData,

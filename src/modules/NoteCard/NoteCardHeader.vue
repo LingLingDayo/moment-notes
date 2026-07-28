@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { Pin, Edit2 } from '@lucide/vue';
+import { computed } from 'vue';
+import { Pin, Edit2, Maximize2, Minimize2 } from '@lucide/vue';
 import { Note } from '@type';
 import { useShortcutStore } from '@stores/shortcutStore';
+import { useStickyNotesStore } from '@stores/stickyNotes';
 
-defineProps<{
+const props = defineProps<{
   note: Note;
   isEditing: boolean;
 }>();
@@ -18,6 +20,9 @@ const emit = defineEmits<{
 }>();
 
 const shortcutStore = useShortcutStore();
+const store = useStickyNotesStore();
+
+const isPreviewActive = computed(() => store.previewNoteId === props.note.id);
 
 const handleKeyDown = (e: KeyboardEvent) => {
   const keyString = shortcutStore.getEventKeyString(e);
@@ -53,6 +58,18 @@ const handleKeyDown = (e: KeyboardEvent) => {
     @click.stop="emit('toggle-pin')"
   >
     <Pin class="pin-icon" />
+  </button>
+
+  <!-- 全屏显示/收起按钮 (位于置顶便签按钮旁) -->
+  <button
+    v-if="!note.isDeleted"
+    class="preview-btn"
+    :class="{ active: isPreviewActive }"
+    :data-tooltip="isPreviewActive ? '收起全屏' : '全屏显示便签'"
+    @click.stop="store.toggleNotePreview(note.id)"
+  >
+    <Minimize2 v-if="isPreviewActive" class="preview-icon" />
+    <Maximize2 v-else class="preview-icon" />
   </button>
 
   <!-- 只读时，编辑按钮作为绝对定位元素在右上角展示 -->
@@ -113,6 +130,44 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 
   .pin-icon {
+    width: 13px;
+    height: 13px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+.preview-btn {
+  position: absolute;
+  top: -8px;
+  left: 54px;
+  padding: 6px;
+  border-radius: 50%;
+  background: var(--card-border);
+  color: var(--card-text);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, color 0.2s;
+
+  .dark-theme & {
+    background: var(--card-border-dark);
+    color: var(--card-text-dark);
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    background: var(--card-btn-hover-bg);
+    color: var(--card-btn-hover-color);
+  }
+
+  &.active {
+    background: var(--accent-color);
+    color: #ffffff;
+  }
+
+  .preview-icon {
     width: 13px;
     height: 13px;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { X } from '@lucide/vue';
 import { Note } from '@type';
 import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
 import NoteCardHeader from './NoteCardHeader.vue';
@@ -7,9 +8,15 @@ import NoteCardBody from './NoteCardBody.vue';
 import NoteCardTagEditor from './NoteCardTagEditor.vue';
 import NoteCardFooter from './NoteCardFooter.vue';
 
-const props = defineProps<{
-  note: Note;
-}>();
+const props = withDefaults(
+  defineProps<{
+    note: Note;
+    isFullScreen?: boolean;
+  }>(),
+  {
+    isFullScreen: false
+  }
+);
 
 const store = useStickyNotesStore();
 
@@ -266,7 +273,8 @@ onMounted(() => {
       dragging: store.draggedNoteId === note.id,
       'is-in-trash': note.isDeleted,
       'has-active-popover': hasActivePopover,
-      'enable-hover-anim': store.enableHoverAnimation
+      'enable-hover-anim': store.enableHoverAnimation && !isFullScreen,
+      'is-full-screen': isFullScreen
     }"
     :style="[colorStyle, cardMaxHeightStyle]"
     :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned && isDragTriggered"
@@ -278,6 +286,15 @@ onMounted(() => {
     @mouseleave="handleMouseLeave"
     @click.capture="handleCardClick"
   >
+    <!-- 全屏模式右侧的圆形灰色关闭按钮 -->
+    <button
+      v-if="isFullScreen"
+      class="full-screen-close-btn"
+      data-tooltip="关闭全屏 (Esc)"
+      @click.stop="store.closeNotePreview"
+    >
+      <X class="close-icon" />
+    </button>
     <!-- 拖拽手柄区域 -->
     <div
       v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned"
@@ -442,6 +459,69 @@ onMounted(() => {
   }
 
 
+  &.is-full-screen {
+    width: 90vw;
+    height: 85vh;
+    max-width: 90vw;
+    max-height: 85vh;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    padding: 20px 24px 16px 24px;
+    z-index: 100;
+
+    :deep(.card-body) {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    :deep(.markdown-body) {
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    :deep(.card-content) {
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    :deep(.absolute-edit-btn) {
+      right: 52px;
+    }
+  }
+}
+
+.full-screen-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  border: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  opacity: 0.75;
+  transition: all 0.2s ease;
+
+  .dark-theme & {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  &:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.85);
+    color: #ffffff;
+    transform: scale(1.08);
+  }
+
+  .close-icon {
+    width: 15px;
+    height: 15px;
+  }
 }
 
 @media (max-width: 1049px) {

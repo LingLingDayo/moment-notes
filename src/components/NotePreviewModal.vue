@@ -1,0 +1,77 @@
+<script lang="ts" setup>
+import { computed, onMounted, onUnmounted } from 'vue';
+import { useStickyNotesStore } from '@stores/stickyNotes';
+import NoteCard from '@modules/NoteCard/NoteCard.vue';
+
+const store = useStickyNotesStore();
+
+const note = computed(() => {
+  if (!store.previewNoteId) return null;
+  return store.allNotes.find(n => n.id === store.previewNoteId) || null;
+});
+
+const isVisible = computed(() => !!note.value);
+
+const close = () => {
+  store.closeNotePreview();
+};
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (!isVisible.value) return;
+  if (e.key === 'Escape') {
+    close();
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
+</script>
+
+<template>
+  <Teleport to="body">
+    <Transition name="preview-modal-fade">
+      <div v-if="isVisible && note" class="note-preview-overlay" @click="close">
+        <div class="note-preview-content" @click.stop>
+          <NoteCard :note="note" :is-full-screen="true" />
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+</template>
+
+<style lang="scss" scoped>
+.note-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: text;
+}
+
+.note-preview-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-modal-fade-enter-active,
+.preview-modal-fade-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preview-modal-fade-enter-from,
+.preview-modal-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.96);
+}
+</style>

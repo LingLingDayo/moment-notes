@@ -181,6 +181,25 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_prefix_tag_with_hash', val ? 'true' : 'false');
   };
 
+  // 全屏便签预览状态
+  const previewNoteId = ref<string | null>(null);
+
+  const openNotePreview = (id: string) => {
+    previewNoteId.value = id;
+  };
+
+  const closeNotePreview = () => {
+    previewNoteId.value = null;
+  };
+
+  const toggleNotePreview = (id: string) => {
+    if (previewNoteId.value === id) {
+      previewNoteId.value = null;
+    } else {
+      previewNoteId.value = id;
+    }
+  };
+
   return {
     confirmState,
     askConfirm,
@@ -218,7 +237,11 @@ export const useUiStore = defineStore('uiStore', () => {
     showNoteCount,
     setShowNoteCount,
     prefixTagWithHash,
-    setPrefixTagWithHash
+    setPrefixTagWithHash,
+    previewNoteId,
+    openNotePreview,
+    closeNotePreview,
+    toggleNotePreview
   };
 });
 
