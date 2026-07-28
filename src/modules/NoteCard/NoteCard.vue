@@ -478,6 +478,15 @@ onMounted(() => {
       padding-top: 12px;
     }
 
+    :deep(.card-meta-info) {
+      font-size: 12px;
+    }
+
+    :deep(.updated-time),
+    :deep(.char-count) {
+      font-size: 12px;
+    }
+
     :deep(.card-actions) {
       opacity: 1 !important;
       transform: translate3d(0, 0, 0) !important;
