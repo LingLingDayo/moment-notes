@@ -115,12 +115,19 @@ onUnmounted(() => {
 
 .preview-modal-fade-enter-active,
 .preview-modal-fade-leave-active {
-  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.22s ease;
+
+  .note-preview-content {
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 }
 
 .preview-modal-fade-enter-from,
 .preview-modal-fade-leave-to {
   opacity: 0;
-  transform: scale(0.96);
+
+  .note-preview-content {
+    transform: scale(0.96);
+  }
 }
 </style>
