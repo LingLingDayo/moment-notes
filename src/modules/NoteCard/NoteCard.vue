@@ -54,10 +54,18 @@ const colorStyle = computed(() => {
 
 // 进入编辑模式
 const enterEditMode = () => {
+  if (!props.isFullScreen && store.defaultEditMode === 'fullscreen') {
+    store.editingNoteId = props.note.id;
+    store.openNotePreview(props.note.id);
+    return;
+  }
   isEditing.value = true;
   editTitle.value = props.note.title || '';
   editContent.value = props.note.content;
   editTags.value = props.note.tags ? [...props.note.tags] : [];
+  if (store.editingNoteId === props.note.id) {
+    store.editingNoteId = null;
+  }
 };
 
 // 保存编辑
@@ -242,6 +250,9 @@ watch(isEditing, editing => {
 });
 
 onBeforeUnmount(() => {
+  if (isEditing.value) {
+    saveEdit();
+  }
   document.removeEventListener('mousedown', handleMousedown, true);
   document.removeEventListener('click', handleClickOutside, true);
   window.removeEventListener('mouseup', handleGlobalMouseUp);
@@ -257,7 +268,6 @@ onMounted(() => {
   window.addEventListener('mouseup', handleGlobalMouseUp);
   if (store.editingNoteId === props.note.id) {
     enterEditMode();
-    store.editingNoteId = null;
   }
 });
 </script>

@@ -48,6 +48,8 @@ export function useSettings() {
           store.setDefaultNoteColor(val);
         } else if (key === 'defaultNoteType') {
           store.setDefaultNoteType(val);
+        } else if (key === 'defaultEditMode') {
+          store.setDefaultEditMode(val);
         } else if (key === 'superPanelDefaultCategory') {
           store.setSuperPanelDefaultCategory(val);
         } else if (key === 'startPageMode') {

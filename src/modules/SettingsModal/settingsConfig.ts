@@ -261,6 +261,18 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         ]
       },
       {
+        key: 'defaultEditMode',
+        label: '默认便签编辑方式',
+        type: 'select',
+        desc: '设置新建便签或点击编辑便签时的默认视图模式。',
+        default: 'inline',
+        controlWidth: '240px',
+        options: [
+          { label: '卡片编辑', value: 'inline' },
+          { label: '全屏编辑', value: 'fullscreen' }
+        ]
+      },
+      {
         key: 'startPageMode',
         label: '启动默认展示分类',
         type: 'radio',

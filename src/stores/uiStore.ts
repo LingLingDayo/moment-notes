@@ -146,6 +146,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_default_note_type', defaultNoteType.value);
   };
 
+  const defaultEditMode = ref<'inline' | 'fullscreen'>('inline');
+
+  const setDefaultEditMode = (val: 'inline' | 'fullscreen') => {
+    defaultEditMode.value = val || 'inline';
+    storage.setItem('sticky_notes_default_edit_mode', defaultEditMode.value);
+  };
+
   const superPanelDefaultCategory = ref<string>('all');
 
   const setSuperPanelDefaultCategory = (val: string) => {
@@ -226,6 +233,8 @@ export const useUiStore = defineStore('uiStore', () => {
     setDefaultNoteColor,
     defaultNoteType,
     setDefaultNoteType,
+    defaultEditMode,
+    setDefaultEditMode,
     superPanelDefaultCategory,
     setSuperPanelDefaultCategory,
     startPageMode,

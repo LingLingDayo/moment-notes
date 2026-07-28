@@ -143,6 +143,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.defaultNoteType = storedDefaultNoteType as any;
       }
 
+      const storedDefaultEditMode = storage.getItem('sticky_notes_default_edit_mode');
+      if (storedDefaultEditMode && ['inline', 'fullscreen'].includes(storedDefaultEditMode)) {
+        uiStore.defaultEditMode = storedDefaultEditMode as 'inline' | 'fullscreen';
+      }
+
       const storedSuperPanelCat = storage.getItem('sticky_notes_super_panel_default_category');
       if (storedSuperPanelCat) {
         uiStore.superPanelDefaultCategory = storedSuperPanelCat;
@@ -496,6 +501,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setDefaultNoteColor: uiStore.setDefaultNoteColor,
     defaultNoteType: toRef(uiStore, 'defaultNoteType'),
     setDefaultNoteType: uiStore.setDefaultNoteType,
+    defaultEditMode: toRef(uiStore, 'defaultEditMode'),
+    setDefaultEditMode: uiStore.setDefaultEditMode,
     superPanelDefaultCategory: toRef(uiStore, 'superPanelDefaultCategory'),
     setSuperPanelDefaultCategory: uiStore.setSuperPanelDefaultCategory,
     startPageMode: toRef(uiStore, 'startPageMode'),
