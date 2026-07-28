@@ -3,6 +3,7 @@ import { onMounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { isUTools } from '@utils/storage';
 import Dashboard from '@views/Dashboard.vue';
+import ImagePreviewModal from '@components/ImagePreviewModal.vue';
 
 onMounted(() => {
   const store = useStickyNotesStore();
@@ -68,6 +69,7 @@ onMounted(() => {
 <template>
   <div class="app-wrapper" :class="{ 'is-utools': isUTools() }">
     <Dashboard />
+    <ImagePreviewModal />
   </div>
 </template>
 

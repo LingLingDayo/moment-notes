@@ -199,6 +199,29 @@ export const getDefaultNotes = (): Note[] => [
     createdAt: Date.now() - 3000,
     updatedAt: Date.now() - 3000,
     tags: ['快捷键', '效率']
+  },
+  {
+    id: 'n5',
+    categoryId: '3',
+    title: '📝 Markdown 演示便签',
+    type: 'markdown',
+    content:
+      `# Markdown 丰富格式支持
+
+拾光便签现已全面支持 **Markdown** 渲染！
+
+### 核心特性：
+- **列表与任务**：支持 \`- [x]\` 任务复选框
+- **引用块**：
+  > 支持精美的暗黑/浅色主题自适应引用样式。
+- **图片大图灯箱预览**：点击下方图片即可唤起全屏大图查看器！
+
+![拾光便签](https://fastly.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f38f.png)`,
+    color: 'pink',
+    isPinned: false,
+    createdAt: Date.now() - 4000,
+    updatedAt: Date.now() - 4000,
+    tags: ['Markdown', '新功能']
   }
 ];
 

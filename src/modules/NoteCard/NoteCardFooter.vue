@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue';
-import { Palette, FolderInput, Check, Copy, Trash2, RotateCcw, Folder } from '@lucide/vue';
-import { Note } from '@type';
+import { Palette, FolderInput, Check, Copy, Trash2, RotateCcw, Folder, FileText, FileCode } from '@lucide/vue';
+import { Note, NoteType } from '@type';
 import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
 import { isUTools } from '@utils/storage';
 import { formatDate } from '@utils/date';
+import BasePopover from '@components/BasePopover.vue';
 
 const props = defineProps<{
   note: Note;
@@ -23,36 +24,16 @@ const store = useStickyNotesStore();
 const showColorPicker = ref(false);
 // 是否显示移动分类面板
 const showFolderPicker = ref(false);
-// 下拉面板的位置 ('top' | 'bottom')
-const popoverPlacement = ref<'top' | 'bottom'>('top');
-// 移动分类包装器的 DOM 引用
-const folderWrapperRef = ref<HTMLElement | null>(null);
-
-const toggleFolderPicker = () => {
-  if (showFolderPicker.value) {
-    showFolderPicker.value = false;
-  } else {
-    showFolderPicker.value = true;
-    showColorPicker.value = false;
-
-    if (folderWrapperRef.value) {
-      const rect = folderWrapperRef.value.getBoundingClientRect();
-      // 如果上方空间小于 200px，则在下方显示
-      if (rect.top < 200) {
-        popoverPlacement.value = 'bottom';
-      } else {
-        popoverPlacement.value = 'top';
-      }
-    }
-  }
-};
+// 是否显示格式切换面板
+const showFormatPicker = ref(false);
 
 const closePopovers = () => {
   showColorPicker.value = false;
   showFolderPicker.value = false;
+  showFormatPicker.value = false;
 };
 
-watch(() => showColorPicker.value || showFolderPicker.value, (isOpen) => {
+watch(() => showColorPicker.value || showFolderPicker.value || showFormatPicker.value, (isOpen) => {
   emit('popover-state-change', isOpen);
 });
 
@@ -103,6 +84,13 @@ const moveCategory = (catId: string) => {
   showFolderPicker.value = false;
   const cat = store.categories.find(c => c.id === catId);
   store.showToast(`已移至分类 "${cat?.name || '全部便签'}"`);
+};
+
+// 切换便签格式/类型
+const changeNoteType = (type: NoteType) => {
+  store.updateNote(props.note.id, { type }, false);
+  showFormatPicker.value = false;
+  store.showToast(type === 'markdown' ? '已切换为 Markdown 格式' : '已切换为纯文本格式');
 };
 
 // 删除便签
@@ -169,19 +157,25 @@ const deleteSelf = async () => {
       </button>
 
       <!-- 换色调色盘 -->
-      <div class="action-popover-wrapper">
-        <button
-          class="action-btn"
-          data-tooltip="更改颜色"
-          @click="
-            showColorPicker = !showColorPicker;
-            showFolderPicker = false;
-          "
-        >
-          <Palette class="action-icon" />
-        </button>
-
-        <div v-if="showColorPicker" class="color-picker-popover">
+      <BasePopover
+        :is-open="showColorPicker"
+        width="auto"
+        @close="showColorPicker = false"
+      >
+        <template #trigger>
+          <button
+            class="action-btn"
+            data-tooltip="更改颜色"
+            @click="
+              showColorPicker = !showColorPicker;
+              showFolderPicker = false;
+              showFormatPicker = false;
+            "
+          >
+            <Palette class="action-icon" />
+          </button>
+        </template>
+        <div class="color-picker-list">
           <button
             v-for="(preset, key) in COLOR_PRESETS"
             :key="key"
@@ -193,48 +187,90 @@ const deleteSelf = async () => {
             <Check v-if="note.color === key" class="dot-check-icon" />
           </button>
         </div>
-      </div>
+      </BasePopover>
 
       <!-- 移动分类 -->
-      <div ref="folderWrapperRef" class="action-popover-wrapper">
-        <button
-          class="action-btn"
-          data-tooltip="移动分类"
-          @click="toggleFolderPicker"
-        >
-          <FolderInput class="action-icon" />
-        </button>
-
-        <div
-          v-if="showFolderPicker"
-          class="folder-picker-popover"
-          :class="{ 'show-below': popoverPlacement === 'bottom' }"
-        >
-          <div class="popover-title">
-            移动至分类
-          </div>
-          <div class="folder-list">
-            <button
-              class="folder-item"
-              :class="{ active: note.categoryId === 'uncategorized' }"
-              @click="moveCategory('uncategorized')"
-            >
-              <span class="folder-name-text">全部便签</span>
-            </button>
-            <button
-              v-for="cat in store.orderedCategories.filter(c => !c.isSystem)"
-              :key="cat.id"
-              class="folder-item"
-              :style="{ paddingLeft: `${(Math.max((cat.level || 0) - 1, 0)) * 8 + 8}px` }"
-              :class="{ active: note.categoryId === cat.id }"
-              @click="moveCategory(cat.id)"
-            >
-              <span v-if="cat.level > 0" style="opacity: 0.5; margin-right: 4px">└</span>
-              <span class="folder-name-text">{{ cat.name }}</span>
-            </button>
-          </div>
+      <BasePopover
+        :is-open="showFolderPicker"
+        title="移动至分类"
+        width="130px"
+        @close="showFolderPicker = false"
+      >
+        <template #trigger>
+          <button
+            class="action-btn"
+            data-tooltip="移动分类"
+            @click="
+              showFolderPicker = !showFolderPicker;
+              showColorPicker = false;
+              showFormatPicker = false;
+            "
+          >
+            <FolderInput class="action-icon" />
+          </button>
+        </template>
+        <div class="folder-list">
+          <button
+            class="folder-item"
+            :class="{ active: note.categoryId === 'uncategorized' }"
+            @click="moveCategory('uncategorized')"
+          >
+            <span class="folder-name-text">全部便签</span>
+          </button>
+          <button
+            v-for="cat in store.orderedCategories.filter(c => !c.isSystem)"
+            :key="cat.id"
+            class="folder-item"
+            :style="{ paddingLeft: `${(Math.max((cat.level || 0) - 1, 0)) * 8 + 8}px` }"
+            :class="{ active: note.categoryId === cat.id }"
+            @click="moveCategory(cat.id)"
+          >
+            <span v-if="cat.level > 0" style="opacity: 0.5; margin-right: 4px">└</span>
+            <span class="folder-name-text">{{ cat.name }}</span>
+          </button>
         </div>
-      </div>
+      </BasePopover>
+
+      <!-- 便签格式/切换按钮及其下拉小弹窗 -->
+      <BasePopover
+        :is-open="showFormatPicker"
+        title="显示格式"
+        width="120px"
+        @close="showFormatPicker = false"
+      >
+        <template #trigger>
+          <button
+            class="action-btn"
+            :data-tooltip="note.type === 'markdown' ? '当前格式: Markdown' : '当前格式: 纯文本'"
+            @click="
+              showFormatPicker = !showFormatPicker;
+              showColorPicker = false;
+              showFolderPicker = false;
+            "
+          >
+            <FileCode v-if="note.type === 'markdown'" class="action-icon" />
+            <FileText v-else class="action-icon" />
+          </button>
+        </template>
+        <div class="format-list">
+          <button
+            class="format-item"
+            :class="{ active: !note.type || note.type === 'text' }"
+            @click="changeNoteType('text')"
+          >
+            <FileText class="item-icon" />
+            <span>纯文本</span>
+          </button>
+          <button
+            class="format-item"
+            :class="{ active: note.type === 'markdown' }"
+            @click="changeNoteType('markdown')"
+          >
+            <FileCode class="item-icon" />
+            <span>Markdown</span>
+          </button>
+        </div>
+      </BasePopover>
 
       <!-- 复制 -->
       <button class="action-btn" data-tooltip="复制" @click="copyNoteContent">
@@ -360,20 +396,11 @@ const deleteSelf = async () => {
   }
 }
 
-// 颜色选择面板样式
-.color-picker-popover {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  right: 0;
-  background: var(--popover-bg);
-  border: 1px solid var(--popover-border);
-  padding: 6px;
-  border-radius: 10px;
+// 颜色选择列表样式
+.color-picker-list {
   display: flex;
   gap: 4px;
-  box-shadow: var(--popover-shadow);
-  z-index: 3;
-  animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 2px;
 }
 
 .color-dot {
@@ -392,35 +419,7 @@ const deleteSelf = async () => {
   }
 }
 
-// 移动分类面板样式
-.folder-picker-popover {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  right: 0;
-  background: var(--popover-bg);
-  border: 1px solid var(--popover-border);
-  padding: 8px;
-  border-radius: 12px;
-  box-shadow: var(--popover-shadow);
-  z-index: 3;
-  min-width: 120px;
-  animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &.show-below {
-    bottom: auto;
-    top: calc(100% + 8px);
-    animation: popoverFadeInBelow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .popover-title {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-    padding: 0 4px;
-  }
-}
-
+// 分类列表样式
 .folder-list {
   display: flex;
   flex-direction: column;
@@ -459,25 +458,42 @@ const deleteSelf = async () => {
   }
 }
 
-@keyframes popoverFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+// 格式选择列表样式
+.format-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-@keyframes popoverFadeInBelow {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.95);
+.format-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--item-hover-bg);
+    color: var(--text-primary);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+
+  &.active {
+    background: var(--accent-light);
+    color: var(--accent-color);
+    font-weight: 600;
+  }
+
+  .item-icon {
+    width: 12px;
+    height: 12px;
   }
 }
 </style>

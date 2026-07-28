@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "@lucide/vue": "^1.24.0",
+    "@types/dompurify": "^3.0.5",
+    "dompurify": "^3.4.12",
+    "marked": "^18.0.7",
     "pinia": "^3.0.4",
     "vue": "^3.5.35"
   },

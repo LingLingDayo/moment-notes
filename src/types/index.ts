@@ -5,11 +5,15 @@ export interface Category {
   parentId?: string;
 }
 
+export type NoteType = 'text' | 'markdown';
+
 export interface Note {
   id: string;
   categoryId: string; // 'all' or specific category id
   title?: string;
   content: string;
+  type?: NoteType; // 'text' (default) or 'markdown'
+  images?: string[]; // 便签图片列表 (支持 Base64、URL 或本地路径)
   color: string; // HSL color string or preset name
   isPinned: boolean;
   createdAt: number;

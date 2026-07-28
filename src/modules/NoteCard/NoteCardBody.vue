@@ -5,6 +5,7 @@ import { useStickyNotesStore } from '@stores/stickyNotes';
 import { useShortcutStore } from '@stores/shortcutStore';
 import { isUTools } from '@utils/storage';
 import { useNoteTagMeasure } from '@utils/useNoteTagMeasure';
+import MarkdownRenderer from './MarkdownRenderer.vue';
 
 const props = defineProps<{
   note: Note;
@@ -96,14 +97,20 @@ watch(
       v-if="isEditing"
       ref="contentInputRef"
       v-model="content"
-      placeholder="写点什么..."
+      :placeholder="note.type === 'markdown' ? '输入 Markdown 源码...' : '写点什么...'"
       class="content-textarea"
       @keydown="handleKeyDown"
       @input="adjustTextareaHeight"
     ></textarea>
     <template v-else>
       <div class="card-body-content">
-        <pre class="card-content">{{
+        <!-- Markdown 类型便签渲染 -->
+        <MarkdownRenderer
+          v-if="note.type === 'markdown' && note.content"
+          :content="note.content"
+        />
+        <!-- 默认纯文本便签渲染 -->
+        <pre v-else class="card-content">{{
           note.content || (note.isDeleted ? '无内容' : '双击粘贴，点击右上角编辑...')
         }}</pre>
       </div>
