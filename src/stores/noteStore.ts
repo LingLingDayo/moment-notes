@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
-import { Note } from '@type';
+import { Note, NoteType } from '@type';
 import { storage } from '@utils/storage';
 import { useUiStore } from './uiStore';
 import { useCategoryStore } from './categoryStore';
@@ -60,14 +60,16 @@ export const useNoteStore = defineStore('noteStore', () => {
     storage.setItem('sticky_notes_notes', JSON.stringify(allNotes.value));
   };
 
-  const addNote = (categoryId: string, content = '', title = '', color?: string) => {
+  const addNote = (categoryId: string, content = '', title = '', color?: string, type?: NoteType) => {
     const uiStore = useUiStore();
     const finalColor = color || uiStore.defaultNoteColor || 'yellow';
+    const finalType = type || uiStore.defaultNoteType || 'text';
     const newNote: Note = {
       id: Date.now().toString(),
       categoryId,
       title: title.trim(),
       content: content,
+      type: finalType,
       color: finalColor,
       isPinned: false,
       createdAt: Date.now(),

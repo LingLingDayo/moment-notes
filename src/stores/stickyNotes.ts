@@ -6,7 +6,7 @@ import { useUiStore } from './uiStore';
 import { COLOR_PRESETS } from './colorPresets';
 import * as helpers from './stickyNotesHelpers';
 import { storage, pasteTextToCursor } from '@utils/storage';
-import { Note } from '@type';
+import { Note, NoteType } from '@type';
 import { useShortcutStore } from './shortcutStore';
 
 export { COLOR_PRESETS };
@@ -229,12 +229,12 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     }
   };
 
-  const addNote = (categoryId: string, content = '', title = '', color?: string) => {
+  const addNote = (categoryId: string, content = '', title = '', color?: string, type?: NoteType) => {
     let targetCategoryId = categoryId;
     if (categoryId === 'all' || categoryId === 'trash' || categoryId === 'recent') {
       targetCategoryId = 'uncategorized';
     }
-    return noteStore.addNote(targetCategoryId, content, title, color);
+    return noteStore.addNote(targetCategoryId, content, title, color, type);
   };
 
   const clearNotes = (categoryId: string) => {
