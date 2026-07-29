@@ -426,6 +426,8 @@ textarea {
 /* 全局 Tooltip 样式 */
 .global-tooltip {
   position: fixed;
+  top: -9999px;
+  left: -9999px;
   z-index: 99999;
   padding: 6px 12px;
   font-size: 11px;
@@ -438,10 +440,12 @@ textarea {
   box-shadow: var(--shadow-md);
   pointer-events: none;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(4px) scale(0.95);
   transition:
     opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: pre-line;
   max-width: 340px;
   word-break: break-all;
@@ -449,6 +453,7 @@ textarea {
 
   &.show {
     opacity: 1;
+    visibility: visible;
     transform: translateY(0) scale(1);
   }
 

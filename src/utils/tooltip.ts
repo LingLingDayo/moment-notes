@@ -1,6 +1,7 @@
 let tooltipEl: HTMLDivElement | null = null;
 let currentTarget: HTMLElement | null = null;
 let showTimer: number | null = null;
+let observer: MutationObserver | null = null;
 
 function createTooltip(): HTMLDivElement {
   if (tooltipEl) return tooltipEl;
@@ -8,6 +9,24 @@ function createTooltip(): HTMLDivElement {
   tooltipEl.id = 'global-tooltip';
   tooltipEl.className = 'global-tooltip';
   document.body.appendChild(tooltipEl);
+
+  // 监听 Tooltip 容器变动，如子节点被 Vue Teleport 卸载或内容清空时，隐式自动隐藏
+  observer = new MutationObserver(() => {
+    if (!tooltipEl) return;
+    const hasContent =
+      (tooltipEl.textContent && tooltipEl.textContent.trim().length > 0) ||
+      tooltipEl.children.length > 0;
+    if (!hasContent) {
+      hideTooltip();
+    }
+  });
+
+  observer.observe(tooltipEl, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
+
   return tooltipEl;
 }
 
@@ -66,13 +85,20 @@ export function initTooltip() {
     }
 
     currentTarget = target;
-    // 立即清空内容，防止残留旧 Tooltip 文本干扰新 Tooltip 的渲染
-    el.textContent = '';
 
     // 延迟显示，防止鼠标快速划过引发闪烁
     showTimer = window.setTimeout(() => {
       if (currentTarget !== target) return;
       updateTooltipContent(el, target);
+
+      const hasContent =
+        (el.textContent && el.textContent.trim().length > 0) ||
+        el.children.length > 0;
+      if (!hasContent) {
+        hideTooltip();
+        return;
+      }
+
       el.classList.add('show');
       updatePosition(target, el);
     }, 550);
@@ -96,7 +122,7 @@ export function initTooltip() {
   window.addEventListener('scroll', hideTooltip, { capture: true, passive: true });
 }
 
-function hideTooltip() {
+export function hideTooltip() {
   currentTarget = null;
   if (showTimer) {
     clearTimeout(showTimer);
@@ -130,3 +156,4 @@ function updatePosition(target: HTMLElement, el: HTMLElement) {
   el.style.left = `${left}px`;
   el.style.top = `${top}px`;
 }
+
