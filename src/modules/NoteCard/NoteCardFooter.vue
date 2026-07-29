@@ -120,10 +120,10 @@ const deleteSelf = async () => {
 
   <!-- 卡片底部信息及悬浮工具栏 (非编辑态) -->
   <div v-else class="card-footer" @click.stop>
-    <div class="card-meta-info">
-      <span class="updated-time" :data-tooltip="`更新时间: ${formattedTime}`">{{ formattedTime }}</span>
+    <div class="card-meta-info" :data-tooltip="`更新时间: ${formattedTime} · 总字数: ${note.content.length} 字`">
+      <span class="updated-time">{{ formattedTime }}</span>
       <span class="meta-dot"></span>
-      <span class="char-count" :data-tooltip="`总字数: ${note.content.length} 字`">{{ note.content.length }} 字</span>
+      <span class="char-count">{{ note.content.length }} 字</span>
     </div>
 
     <!-- 垃圾箱中卡片的专属操作栏：永久显示 -->
@@ -150,7 +150,7 @@ const deleteSelf = async () => {
     </div>
 
     <!-- 正常卡片操作栏 -->
-    <div v-else class="card-actions">
+    <div v-else class="card-actions" :class="{ 'has-active-popover': showColorPicker || showFolderPicker || showFormatPicker }">
       <!-- 分组 -->
       <button
         v-if="['all', 'recent'].includes(store.currentCategoryId)"
@@ -340,37 +340,40 @@ const deleteSelf = async () => {
   color: inherit;
   opacity: 0.8;
   transition: opacity 0.25s ease;
+  min-width: 0;
 }
 
-
-
 .card-meta-info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 11px;
   opacity: 0.75;
   user-select: none;
   line-height: 1;
+  min-width: 0;
+  flex: 1;
+  cursor: default;
 }
 
-.updated-time {
+.updated-time,
+.char-count {
+  display: inline;
   font-size: 11px;
   line-height: 1;
+  vertical-align: middle;
 }
 
 .meta-dot {
+  display: inline-block;
   width: 3px;
   height: 3px;
   border-radius: 50%;
   background: currentColor;
   opacity: 0.5;
-  flex-shrink: 0;
-}
-
-.char-count {
-  font-size: 11px;
-  line-height: 1;
+  margin: 0 5px;
+  vertical-align: middle;
 }
 
 .card-actions {
@@ -378,11 +381,21 @@ const deleteSelf = async () => {
   align-items: center;
   gap: 4px;
   opacity: 0;
-  transform: translate3d(0, 4px, 0);
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transform: translate3d(6px, 0, 0);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
 
-  &.is-deleted-actions {
+  &.is-deleted-actions,
+  &.has-active-popover {
     opacity: 0.75;
+    max-width: 200px;
+    pointer-events: auto;
     transform: translate3d(0, 0, 0);
 
     &:hover {

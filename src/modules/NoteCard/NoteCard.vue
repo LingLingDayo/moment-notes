@@ -403,6 +403,8 @@ onMounted(() => {
 
       .card-actions {
         opacity: 1;
+        max-width: 200px;
+        pointer-events: auto;
         transform: translateY(0);
       }
     }
@@ -526,6 +528,8 @@ onMounted(() => {
 
     :deep(.card-actions) {
       opacity: 1 !important;
+      max-width: 200px !important;
+      pointer-events: auto !important;
       transform: translate3d(0, 0, 0) !important;
       gap: 6px !important;
     }
