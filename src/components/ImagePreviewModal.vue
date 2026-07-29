@@ -125,6 +125,7 @@ onUnmounted(() => {
         v-if="isImagePreviewOpen"
         class="image-preview-overlay"
         @click="closeImagePreview"
+        @wheel.prevent="handleWheel"
       >
         <!-- 页面右上角关闭按钮 -->
         <button
@@ -156,11 +157,7 @@ onUnmounted(() => {
         </div>
 
         <!-- 图片展示区域 -->
-        <div
-          class="image-container"
-          @wheel.prevent="handleWheel"
-          @click.stop
-        >
+        <div class="image-container" @click.stop>
           <img
             :src="activePreviewUrl"
             alt="图片预览"
