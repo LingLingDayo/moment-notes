@@ -18,6 +18,7 @@ const emit = defineEmits<{
   (e: 'enter-edit'): void;
   (e: 'save-edit'): void;
   (e: 'cancel-edit'): void;
+  (e: 'toggle-preview'): void;
 }>();
 
 const shortcutStore = useShortcutStore();
@@ -68,7 +69,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
       class="preview-btn"
       :class="{ active: isPreviewActive }"
       :data-tooltip="isPreviewActive ? '收起全屏' : '全屏显示便签'"
-      @click.stop="store.toggleNotePreview(note.id)"
+      @click.stop="emit('toggle-preview')"
     >
       <Minimize2 v-if="isPreviewActive" class="preview-icon" />
       <Maximize2 v-else class="preview-icon" />

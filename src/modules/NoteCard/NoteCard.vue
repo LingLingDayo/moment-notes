@@ -109,6 +109,17 @@ const cancelEdit = () => {
   }
 };
 
+// 切换全屏显示/收起 (若处于编辑状态则先保存当前编辑)
+const handleTogglePreview = () => {
+  const wasOpenedForEdit = store.openedFullscreenForEditNoteId === props.note.id;
+  if (isEditing.value) {
+    saveEdit();
+  }
+  if (!wasOpenedForEdit) {
+    store.toggleNotePreview(props.note.id);
+  }
+};
+
 // 双击粘贴逻辑
 const handleDoubleClick = () => {
   if (isEditing.value) return; // 如果在编辑中，不触发双击粘贴
@@ -324,6 +335,7 @@ onMounted(() => {
       @enter-edit="enterEditMode"
       @save-edit="saveEdit"
       @cancel-edit="cancelEdit"
+      @toggle-preview="handleTogglePreview"
     />
 
     <NoteCardBody
