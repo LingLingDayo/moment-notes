@@ -27,11 +27,14 @@ watch(isImagePreviewOpen, (isOpen) => {
   }
 });
 
-// PS 风格：基于锚点坐标（如鼠标位置）进行缩放
+// Figma 风格：基于乘法指数与锚点坐标（如鼠标位置）进行动态比例缩放
 const applyZoom = (targetScale: number, anchorX?: number, anchorY?: number) => {
   const oldScale = zoomScale.value;
-  const newScale = Number(Math.min(Math.max(targetScale, 0.2), 5).toFixed(2));
-  if (newScale === oldScale) return;
+  const MIN_SCALE = 0.05; // 最低 5%
+  const MAX_SCALE = 10.0; // 最高 1000%
+
+  const newScale = Number(Math.min(Math.max(targetScale, MIN_SCALE), MAX_SCALE).toFixed(3));
+  if (Math.abs(newScale - oldScale) < 0.001) return;
 
   const mouseX = anchorX ?? window.innerWidth / 2;
   const mouseY = anchorY ?? window.innerHeight / 2;
@@ -46,12 +49,13 @@ const applyZoom = (targetScale: number, anchorX?: number, anchorY?: number) => {
   zoomScale.value = newScale;
 };
 
+// 按钮缩放：采用 1.25 倍乘法等比缩放
 const zoomIn = () => {
-  applyZoom(zoomScale.value + 0.25);
+  applyZoom(zoomScale.value * 1.25);
 };
 
 const zoomOut = () => {
-  applyZoom(zoomScale.value - 0.25);
+  applyZoom(zoomScale.value / 1.25);
 };
 
 const rotateLeft = () => {
@@ -94,11 +98,14 @@ const handleMouseDown = (e: MouseEvent) => {
   window.addEventListener('mouseup', handleMouseUp);
 };
 
-// 滚轮缩放：传入当前鼠标视口坐标
+// 滚轮缩放：采用 Figma 风格的对数/指数动态比例 (Exponential Scaling)
 const handleWheel = (e: WheelEvent) => {
   e.preventDefault();
-  const delta = e.deltaY < 0 ? 0.25 : -0.25;
-  applyZoom(zoomScale.value + delta, e.clientX, e.clientY);
+  // 基础缩放因子 1.15（即每次标准滚动产生 15% 的相对视觉变幅）
+  const zoomFactor = Math.pow(1.15, -e.deltaY / 100);
+  const clampedFactor = Math.min(Math.max(zoomFactor, 0.75), 1.35);
+
+  applyZoom(zoomScale.value * clampedFactor, e.clientX, e.clientY);
 };
 
 const handleKeyDown = (e: KeyboardEvent) => {
