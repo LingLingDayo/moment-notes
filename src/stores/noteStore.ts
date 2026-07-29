@@ -61,12 +61,18 @@ export const useNoteStore = defineStore('noteStore', () => {
     storage.setItem('sticky_notes_notes', JSON.stringify(allNotes.value));
   };
 
+  let lastRandomColor = '';
+
   const addNote = (categoryId: string, content = '', title = '', color?: string, type?: NoteType) => {
     const uiStore = useUiStore();
-    let finalColor = color || uiStore.defaultNoteColor || 'yellow';
+    let finalColor = color || uiStore.defaultNoteColor || 'random';
     if (finalColor === 'random') {
       const presetKeys = Object.keys(COLOR_PRESETS);
-      finalColor = presetKeys[Math.floor(Math.random() * presetKeys.length)];
+      const availableKeys = presetKeys.length > 1
+        ? presetKeys.filter(k => k !== lastRandomColor)
+        : presetKeys;
+      finalColor = availableKeys[Math.floor(Math.random() * availableKeys.length)];
+      lastRandomColor = finalColor;
     }
     const finalType = type || uiStore.defaultNoteType || 'text';
     const newNote: Note = {

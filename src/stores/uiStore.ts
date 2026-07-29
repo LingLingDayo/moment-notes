@@ -132,10 +132,10 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_date_format', dateFormat.value);
   };
 
-  const defaultNoteColor = ref<string>('yellow');
+  const defaultNoteColor = ref<string>('random');
 
   const setDefaultNoteColor = (val: string) => {
-    defaultNoteColor.value = val || 'yellow';
+    defaultNoteColor.value = val || 'random';
     storage.setItem('sticky_notes_default_note_color', defaultNoteColor.value);
   };
 
