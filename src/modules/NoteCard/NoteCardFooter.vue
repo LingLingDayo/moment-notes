@@ -121,9 +121,7 @@ const deleteSelf = async () => {
   <!-- 卡片底部信息及悬浮工具栏 (非编辑态) -->
   <div v-else class="card-footer" @click.stop>
     <div class="card-meta-info" :data-tooltip="`更新时间: ${formattedTime} · 总字数: ${note.content.length} 字`">
-      <span class="updated-time">{{ formattedTime }}</span>
-      <span class="meta-dot"></span>
-      <span class="char-count">{{ note.content.length }} 字</span>
+      {{ formattedTime }} · {{ note.content.length }} 字
     </div>
 
     <!-- 垃圾箱中卡片的专属操作栏：永久显示 -->
@@ -357,24 +355,6 @@ const deleteSelf = async () => {
   cursor: default;
 }
 
-.updated-time,
-.char-count {
-  display: inline;
-  font-size: 11px;
-  line-height: 1;
-  vertical-align: middle;
-}
-
-.meta-dot {
-  display: inline-block;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.5;
-  margin: 0 5px;
-  vertical-align: middle;
-}
 
 .card-actions {
   display: flex;

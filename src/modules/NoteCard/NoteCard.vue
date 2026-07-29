@@ -371,7 +371,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   border-radius: $radius-xl;
-  padding: 18px 20px 14px 20px;
+  padding: 16px 18px 8px 18px;
   position: relative;
   min-height: 90px;
   max-height: var(--card-max-height, 300px);
@@ -557,7 +557,7 @@ onMounted(() => {
 
 @media (max-width: 1049px) {
   .note-card {
-    padding: 14px 16px 10px 16px;
+    padding: 14px 16px 8px 16px;
     min-height: 80px;
   }
 }
