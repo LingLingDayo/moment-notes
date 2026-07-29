@@ -405,6 +405,7 @@ onMounted(() => {
         opacity: 1;
         max-width: 200px;
         pointer-events: auto;
+        overflow: visible;
         transform: translateY(0);
       }
     }
@@ -530,6 +531,7 @@ onMounted(() => {
       opacity: 1 !important;
       max-width: 200px !important;
       pointer-events: auto !important;
+      overflow: visible !important;
       transform: translate3d(0, 0, 0) !important;
       gap: 6px !important;
     }

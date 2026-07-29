@@ -396,6 +396,7 @@ const deleteSelf = async () => {
     opacity: 0.75;
     max-width: 200px;
     pointer-events: auto;
+    overflow: visible;
     transform: translate3d(0, 0, 0);
 
     &:hover {
