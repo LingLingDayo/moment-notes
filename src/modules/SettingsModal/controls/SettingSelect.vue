@@ -80,6 +80,14 @@ const selectedOption = computed(() => {
 });
 
 const getColorStyle = (colorName: string) => {
+  if (colorName === 'random') {
+    return {
+      background: 'linear-gradient(135deg, #ff7675, #74b9ff, #55efc4)',
+      borderColor: 'rgba(255, 255, 255, 0.2)',
+      borderWidth: '1px',
+      borderStyle: 'solid'
+    };
+  }
   const preset = COLOR_PRESETS[colorName];
   if (!preset) return {};
   const isDark = store.isDark;

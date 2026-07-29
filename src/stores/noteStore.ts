@@ -4,6 +4,7 @@ import { Note, NoteType } from '@type';
 import { storage } from '@utils/storage';
 import { useUiStore } from './uiStore';
 import { useCategoryStore } from './categoryStore';
+import { COLOR_PRESETS } from './colorPresets';
 
 export const useNoteStore = defineStore('noteStore', () => {
   const allNotes = ref<Note[]>([]);
@@ -62,7 +63,11 @@ export const useNoteStore = defineStore('noteStore', () => {
 
   const addNote = (categoryId: string, content = '', title = '', color?: string, type?: NoteType) => {
     const uiStore = useUiStore();
-    const finalColor = color || uiStore.defaultNoteColor || 'yellow';
+    let finalColor = color || uiStore.defaultNoteColor || 'yellow';
+    if (finalColor === 'random') {
+      const presetKeys = Object.keys(COLOR_PRESETS);
+      finalColor = presetKeys[Math.floor(Math.random() * presetKeys.length)];
+    }
     const finalType = type || uiStore.defaultNoteType || 'text';
     const newNote: Note = {
       id: Date.now().toString(),

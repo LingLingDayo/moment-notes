@@ -237,9 +237,10 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         label: '默认便签颜色',
         type: 'select',
         desc: '新建便签或从外部捕获时，默认的卡片背景色。',
-        default: 'yellow',
+        default: 'random',
         controlWidth: '240px',
         options: [
+          { label: '随机颜色', value: 'random', color: 'random', html: '<span style="font-weight: 500;">随机颜色</span>' },
           { label: '暖阳黄', value: 'yellow', color: 'yellow', html: '<span style="font-weight: 500;">暖阳黄</span>' },
           { label: '薄荷绿', value: 'green', color: 'green', html: '<span style="font-weight: 500;">薄荷绿</span>' },
           { label: '晴空蓝', value: 'blue', color: 'blue', html: '<span style="font-weight: 500;">晴空蓝</span>' },
