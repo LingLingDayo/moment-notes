@@ -66,7 +66,16 @@ onUnmounted(() => {
         class="image-preview-overlay"
         @click="closeImagePreview"
       >
-        <!-- 悬浮顶部工具栏 -->
+        <!-- 页面右上角关闭按钮 -->
+        <button
+          class="page-close-btn"
+          data-tooltip="关闭预览 (Esc)"
+          @click.stop="closeImagePreview"
+        >
+          <X class="close-icon" />
+        </button>
+
+        <!-- 悬浮底部工具栏 -->
         <div class="preview-toolbar" @click.stop>
           <button class="tool-btn" data-tooltip="放大" @click="zoomIn">
             <ZoomIn class="tool-icon" />
@@ -78,10 +87,6 @@ onUnmounted(() => {
             <RotateCw class="tool-icon" />
           </button>
           <span class="scale-text">{{ Math.round(zoomScale * 100) }}%</span>
-          <div class="divider"></div>
-          <button class="tool-btn close" data-tooltip="关闭 (Esc)" @click="closeImagePreview">
-            <X class="tool-icon" />
-          </button>
         </div>
 
         <!-- 图片展示区域 -->
@@ -121,9 +126,13 @@ onUnmounted(() => {
   cursor: zoom-out;
 }
 
+.page-close-btn {
+  @include overlay-close-btn;
+}
+
 .preview-toolbar {
   position: absolute;
-  top: 20px;
+  bottom: 24px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -156,10 +165,6 @@ onUnmounted(() => {
     background: rgba(255, 255, 255, 0.2);
   }
 
-  &.close:hover {
-    background: rgba(239, 68, 68, 0.8);
-  }
-
   .tool-icon {
     width: 16px;
     height: 16px;
@@ -172,13 +177,6 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.9);
   min-width: 40px;
   text-align: center;
-}
-
-.divider {
-  width: 1px;
-  height: 16px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 0 4px;
 }
 
 .image-container {
@@ -199,6 +197,7 @@ onUnmounted(() => {
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: grab;
+  user-select: none;
 
   &:active {
     cursor: grabbing;
