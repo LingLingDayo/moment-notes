@@ -1,14 +1,24 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { X, ZoomIn, ZoomOut, RotateCw } from '@lucide/vue';
+import { X, ZoomIn, ZoomOut, RotateCcw, RotateCw, RefreshCw } from '@lucide/vue';
 import { isImagePreviewOpen, activePreviewUrl, closeImagePreview } from '@utils/imageHandler';
 
 const zoomScale = ref(1);
 const rotation = ref(0);
+const translateX = ref(0);
+const translateY = ref(0);
+
+const isDragging = ref(false);
+const startX = ref(0);
+const startY = ref(0);
+const initialTranslateX = ref(0);
+const initialTranslateY = ref(0);
 
 const handleReset = () => {
   zoomScale.value = 1;
   rotation.value = 0;
+  translateX.value = 0;
+  translateY.value = 0;
 };
 
 watch(isImagePreviewOpen, (isOpen) => {
@@ -18,19 +28,44 @@ watch(isImagePreviewOpen, (isOpen) => {
 });
 
 const zoomIn = () => {
-  if (zoomScale.value < 3) {
+  if (zoomScale.value < 5) {
     zoomScale.value = Number((zoomScale.value + 0.25).toFixed(2));
   }
 };
 
 const zoomOut = () => {
-  if (zoomScale.value > 0.5) {
+  if (zoomScale.value > 0.2) {
     zoomScale.value = Number((zoomScale.value - 0.25).toFixed(2));
   }
 };
 
-const rotate = () => {
+const rotateLeft = () => {
+  rotation.value = (rotation.value - 90) % 360;
+};
+
+const rotateRight = () => {
   rotation.value = (rotation.value + 90) % 360;
+};
+
+const handleMouseDown = (e: MouseEvent) => {
+  if (e.button !== 0) return;
+  isDragging.value = true;
+  startX.value = e.clientX;
+  startY.value = e.clientY;
+  initialTranslateX.value = translateX.value;
+  initialTranslateY.value = translateY.value;
+};
+
+const handleMouseMove = (e: MouseEvent) => {
+  if (!isDragging.value) return;
+  const deltaX = e.clientX - startX.value;
+  const deltaY = e.clientY - startY.value;
+  translateX.value = initialTranslateX.value + deltaX;
+  translateY.value = initialTranslateY.value + deltaY;
+};
+
+const handleMouseUp = () => {
+  isDragging.value = false;
 };
 
 const handleWheel = (e: WheelEvent) => {
@@ -65,6 +100,9 @@ onUnmounted(() => {
         v-if="isImagePreviewOpen"
         class="image-preview-overlay"
         @click="closeImagePreview"
+        @mousemove="handleMouseMove"
+        @mouseup="handleMouseUp"
+        @mouseleave="handleMouseUp"
       >
         <!-- 页面右上角关闭按钮 -->
         <button
@@ -83,8 +121,14 @@ onUnmounted(() => {
           <button class="tool-btn" data-tooltip="缩小" @click="zoomOut">
             <ZoomOut class="tool-icon" />
           </button>
-          <button class="tool-btn" data-tooltip="旋转" @click="rotate">
+          <button class="tool-btn" data-tooltip="左转 90°" @click="rotateLeft">
+            <RotateCcw class="tool-icon" />
+          </button>
+          <button class="tool-btn" data-tooltip="右转 90°" @click="rotateRight">
             <RotateCw class="tool-icon" />
+          </button>
+          <button class="tool-btn" data-tooltip="重置" @click="handleReset">
+            <RefreshCw class="tool-icon" />
           </button>
           <span class="scale-text">{{ Math.round(zoomScale * 100) }}%</span>
         </div>
@@ -99,9 +143,11 @@ onUnmounted(() => {
             :src="activePreviewUrl"
             alt="图片预览"
             class="preview-img"
+            :class="{ 'is-dragging': isDragging }"
             :style="{
-              transform: `scale(${zoomScale}) rotate(${rotation}deg)`
+              transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${zoomScale}) rotate(${rotation}deg)`
             }"
+            @mousedown="handleMouseDown"
             @dblclick="handleReset"
           />
         </div>
@@ -124,6 +170,7 @@ onUnmounted(() => {
   justify-content: center;
   user-select: none;
   cursor: zoom-out;
+  overflow: hidden;
 }
 
 .page-close-btn {
@@ -180,13 +227,11 @@ onUnmounted(() => {
 }
 
 .image-container {
-  max-width: 90vw;
-  max-height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: default;
-  overflow: hidden;
+  position: relative;
 }
 
 .preview-img {
@@ -198,6 +243,11 @@ onUnmounted(() => {
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: grab;
   user-select: none;
+
+  &.is-dragging {
+    transition: none;
+    cursor: grabbing;
+  }
 
   &:active {
     cursor: grabbing;
