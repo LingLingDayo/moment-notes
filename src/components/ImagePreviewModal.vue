@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { X, ZoomIn, ZoomOut, Undo2, Redo2, RefreshCw } from '@lucide/vue';
+import { X, ZoomIn, ZoomOut, Undo2, Redo2, RotateCcw } from '@lucide/vue';
 import { isImagePreviewOpen, activePreviewUrl, closeImagePreview } from '@utils/imageHandler';
 
 const zoomScale = ref(1);
@@ -151,7 +151,7 @@ onUnmounted(() => {
             <Redo2 class="tool-icon" />
           </button>
           <button class="tool-btn" data-tooltip="重置" @click="handleReset">
-            <RefreshCw class="tool-icon" />
+            <RotateCcw class="tool-icon" />
           </button>
           <span class="scale-text">{{ Math.round(zoomScale * 100) }}%</span>
         </div>
