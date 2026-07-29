@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, provide, computed, watch } from 'vue';
+import { ref, provide, computed, watch, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Trash2, History } from '@lucide/vue';
 import { isUTools } from '@/utils/storage';
@@ -63,9 +63,17 @@ const dragPlacement = ref<'before' | 'after' | 'inside' | null>(null);
 const { handleDragOver: handleDragScroll, stopScroll: stopDragScroll } = useDragAutoScroll(sidebarMenuRef);
 
 watch(() => draggedCatId.value, (newId) => {
-  if (!newId) {
+  if (newId) {
+    window.addEventListener('dragover', handleDragScroll);
+  } else {
+    window.removeEventListener('dragover', handleDragScroll);
     stopDragScroll();
   }
+});
+
+onUnmounted(() => {
+  window.removeEventListener('dragover', handleDragScroll);
+  stopDragScroll();
 });
 
 // 拖拽指示线样式与层级计算

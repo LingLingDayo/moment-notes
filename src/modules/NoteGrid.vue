@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import NoteCard from './NoteCard/NoteCard.vue';
 import { StickyNote, SearchX, Plus } from '@lucide/vue';
@@ -12,9 +12,17 @@ const containerRef = ref<HTMLElement | null>(null);
 const { handleDragOver: handleDragScroll, stopScroll: stopDragScroll } = useDragAutoScroll(containerRef);
 
 watch(() => store.draggedNoteId, (newId) => {
-  if (!newId) {
+  if (newId) {
+    window.addEventListener('dragover', handleDragScroll);
+  } else {
+    window.removeEventListener('dragover', handleDragScroll);
     stopDragScroll();
   }
+});
+
+onUnmounted(() => {
+  window.removeEventListener('dragover', handleDragScroll);
+  stopDragScroll();
 });
 
 // 计算出应该应用的列数
