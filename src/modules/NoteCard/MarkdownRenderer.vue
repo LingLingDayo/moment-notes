@@ -68,6 +68,7 @@ const handleContainerClick = (e: MouseEvent) => {
   color: inherit;
   word-break: break-word;
   overflow-wrap: break-word;
+  max-width: 100%;
 
   p {
     margin-bottom: 0.5em;
@@ -161,8 +162,10 @@ const handleContainerClick = (e: MouseEvent) => {
   }
 
   img {
-    max-width: 100%;
-    height: auto;
+    max-width: 100% !important;
+    height: auto !important;
+    box-sizing: border-box;
+    display: block;
     border-radius: 8px;
     margin: 6px 0;
     cursor: zoom-in;

@@ -163,6 +163,7 @@ watch(
   flex: 1;
   overflow-y: auto;
   overflow-y: overlay;
+  overflow-x: hidden;
   background: transparent !important;
   background-color: transparent !important;
 
