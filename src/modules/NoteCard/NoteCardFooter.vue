@@ -134,7 +134,7 @@ const deleteSelf = async () => {
       </button>
 
       <!-- 复制 -->
-      <button class="action-btn" data-tooltip="复制" @click="copyNoteContent">
+      <button class="action-btn" data-tooltip="复制内容" @click="copyNoteContent">
         <Copy class="action-icon" />
       </button>
 
@@ -277,7 +277,7 @@ const deleteSelf = async () => {
       </BasePopover>
 
       <!-- 复制 -->
-      <button class="action-btn" data-tooltip="复制" @click="copyNoteContent">
+      <button class="action-btn" data-tooltip="复制内容" @click="copyNoteContent">
         <Copy class="action-icon" />
       </button>
 
