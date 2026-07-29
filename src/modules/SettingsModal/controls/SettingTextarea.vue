@@ -61,7 +61,7 @@ const itemProps = computed(() => (props.item.props as any) || {});
     box-shadow 0.2s ease,
     color 0.2s ease;
   outline: none;
-  resize: vertical;
+  resize: none;
   min-height: 60px;
   font-family: inherit;
 

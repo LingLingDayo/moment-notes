@@ -260,7 +260,7 @@ watch(
   font-size: 12px;
   line-height: 1.6;
   color: inherit;
-  resize: vertical;
+  resize: none;
 
   &:focus {
     background: var(--input-bg);
