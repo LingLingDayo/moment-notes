@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import SettingWrapper from './SettingWrapper.vue';
 import { SettingItem } from '../settingsConfig';
 
@@ -13,20 +13,44 @@ const emit = defineEmits<{
 }>();
 
 const itemProps = computed(() => (props.item.props as any) || {});
-const min = computed(() => itemProps.value.min !== undefined ? itemProps.value.min : 0);
-const max = computed(() => itemProps.value.max !== undefined ? itemProps.value.max : 100);
-const step = computed(() => itemProps.value.step !== undefined ? itemProps.value.step : 1);
+const min = computed(() => (itemProps.value.min !== undefined ? itemProps.value.min : 0));
+const max = computed(() => (itemProps.value.max !== undefined ? itemProps.value.max : 100));
+const step = computed(() => (itemProps.value.step !== undefined ? itemProps.value.step : 1));
+
+const localValue = ref<number>(props.modelValue);
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (debounceTimer === null) {
+      localValue.value = newVal;
+    }
+  }
+);
+
+const emitDebounced = (val: number) => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  debounceTimer = setTimeout(() => {
+    emit('update:modelValue', val);
+    debounceTimer = null;
+  }, 300);
+};
 
 const handleInput = (e: Event) => {
   const input = e.target as HTMLInputElement;
-  emit('update:modelValue', Number(input.value));
+  const val = Number(input.value);
+  localValue.value = val;
+  emitDebounced(val);
 };
 
 const handleWheel = (e: WheelEvent) => {
   const input = e.target as HTMLInputElement;
   if (document.activeElement !== input) return;
 
-  const currentVal = Number(props.modelValue);
+  const currentVal = Number(localValue.value);
   const direction = e.deltaY < 0 ? 1 : -1;
   const stepVal = step.value;
   let newVal = currentVal + direction * stepVal;
@@ -34,8 +58,17 @@ const handleWheel = (e: WheelEvent) => {
   if (newVal < min.value) newVal = min.value;
   if (newVal > max.value) newVal = max.value;
 
-  emit('update:modelValue', newVal);
+  localValue.value = newVal;
+  emitDebounced(newVal);
 };
+
+onUnmounted(() => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+    emit('update:modelValue', localValue.value);
+    debounceTimer = null;
+  }
+});
 </script>
 
 <template>
@@ -44,7 +77,7 @@ const handleWheel = (e: WheelEvent) => {
       <div class="setting-slider-container">
         <input
           type="range"
-          :value="modelValue"
+          :value="localValue"
           :min="min"
           :max="max"
           :step="step"
@@ -53,7 +86,7 @@ const handleWheel = (e: WheelEvent) => {
           @input="handleInput"
           @wheel.prevent="handleWheel"
         />
-        <span class="setting-slider-value">{{ modelValue }}</span>
+        <span class="setting-slider-value">{{ localValue }}</span>
       </div>
     </template>
   </SettingWrapper>

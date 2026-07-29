@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import SettingWrapper from './SettingWrapper.vue';
 import { SettingItem } from '../settingsConfig';
 
@@ -17,16 +17,46 @@ const emit = defineEmits<{
 }>();
 
 const itemProps = computed(() => (props.item.props as any) || {});
+const isNumber = computed(() => itemProps.value.type === 'number');
+
+const localValue = ref<string | number>(props.modelValue);
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (debounceTimer === null) {
+      localValue.value = newVal;
+    }
+  }
+);
+
+const emitDebounced = (val: string | number) => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  debounceTimer = setTimeout(() => {
+    emit('update:modelValue', val);
+    debounceTimer = null;
+  }, 300);
+};
 
 const handleInput = (e: Event) => {
   const input = e.target as HTMLInputElement;
   const val = input.value;
-  emit('update:modelValue', itemProps.value.type === 'number' ? (val === '' ? '' : Number(val)) : val);
+  localValue.value = val;
+
+  if (isNumber.value) {
+    const numVal = val === '' ? '' : Number(val);
+    emitDebounced(numVal);
+  } else {
+    emit('update:modelValue', val);
+  }
 };
 
 // 数字输入限制
 const handleKeydown = (e: KeyboardEvent) => {
-  if (itemProps.value.type !== 'number') return;
+  if (!isNumber.value) return;
 
   const allowedKeys = [
     'Backspace',
@@ -71,7 +101,12 @@ const handleKeydown = (e: KeyboardEvent) => {
 
 // 失去焦点合理性验证与边界纠正
 const handleBlur = (e: FocusEvent) => {
-  if (itemProps.value.type !== 'number') return;
+  if (!isNumber.value) return;
+
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+    debounceTimer = null;
+  }
 
   const input = e.target as HTMLInputElement;
   const valStr = input.value.trim();
@@ -80,6 +115,7 @@ const handleBlur = (e: FocusEvent) => {
 
   if (valStr === '') {
     const fallback = min !== undefined ? min : 0;
+    localValue.value = fallback;
     input.value = String(fallback); // 强制 DOM 拉回同步
     emit('update:modelValue', fallback);
     return;
@@ -97,18 +133,19 @@ const handleBlur = (e: FocusEvent) => {
     num = max;
   }
 
+  localValue.value = num;
   input.value = String(num); // 强制 DOM 拉回同步
   emit('update:modelValue', num);
 };
 
 // 聚焦状态下的鼠标滚轮微调
 const handleWheel = (e: WheelEvent) => {
-  if (itemProps.value.type !== 'number') return;
+  if (!isNumber.value) return;
 
   const input = e.target as HTMLInputElement;
   if (document.activeElement !== input) return;
 
-  let currentVal = Number(props.modelValue);
+  let currentVal = Number(localValue.value);
   const min = itemProps.value.min;
   const max = itemProps.value.max;
   const stepConfig = itemProps.value.step;
@@ -136,9 +173,22 @@ const handleWheel = (e: WheelEvent) => {
     newVal = max;
   }
 
+  localValue.value = newVal;
   input.value = String(newVal); // 强制 DOM 拉回同步
-  emit('update:modelValue', newVal);
+  emitDebounced(newVal);
 };
+
+onUnmounted(() => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+    if (isNumber.value) {
+      const valStr = String(localValue.value).trim();
+      const num = valStr === '' ? 0 : Number(valStr);
+      emit('update:modelValue', isNaN(num) ? 0 : num);
+    }
+    debounceTimer = null;
+  }
+});
 </script>
 
 <template>
@@ -146,7 +196,7 @@ const handleWheel = (e: WheelEvent) => {
     <template #default="{ defaultTooltip }">
       <div class="setting-input-wrapper">
         <input
-          :value="modelValue"
+          :value="localValue"
           :type="itemProps.type || 'text'"
           :placeholder="item.placeholder"
           :min="itemProps.min"
