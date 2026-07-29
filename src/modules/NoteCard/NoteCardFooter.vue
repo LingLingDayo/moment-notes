@@ -384,24 +384,27 @@ const deleteSelf = async () => {
   max-width: 0;
   pointer-events: none;
   overflow: hidden;
-  transform: translate3d(6px, 0, 0);
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.18s linear,
+              max-width 0.18s cubic-bezier(0, 0, 0.2, 1);
   white-space: nowrap;
   flex-shrink: 0;
 
-  &.is-deleted-actions,
-  &.has-active-popover {
+  &.is-deleted-actions {
     opacity: 0.75;
-    max-width: 200px;
+    max-width: 140px;
     pointer-events: auto;
-    overflow: visible;
-    transform: translate3d(0, 0, 0);
+    overflow: hidden;
 
     &:hover {
       opacity: 1;
     }
+  }
+
+  &.has-active-popover {
+    opacity: 1;
+    max-width: 140px;
+    pointer-events: auto;
+    overflow: visible;
   }
 }
 

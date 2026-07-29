@@ -403,10 +403,13 @@ onMounted(() => {
 
       .card-actions {
         opacity: 1;
-        max-width: 200px;
+        max-width: 140px;
         pointer-events: auto;
-        overflow: visible;
-        transform: translateY(0);
+        overflow: hidden;
+
+        &.has-active-popover {
+          overflow: visible;
+        }
       }
     }
   }
@@ -529,11 +532,14 @@ onMounted(() => {
 
     :deep(.card-actions) {
       opacity: 1 !important;
-      max-width: 200px !important;
+      max-width: 160px !important;
       pointer-events: auto !important;
-      overflow: visible !important;
-      transform: translate3d(0, 0, 0) !important;
+      overflow: hidden !important;
       gap: 6px !important;
+
+      &.has-active-popover {
+        overflow: visible !important;
+      }
     }
 
     :deep(.action-btn) {
