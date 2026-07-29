@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { X, ZoomIn, ZoomOut, RotateCcw, RotateCw, RefreshCw } from '@lucide/vue';
+import { X, ZoomIn, ZoomOut, Undo2, Redo2, RefreshCw } from '@lucide/vue';
 import { isImagePreviewOpen, activePreviewUrl, closeImagePreview } from '@utils/imageHandler';
 
 const zoomScale = ref(1);
@@ -27,16 +27,31 @@ watch(isImagePreviewOpen, (isOpen) => {
   }
 });
 
+// PS 风格：基于锚点坐标（如鼠标位置）进行缩放
+const applyZoom = (targetScale: number, anchorX?: number, anchorY?: number) => {
+  const oldScale = zoomScale.value;
+  const newScale = Number(Math.min(Math.max(targetScale, 0.2), 5).toFixed(2));
+  if (newScale === oldScale) return;
+
+  const mouseX = anchorX ?? window.innerWidth / 2;
+  const mouseY = anchorY ?? window.innerHeight / 2;
+
+  const ratio = newScale / oldScale;
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+
+  // 计算偏移，使得鼠标指针下方的图像像素在缩放前后留在屏幕同一点
+  translateX.value = translateX.value + (mouseX - centerX - translateX.value) * (1 - ratio);
+  translateY.value = translateY.value + (mouseY - centerY - translateY.value) * (1 - ratio);
+  zoomScale.value = newScale;
+};
+
 const zoomIn = () => {
-  if (zoomScale.value < 5) {
-    zoomScale.value = Number((zoomScale.value + 0.25).toFixed(2));
-  }
+  applyZoom(zoomScale.value + 0.25);
 };
 
 const zoomOut = () => {
-  if (zoomScale.value > 0.2) {
-    zoomScale.value = Number((zoomScale.value - 0.25).toFixed(2));
-  }
+  applyZoom(zoomScale.value - 0.25);
 };
 
 const rotateLeft = () => {
@@ -47,15 +62,7 @@ const rotateRight = () => {
   rotation.value = (rotation.value + 90) % 360;
 };
 
-const handleMouseDown = (e: MouseEvent) => {
-  if (e.button !== 0) return;
-  isDragging.value = true;
-  startX.value = e.clientX;
-  startY.value = e.clientY;
-  initialTranslateX.value = translateX.value;
-  initialTranslateY.value = translateY.value;
-};
-
+// 拖拽平移事件处理
 const handleMouseMove = (e: MouseEvent) => {
   if (!isDragging.value) return;
   const deltaX = e.clientX - startX.value;
@@ -65,16 +72,33 @@ const handleMouseMove = (e: MouseEvent) => {
 };
 
 const handleMouseUp = () => {
-  isDragging.value = false;
+  if (isDragging.value) {
+    isDragging.value = false;
+    window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('mouseup', handleMouseUp);
+  }
 };
 
+const handleMouseDown = (e: MouseEvent) => {
+  if (e.button !== 0) return; // 仅处理鼠标左键
+  e.preventDefault();
+  e.stopPropagation();
+
+  isDragging.value = true;
+  startX.value = e.clientX;
+  startY.value = e.clientY;
+  initialTranslateX.value = translateX.value;
+  initialTranslateY.value = translateY.value;
+
+  window.addEventListener('mousemove', handleMouseMove);
+  window.addEventListener('mouseup', handleMouseUp);
+};
+
+// 滚轮缩放：传入当前鼠标视口坐标
 const handleWheel = (e: WheelEvent) => {
   e.preventDefault();
-  if (e.deltaY < 0) {
-    zoomIn();
-  } else {
-    zoomOut();
-  }
+  const delta = e.deltaY < 0 ? 0.25 : -0.25;
+  applyZoom(zoomScale.value + delta, e.clientX, e.clientY);
 };
 
 const handleKeyDown = (e: KeyboardEvent) => {
@@ -90,6 +114,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown);
+  handleMouseUp();
 });
 </script>
 
@@ -100,9 +125,6 @@ onUnmounted(() => {
         v-if="isImagePreviewOpen"
         class="image-preview-overlay"
         @click="closeImagePreview"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
-        @mouseleave="handleMouseUp"
       >
         <!-- 页面右上角关闭按钮 -->
         <button
@@ -121,11 +143,11 @@ onUnmounted(() => {
           <button class="tool-btn" data-tooltip="缩小" @click="zoomOut">
             <ZoomOut class="tool-icon" />
           </button>
-          <button class="tool-btn" data-tooltip="左转 90°" @click="rotateLeft">
-            <RotateCcw class="tool-icon" />
+          <button class="tool-btn" data-tooltip="向左旋转 90°" @click="rotateLeft">
+            <Undo2 class="tool-icon" />
           </button>
-          <button class="tool-btn" data-tooltip="右转 90°" @click="rotateRight">
-            <RotateCw class="tool-icon" />
+          <button class="tool-btn" data-tooltip="向右旋转 90°" @click="rotateRight">
+            <Redo2 class="tool-icon" />
           </button>
           <button class="tool-btn" data-tooltip="重置" @click="handleReset">
             <RefreshCw class="tool-icon" />
@@ -144,9 +166,11 @@ onUnmounted(() => {
             alt="图片预览"
             class="preview-img"
             :class="{ 'is-dragging': isDragging }"
+            draggable="false"
             :style="{
               transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${zoomScale}) rotate(${rotation}deg)`
             }"
+            @dragstart.prevent
             @mousedown="handleMouseDown"
             @dblclick="handleReset"
           />
@@ -240,7 +264,7 @@ onUnmounted(() => {
   object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: grab;
   user-select: none;
 
