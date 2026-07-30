@@ -8,6 +8,7 @@ import * as helpers from './stickyNotesHelpers';
 import { storage, pasteTextToCursor } from '@utils/storage';
 import { Note, NoteType } from '@type';
 import { useShortcutStore } from './shortcutStore';
+import { getDefaultCategories } from './defaultData';
 
 export { COLOR_PRESETS };
 
@@ -34,12 +35,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       if (storedCategories) {
         categoryStore.categories = JSON.parse(storedCategories);
       } else {
-        // 默认内置分类
-        categoryStore.categories = [
-          { id: '1', name: '常用模版', createdAt: Date.now() },
-          { id: '2', name: '工作备忘', createdAt: Date.now() - 1000 },
-          { id: '3', name: '灵感想法', createdAt: Date.now() - 2000 }
-        ];
+        categoryStore.categories = getDefaultCategories();
         categoryStore.saveCategories();
       }
 
