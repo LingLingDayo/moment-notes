@@ -10,7 +10,7 @@ export const exportBackup = (
   showToast: (msg: string, type?: any) => void
 ) => {
   const backupData = {
-    version: '1.0.0',
+    version: __APP_VERSION__,
     timestamp: Date.now(),
     categories,
     notes
