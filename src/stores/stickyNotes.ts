@@ -192,6 +192,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
 
       // 显式执行一次初始化的分类便签加载
       noteStore.loadNotesForCurrentCategory();
+
+      // uTools 环境下检测版本更新并对前一版本数据执行自动备份
+      helpers.checkAndAutoBackupPreUpdate(categoryStore.categories, noteStore.allNotes);
     } catch (e) {
       console.error('Failed to load sticky notes data:', e);
     }

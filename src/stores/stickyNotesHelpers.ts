@@ -1,8 +1,35 @@
 import { Category, Note } from '@type';
-import { storage, downloadOrWriteFile } from '@utils/storage';
+import { storage, downloadOrWriteFile, isUTools } from '@utils/storage';
 import { getDefaultNotes } from './defaultData';
 
 export { getDefaultNotes };
+
+export const checkAndAutoBackupPreUpdate = (
+  categories: Category[],
+  notes: Note[]
+) => {
+  if (!isUTools()) return;
+
+  const currentVersion = __APP_VERSION__;
+  const storedVersion = storage.getItem('sticky_notes_app_version');
+
+  if (storedVersion && storedVersion !== currentVersion) {
+    try {
+      const backupData = {
+        version: storedVersion,
+        timestamp: Date.now(),
+        categories,
+        notes
+      };
+      storage.setItem('sticky_notes_pre_update_backup', JSON.stringify(backupData));
+      console.log(`[AutoBackup] 检测到版本更新 (${storedVersion} -> ${currentVersion})，已保存更新前数据备份至 sticky_notes_pre_update_backup`);
+    } catch (e) {
+      console.error('[AutoBackup] 自动备份更新前数据失败:', e);
+    }
+  }
+
+  storage.setItem('sticky_notes_app_version', currentVersion);
+};
 
 export const exportBackup = (
   categories: Category[],
