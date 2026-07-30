@@ -4,6 +4,22 @@ import { getDefaultNotes } from './defaultData';
 
 export { getDefaultNotes };
 
+/**
+ * 构造统一规范的备份数据结构对象
+ */
+export const createBackupData = (
+  categories: Category[],
+  notes: Note[],
+  versionOverride?: string
+) => {
+  return {
+    version: versionOverride || __APP_VERSION__,
+    timestamp: Date.now(),
+    categories,
+    notes
+  };
+};
+
 export const checkAndAutoBackupPreUpdate = (
   categories: Category[],
   notes: Note[]
@@ -15,12 +31,7 @@ export const checkAndAutoBackupPreUpdate = (
 
   if (storedVersion && storedVersion !== currentVersion) {
     try {
-      const backupData = {
-        version: storedVersion,
-        timestamp: Date.now(),
-        categories,
-        notes
-      };
+      const backupData = createBackupData(categories, notes, storedVersion);
       storage.setItem('sticky_notes_pre_update_backup', JSON.stringify(backupData));
       console.log(`[AutoBackup] 检测到版本更新 (${storedVersion} -> ${currentVersion})，已保存更新前数据备份至 sticky_notes_pre_update_backup`);
     } catch (e) {
@@ -36,12 +47,7 @@ export const exportBackup = (
   notes: Note[],
   showToast: (msg: string, type?: any) => void
 ) => {
-  const backupData = {
-    version: __APP_VERSION__,
-    timestamp: Date.now(),
-    categories,
-    notes
-  };
+  const backupData = createBackupData(categories, notes);
 
   const jsonStr = JSON.stringify(backupData, null, 2);
   const pad = (n: number) => String(n).padStart(2, '0');
