@@ -321,14 +321,19 @@ html {
 }
 
 /* uTools 环境下的精致 Fluent 风格滚动条与滚动平滑适配 */
+html.is-utools,
 .is-utools {
   background: linear-gradient(135deg, var(--bg-gradient-start) 0%, #ebf0f5 100%);
 
-  .dark-theme & {
+  &.dark-theme,
+  .dark-theme &,
+  & .dark-theme {
     background: linear-gradient(135deg, var(--bg-gradient-start) 0%, #070e22 100%);
   }
 
-  .light-theme & {
+  &.light-theme,
+  .light-theme &,
+  & .light-theme {
     background: linear-gradient(135deg, var(--bg-gradient-start) 0%, #ebf0f5 100%);
   }
 
@@ -341,7 +346,8 @@ html {
   .note-card-body,
   .tag-editor-tags,
   .tag-list-scroll,
-  .card-body-content {
+  .card-body-content,
+  .content-textarea {
     overflow-y: overlay !important;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
@@ -373,7 +379,8 @@ html {
   }
 
   &.dark-theme ::-webkit-scrollbar-thumb,
-  .dark-theme & ::-webkit-scrollbar-thumb {
+  .dark-theme & ::-webkit-scrollbar-thumb,
+  .dark-theme::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.08) padding-box;
     
     &:hover {

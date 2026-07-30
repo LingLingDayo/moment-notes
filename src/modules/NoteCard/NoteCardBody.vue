@@ -262,6 +262,20 @@ watch(
   color: inherit;
   resize: none;
 
+  &::-webkit-scrollbar {
+    width: 6px;
+    background: transparent !important;
+  }
+
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-track-piece,
+  &::-webkit-scrollbar-corner {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
   &:focus {
     background: var(--input-bg);
     border-color: var(--accent-color);

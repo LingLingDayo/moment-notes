@@ -26,6 +26,7 @@ onMounted(() => {
   }
 
   if (isUTools()) {
+    document.documentElement.classList.add('is-utools');
     // 监听 uTools 插件进入事件
     window.utools.onPluginEnter(action => {
       // 触发数据加载以保证是最新的
