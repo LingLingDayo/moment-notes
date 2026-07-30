@@ -231,7 +231,7 @@ const handleMouseLeave = () => {
 // 点击卡片其他区域时，马上收起已打开的选择面板
 const handleCardClick = (event: MouseEvent) => {
   const target = event.target as HTMLElement;
-  if (target && !target.closest('.action-popover-wrapper')) {
+  if (target && !target.closest('.base-popover-wrapper') && !target.closest('.action-popover-wrapper')) {
     footerRef.value?.closePopovers();
   }
 };
