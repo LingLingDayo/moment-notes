@@ -403,7 +403,7 @@ onMounted(() => {
 
       .card-actions {
         opacity: 1;
-        max-width: 140px;
+        max-width: 160px;
         pointer-events: auto;
         overflow: hidden;
 
@@ -532,7 +532,7 @@ onMounted(() => {
 
     :deep(.card-actions) {
       opacity: 1 !important;
-      max-width: 160px !important;
+      max-width: 200px !important;
       pointer-events: auto !important;
       overflow: hidden !important;
       gap: 6px !important;

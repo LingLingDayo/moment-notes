@@ -381,7 +381,7 @@ const deleteSelf = async () => {
 
   &.has-active-popover {
     opacity: 1;
-    max-width: 140px;
+    max-width: 160px;
     pointer-events: auto;
     overflow: visible;
   }
