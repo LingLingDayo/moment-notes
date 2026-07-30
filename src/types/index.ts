@@ -40,6 +40,12 @@ export interface NoteColorPreset {
   darkBtnHoverColor: string;
 }
 
+export interface CategoryViewSetting {
+  sortMode?: 'date' | 'title' | 'tag' | 'custom' | 'useCount';
+  sortOrder?: 'asc' | 'desc';
+  gridColumns?: 'auto' | 1 | 2 | 3 | 4;
+}
+
 export interface AppSettings {
   theme?: 'dark' | 'light';
   gridColumns?: 'auto' | 1 | 2 | 3 | 4;
@@ -57,6 +63,8 @@ export interface AppSettings {
   prefixTagWithHash?: boolean;
   sortMode?: 'date' | 'title' | 'tag' | 'custom' | 'useCount';
   sortOrder?: 'asc' | 'desc';
+  categoryIndependentToolbar?: boolean;
+  categoryViewSettings?: Record<string, CategoryViewSetting>;
   shortcuts?: Array<{ id: string; currentKey: string }>;
   collapsedCategoryIds?: string[];
 }

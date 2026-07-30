@@ -56,10 +56,38 @@ export const useNoteStore = defineStore('noteStore', () => {
     }, 0);
   };
 
+  const applyCategoryViewSettings = (categoryId: string) => {
+    const uiStore = useUiStore();
+    if (!uiStore.categoryIndependentToolbar) return;
+
+    const setting = uiStore.categoryViewSettings[categoryId];
+    if (setting) {
+      if (setting.sortMode) {
+        sortMode.value = setting.sortMode;
+      }
+      if (setting.sortOrder) {
+        sortOrder.value = setting.sortOrder;
+      }
+      if (setting.gridColumns) {
+        uiStore.gridColumns = setting.gridColumns;
+      }
+    }
+  };
+
   watch(currentCategoryId, (newId) => {
     if (newId) {
       storage.setItem('sticky_notes_last_category_id', newId);
+      applyCategoryViewSettings(newId);
       loadNotesForCurrentCategory();
+    }
+  });
+
+  watch(sortOrder, (newOrder) => {
+    const uiStore = useUiStore();
+    if (uiStore.categoryIndependentToolbar && currentCategoryId.value) {
+      uiStore.updateCategoryViewSetting(currentCategoryId.value, {
+        sortOrder: newOrder
+      });
     }
   });
 
@@ -192,6 +220,7 @@ export const useNoteStore = defineStore('noteStore', () => {
   };
 
   const setSortMode = (mode: 'date' | 'title' | 'tag' | 'custom' | 'useCount') => {
+    const uiStore = useUiStore();
     if (mode === sortMode.value) {
       if (mode !== 'custom') {
         sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
@@ -210,6 +239,13 @@ export const useNoteStore = defineStore('noteStore', () => {
     }
     storage.setItem('sticky_notes_sort_mode', sortMode.value);
     storage.setItem('sticky_notes_sort_order', sortOrder.value);
+
+    if (uiStore.categoryIndependentToolbar && currentCategoryId.value) {
+      uiStore.updateCategoryViewSetting(currentCategoryId.value, {
+        sortMode: sortMode.value,
+        sortOrder: sortOrder.value
+      });
+    }
   };
 
   const moveNote = (draggedId: string, targetId: string) => {

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { storage } from '@utils/storage';
-import { NoteType } from '@type';
+import { NoteType, CategoryViewSetting } from '@type';
 
 export const useUiStore = defineStore('uiStore', () => {
   // 确认弹窗状态 (Promise 驱动)
@@ -47,9 +47,33 @@ export const useUiStore = defineStore('uiStore', () => {
   const minNoteWidth = ref<number>(260);
   const noteMaxHeight = ref<number>(300);
 
-  const setGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
+  // 分类独立工具栏设置选项状态
+  const categoryIndependentToolbar = ref<boolean>(false);
+  const categoryViewSettings = ref<Record<string, CategoryViewSetting>>({});
+
+  const setCategoryIndependentToolbar = (val: boolean) => {
+    categoryIndependentToolbar.value = val;
+    storage.setItem('sticky_notes_category_independent_toolbar', val ? 'true' : 'false');
+  };
+
+  const saveCategoryViewSettings = () => {
+    storage.setItem('sticky_notes_category_view_settings', JSON.stringify(categoryViewSettings.value));
+  };
+
+  const updateCategoryViewSetting = (categoryId: string, settingsPatch: CategoryViewSetting) => {
+    if (!categoryViewSettings.value[categoryId]) {
+      categoryViewSettings.value[categoryId] = {};
+    }
+    Object.assign(categoryViewSettings.value[categoryId], settingsPatch);
+    saveCategoryViewSettings();
+  };
+
+  const setGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4, categoryId?: string) => {
     gridColumns.value = cols;
     storage.setItem('sticky_notes_grid_columns', cols.toString());
+    if (categoryIndependentToolbar.value && categoryId) {
+      updateCategoryViewSetting(categoryId, { gridColumns: cols });
+    }
   };
 
   const setMinNoteWidth = (val: number) => {
@@ -246,6 +270,11 @@ export const useUiStore = defineStore('uiStore', () => {
     setShowNoteCount,
     prefixTagWithHash,
     setPrefixTagWithHash,
+    categoryIndependentToolbar,
+    setCategoryIndependentToolbar,
+    categoryViewSettings,
+    updateCategoryViewSetting,
+    saveCategoryViewSettings,
     previewNoteId,
     openedFullscreenForEditNoteId,
     openNotePreview,

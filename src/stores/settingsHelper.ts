@@ -24,6 +24,8 @@ export const getCurrentSettings = (
     prefixTagWithHash: uiStore.prefixTagWithHash,
     sortMode: noteStore.sortMode,
     sortOrder: noteStore.sortOrder,
+    categoryIndependentToolbar: uiStore.categoryIndependentToolbar,
+    categoryViewSettings: uiStore.categoryViewSettings,
     shortcuts: shortcutStore.shortcuts.map((s: any) => ({ id: s.id, currentKey: s.currentKey })),
     collapsedCategoryIds: categoryStore.collapsedCategoryIds
   };
@@ -82,6 +84,13 @@ export const applySettings = (
   }
   if (typeof settings.prefixTagWithHash === 'boolean') {
     uiStore.setPrefixTagWithHash(settings.prefixTagWithHash);
+  }
+  if (typeof settings.categoryIndependentToolbar === 'boolean') {
+    uiStore.setCategoryIndependentToolbar(settings.categoryIndependentToolbar);
+  }
+  if (settings.categoryViewSettings && typeof settings.categoryViewSettings === 'object') {
+    uiStore.categoryViewSettings = settings.categoryViewSettings;
+    uiStore.saveCategoryViewSettings();
   }
   if (settings.sortMode && ['date', 'title', 'tag', 'custom', 'useCount'].includes(settings.sortMode)) {
     noteStore.setSortMode(settings.sortMode);

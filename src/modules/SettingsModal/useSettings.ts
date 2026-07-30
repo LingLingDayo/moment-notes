@@ -60,6 +60,8 @@ export function useSettings() {
           store.setShowNoteCount(val);
         } else if (key === 'prefixTagWithHash') {
           store.setPrefixTagWithHash(val);
+        } else if (key === 'categoryIndependentToolbar') {
+          store.setCategoryIndependentToolbar(val);
         } else {
           (store as any)[key] = val;
         }
@@ -108,7 +110,7 @@ export function useSettings() {
       return;
     }
 
-    const currentCat = store.categories.find(c => c.id === store.currentCategoryId);
+    const currentCat = store.categories.find((c: any) => c.id === store.currentCategoryId);
     const catName = store.currentCategoryId === 'all'
       ? '"全部便签"'
       : (currentCat ? `"${currentCat.name}"` : '当前分类');

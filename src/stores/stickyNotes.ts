@@ -173,6 +173,20 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.prefixTagWithHash = storedPrefixTagWithHash === 'true';
       }
 
+      const storedCategoryIndependentToolbar = storage.getItem('sticky_notes_category_independent_toolbar');
+      if (storedCategoryIndependentToolbar !== null) {
+        uiStore.categoryIndependentToolbar = storedCategoryIndependentToolbar === 'true';
+      }
+
+      const storedCategoryViewSettings = storage.getItem('sticky_notes_category_view_settings');
+      if (storedCategoryViewSettings) {
+        try {
+          uiStore.categoryViewSettings = JSON.parse(storedCategoryViewSettings);
+        } catch (e) {
+          console.error('Failed to parse category view settings:', e);
+        }
+      }
+
       if (storedNotes) {
         noteStore.allNotes = JSON.parse(storedNotes);
       } else {
@@ -496,9 +510,12 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     gridColumns: gridColumnsRef,
     minNoteWidth: toRef(uiStore, 'minNoteWidth'),
     noteMaxHeight: toRef(uiStore, 'noteMaxHeight'),
-    setGridColumns: uiStore.setGridColumns,
+    setGridColumns: (cols: 'auto' | 1 | 2 | 3 | 4) => uiStore.setGridColumns(cols, noteStore.currentCategoryId),
     setMinNoteWidth: uiStore.setMinNoteWidth,
     setNoteMaxHeight: uiStore.setNoteMaxHeight,
+    categoryIndependentToolbar: toRef(uiStore, 'categoryIndependentToolbar'),
+    setCategoryIndependentToolbar: uiStore.setCategoryIndependentToolbar,
+    categoryViewSettings: toRef(uiStore, 'categoryViewSettings'),
     showSettings: toRef(uiStore, 'showSettings'),
     openSettings: uiStore.openSettings,
     closeSettings: uiStore.closeSettings,

@@ -119,6 +119,13 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         ]
       },
       {
+        key: 'categoryIndependentToolbar',
+        label: '分类独立视图设置',
+        type: 'switch',
+        desc: '开启后，右上角工具栏的排序方式、排序顺序及布局列数设置将仅对当前选中的分类生效，各分类可拥有独立的显示偏好。关闭时全局统一。',
+        default: false
+      },
+      {
         key: 'isDark',
         label: '个性化主题',
         type: 'radio',
