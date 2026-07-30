@@ -44,7 +44,7 @@ export const useUiStore = defineStore('uiStore', () => {
   };
 
   const gridColumns = ref<'auto' | 1 | 2 | 3 | 4>('auto');
-  const minNoteWidth = ref<number>(240);
+  const minNoteWidth = ref<number>(260);
   const noteMaxHeight = ref<number>(300);
 
   const setGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
@@ -53,7 +53,7 @@ export const useUiStore = defineStore('uiStore', () => {
   };
 
   const setMinNoteWidth = (val: number) => {
-    minNoteWidth.value = Number(val) || 240;
+    minNoteWidth.value = Number(val) || 260;
     storage.setItem('sticky_notes_min_note_width', minNoteWidth.value.toString());
   };
 

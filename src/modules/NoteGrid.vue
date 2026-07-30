@@ -37,7 +37,7 @@ const actualColumns = computed(() => {
 // 动态网格样式
 const gridStyle = computed(() => {
   if (actualColumns.value === 'auto') {
-    const minWidth = Math.max(100, Math.min(1000, store.minNoteWidth || 240));
+    const minWidth = Math.max(100, Math.min(1000, store.minNoteWidth || 260));
     return {
       gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${minWidth}px), 1fr))`,
       // 自适应列数未知，离场动画宽度回退为近似值
@@ -108,7 +108,7 @@ const handleAddNote = () => {
 
 .notes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
   --grid-gap: 20px;
   align-content: start;

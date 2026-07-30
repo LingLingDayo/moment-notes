@@ -168,8 +168,8 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         key: 'minNoteWidth',
         label: '便签自适应最小宽度',
         type: 'slider',
-        desc: '在“自适应”展示列数模式下生效，单个便签卡片的最小宽度限制。默认值为 240，允许设置范围为 100 - 1000。',
-        default: 240,
+        desc: '在“自适应”展示列数模式下生效，单个便签卡片的最小宽度限制。默认值为 260，允许设置范围为 100 - 1000。',
+        default: 260,
         controlWidth: '280px',
         props: {
           min: 100,
