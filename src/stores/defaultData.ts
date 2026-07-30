@@ -12,7 +12,8 @@ export const getDefaultNotes = (): Note[] => [
     categoryId: 'uncategorized',
     title: '✨ 欢迎使用拾光便签',
     content:
-      '嗨喽！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想！！',
+      `嗨喽！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想！！
+随时记录每一个灵感瞬间，用鲜艳的色彩和流畅的体验，让随时记事变得轻松又优雅～赶快试试双击卡片，开启属于你的拾光记录吧！`,
     color: 'yellow',
     isPinned: true,
     createdAt: Date.now(),
@@ -70,9 +71,7 @@ export const getDefaultNotes = (): Note[] => [
     title: '📝 Markdown 演示',
     type: 'markdown',
     content:
-      `# Markdown 格式参考
-
-拾光便签支持原生的 **Markdown** 语法渲染。
+      `拾光便签支持原生的 **Markdown** 语法渲染。
 
 ### 常用语法示例：
 - **列表与任务**：支持 \`- [x]\` 任务复选框
