@@ -88,19 +88,16 @@ export const useUiStore = defineStore('uiStore', () => {
   };
 
   const initTheme = (isUtoolsEnv: boolean) => {
-    if (isUtoolsEnv) {
-      try {
-        isDark.value = window.utools.isDarkColors();
-        applyTheme(isDark.value);
-        return;
-      } catch (e) {
-        console.error('Failed to get theme from uTools:', e);
-      }
-    }
-
     const storedTheme = storage.getItem('sticky_notes_theme');
     if (storedTheme) {
       isDark.value = storedTheme === 'dark';
+    } else if (isUtoolsEnv) {
+      try {
+        isDark.value = window.utools.isDarkColors();
+      } catch (e) {
+        console.error('Failed to get theme from uTools:', e);
+        isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
     } else {
       isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
