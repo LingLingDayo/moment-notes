@@ -366,7 +366,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         key: 'cancelEdit',
         label: '取消编辑',
         type: 'shortcut',
-        tooltip: '在编辑便签内容时，放弃修改并退出编辑状态',
+        tooltip: '在编辑便签内容时，取消修改并退出编辑状态',
         controlWidth: '80%'
       },
       {

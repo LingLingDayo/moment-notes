@@ -58,7 +58,7 @@ export const getDefaultNotes = (): Note[] => [
       `1. 极速新建：【Ctrl + Alt + N】可在当前分类下快速创建空白便签。
 2. 快速搜索：【Ctrl + F】可使光标自动聚焦到搜索框，输入关键字直接过滤。
 3. 保存编辑：在内容编辑框内，按【Ctrl + Enter】可以直接保存内容。
-4. 放弃编辑：在编辑标题或内容时，按【Esc】可以放弃修改并退出。`,
+4. 取消编辑：在编辑标题或内容时，按【Esc】可以取消修改并退出。`,
     color: 'purple',
     isPinned: false,
     createdAt: Date.now() - 3000,

@@ -41,7 +41,7 @@ export const useShortcutStore = defineStore('shortcutStore', () => {
       name: '取消编辑',
       defaultKey: 'Escape',
       currentKey: 'Escape',
-      description: '在编辑便签内容时，放弃修改并退出编辑状态'
+      description: '在编辑便签内容时取消修改并退出编辑状态'
     }
   ]);
 
