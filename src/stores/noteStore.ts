@@ -40,7 +40,13 @@ export const useNoteStore = defineStore('noteStore', () => {
     notes.value = result;
   };
 
-  const loadNotesForCurrentCategory = () => {
+  const loadNotesForCurrentCategory = (immediate = false) => {
+    if (immediate) {
+      syncCurrentCategoryNotes();
+      isLoadingNotes.value = false;
+      return;
+    }
+
     isLoadingNotes.value = true;
     notes.value = [];
 

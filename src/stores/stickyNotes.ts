@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { toRef, computed } from 'vue';
+import { ref, toRef, computed, readonly } from 'vue';
 import { useCategoryStore } from './categoryStore';
 import { useNoteStore } from './noteStore';
 import { useUiStore } from './uiStore';
@@ -23,6 +23,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   const notesRef = toRef(noteStore, 'notes');
   const categoryOrderRef = toRef(categoryStore, 'categoryOrder');
   const gridColumnsRef = toRef(uiStore, 'gridColumns');
+
+  // 记录数据是否完成初始化加载
+  const isInitialized = ref(false);
 
   // 集中式数据加载
   const loadData = () => {
@@ -191,8 +194,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         noteStore.currentCategoryId = exists ? lastCategoryId : 'all';
       }
 
-      // 显式执行一次初始化的分类便签加载
-      noteStore.loadNotesForCurrentCategory();
+      // 显式执行一次初始化的分类便签加载 (传入 true 保持同步加载，避免 DOM 阶段性空状态)
+      noteStore.loadNotesForCurrentCategory(true);
+      isInitialized.value = true;
 
       // uTools 环境下检测版本更新并对前一版本数据执行自动备份
       helpers.checkAndAutoBackupPreUpdate(
@@ -528,6 +532,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     toggleNotePreview: uiStore.toggleNotePreview,
 
     // 初始化与备份代理
+    isInitialized: readonly(isInitialized),
     loadData,
     exportBackup,
     importBackup,

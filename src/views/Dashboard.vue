@@ -55,7 +55,7 @@ onUnmounted(() => {
 
       <!-- 便签网格内容区 (带切换过渡动画) -->
       <Transition name="fade-slide" mode="out-in">
-        <NoteGrid :key="store.currentCategoryId" />
+        <NoteGrid v-if="store.isInitialized" :key="store.currentCategoryId" />
       </Transition>
     </main>
 
