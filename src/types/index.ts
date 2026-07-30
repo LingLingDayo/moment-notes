@@ -39,3 +39,33 @@ export interface NoteColorPreset {
   darkBtnHoverBg: string;
   darkBtnHoverColor: string;
 }
+
+export interface AppSettings {
+  theme?: 'dark' | 'light';
+  gridColumns?: 'auto' | 1 | 2 | 3 | 4;
+  minNoteWidth?: number;
+  noteMaxHeight?: number;
+  enabledActionBarButtons?: string[];
+  dateFormat?: string;
+  defaultNoteColor?: string;
+  defaultNoteType?: NoteType;
+  defaultEditMode?: 'inline' | 'fullscreen';
+  superPanelDefaultCategory?: string;
+  startPageMode?: 'last' | 'default';
+  enableHoverAnimation?: boolean;
+  showNoteCount?: boolean;
+  prefixTagWithHash?: boolean;
+  sortMode?: 'date' | 'title' | 'tag' | 'custom' | 'useCount';
+  sortOrder?: 'asc' | 'desc';
+  shortcuts?: Array<{ id: string; currentKey: string }>;
+  collapsedCategoryIds?: string[];
+}
+
+export interface BackupData {
+  version: string;
+  timestamp: number;
+  categories: Category[];
+  notes: Note[];
+  settings?: AppSettings;
+}
+

@@ -1,4 +1,4 @@
-import { Category, Note } from '@type';
+import { Category, Note, AppSettings } from '@type';
 import { storage, downloadOrWriteFile, isUTools } from '@utils/storage';
 import { getDefaultNotes } from './defaultData';
 
@@ -10,19 +10,22 @@ export { getDefaultNotes };
 export const createBackupData = (
   categories: Category[],
   notes: Note[],
+  settings?: AppSettings,
   versionOverride?: string
 ) => {
   return {
     version: versionOverride || __APP_VERSION__,
     timestamp: Date.now(),
     categories,
-    notes
+    notes,
+    ...(settings ? { settings } : {})
   };
 };
 
 export const checkAndAutoBackupPreUpdate = (
   categories: Category[],
-  notes: Note[]
+  notes: Note[],
+  settings?: AppSettings
 ) => {
   if (!isUTools()) return;
 
@@ -31,7 +34,7 @@ export const checkAndAutoBackupPreUpdate = (
 
   if (storedVersion && storedVersion !== currentVersion) {
     try {
-      const backupData = createBackupData(categories, notes, storedVersion);
+      const backupData = createBackupData(categories, notes, settings, storedVersion);
       storage.setItem('sticky_notes_pre_update_backup', JSON.stringify(backupData));
       console.log(`[AutoBackup] 检测到版本更新 (${storedVersion} -> ${currentVersion})，已保存更新前数据备份至 sticky_notes_pre_update_backup`);
     } catch (e) {
@@ -45,9 +48,10 @@ export const checkAndAutoBackupPreUpdate = (
 export const exportBackup = (
   categories: Category[],
   notes: Note[],
+  settings: AppSettings,
   showToast: (msg: string, type?: any) => void
 ) => {
-  const backupData = createBackupData(categories, notes);
+  const backupData = createBackupData(categories, notes, settings);
 
   const jsonStr = JSON.stringify(backupData, null, 2);
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -73,81 +77,109 @@ export const importBackup = (
   saveCategories: () => void,
   saveNotes: () => void,
   saveCategoryOrder: () => void,
-  showToast: (msg: string, type?: any) => void
+  showToast: (msg: string, type?: any) => void,
+  applySettings?: (settings: AppSettings) => void
 ): boolean => {
   try {
     const data = JSON.parse(jsonStr);
 
     if (!data || typeof data !== 'object') return false;
-    if (!Array.isArray(data.categories) || !Array.isArray(data.notes)) return false;
 
-    const validCategories = data.categories.filter((c: any) => {
-      return c && typeof c.id === 'string' && typeof c.name === 'string';
-    });
+    const hasCategories = Array.isArray(data.categories);
+    const hasNotes = Array.isArray(data.notes);
+    const hasSettings = !!(data.settings && typeof data.settings === 'object');
 
-    const validNotes = data.notes.filter((n: any) => {
-      return (
-        n &&
-        typeof n.id === 'string' &&
-        typeof n.categoryId === 'string' &&
-        typeof n.content === 'string' &&
-        typeof n.color === 'string'
-      );
-    });
-
-    if (validCategories.length === 0 && validNotes.length === 0) {
-      showToast('导入失败：备份文件不包含有效的分类或便签数据', 'error');
+    if (!hasCategories && !hasNotes && !hasSettings) {
+      showToast('导入失败：备份文件不包含有效的数据', 'error');
       return false;
     }
 
-    const catMap = new Map(categories.value.map(c => [c.id, c]));
-    validCategories.forEach((c: any) => {
-      catMap.set(c.id, {
-        id: c.id,
-        name: c.name,
-        createdAt: c.createdAt || Date.now(),
-        parentId: typeof c.parentId === 'string' ? c.parentId : undefined
-      });
-    });
-    categories.value = Array.from(catMap.values());
+    const validCategories = hasCategories
+      ? data.categories.filter((c: any) => c && typeof c.id === 'string' && typeof c.name === 'string')
+      : [];
 
-    const noteMap = new Map(notes.value.map(n => [n.id, n]));
-    validNotes.forEach((n: any) => {
-      noteMap.set(n.id, {
-        id: n.id,
-        categoryId: n.categoryId,
-        title: n.title || '',
-        content: n.content,
-        color: n.color,
-        isPinned: !!n.isPinned,
-        createdAt: n.createdAt || Date.now(),
-        updatedAt: n.updatedAt || Date.now(),
-        tags: Array.isArray(n.tags) ? n.tags.filter((t: any) => typeof t === 'string') : []
-      });
-    });
-    notes.value = Array.from(noteMap.values());
+    const validNotes = hasNotes
+      ? data.notes.filter((n: any) => {
+          return (
+            n &&
+            typeof n.id === 'string' &&
+            typeof n.categoryId === 'string' &&
+            typeof n.content === 'string' &&
+            typeof n.color === 'string'
+          );
+        })
+      : [];
 
-    saveCategories();
-    saveNotes();
-
-    const currentIds = new Set(categories.value.map(c => c.id));
-    currentIds.add('all');
-    let newOrder = categoryOrder.value.filter(id => currentIds.has(id));
-    categories.value.forEach(c => {
-      if (!newOrder.includes(c.id)) {
-        newOrder.push(c.id);
-      }
-    });
-    if (!newOrder.includes('all')) {
-      newOrder.unshift('all');
+    if (validCategories.length === 0 && validNotes.length === 0 && !hasSettings) {
+      showToast('导入失败：备份文件不包含有效的分类、便签或设置数据', 'error');
+      return false;
     }
-    categoryOrder.value = newOrder;
-    saveCategoryOrder();
 
-    showToast(
-      `成功导入 ${validCategories.length} 个分类和 ${validNotes.length} 张便签！`,
-      'success'
-    );
+    if (validCategories.length > 0) {
+      const catMap = new Map(categories.value.map(c => [c.id, c]));
+      validCategories.forEach((c: any) => {
+        catMap.set(c.id, {
+          id: c.id,
+          name: c.name,
+          createdAt: c.createdAt || Date.now(),
+          parentId: typeof c.parentId === 'string' ? c.parentId : undefined
+        });
+      });
+      categories.value = Array.from(catMap.values());
+      saveCategories();
+    }
+
+    if (validNotes.length > 0) {
+      const noteMap = new Map(notes.value.map(n => [n.id, n]));
+      validNotes.forEach((n: any) => {
+        noteMap.set(n.id, {
+          id: n.id,
+          categoryId: n.categoryId,
+          title: n.title || '',
+          content: n.content,
+          color: n.color,
+          isPinned: !!n.isPinned,
+          createdAt: n.createdAt || Date.now(),
+          updatedAt: n.updatedAt || Date.now(),
+          tags: Array.isArray(n.tags) ? n.tags.filter((t: any) => typeof t === 'string') : [],
+          type: n.type || 'text',
+          images: Array.isArray(n.images) ? n.images : undefined,
+          isDeleted: !!n.isDeleted,
+          deletedAt: n.deletedAt,
+          lastUsedAt: n.lastUsedAt,
+          useCount: n.useCount
+        });
+      });
+      notes.value = Array.from(noteMap.values());
+      saveNotes();
+    }
+
+    if (validCategories.length > 0) {
+      const currentIds = new Set(categories.value.map(c => c.id));
+      currentIds.add('all');
+      let newOrder = categoryOrder.value.filter(id => currentIds.has(id));
+      categories.value.forEach(c => {
+        if (!newOrder.includes(c.id)) {
+          newOrder.push(c.id);
+        }
+      });
+      if (!newOrder.includes('all')) {
+        newOrder.unshift('all');
+      }
+      categoryOrder.value = newOrder;
+      saveCategoryOrder();
+    }
+
+    if (hasSettings && applySettings) {
+      applySettings(data.settings);
+    }
+
+    let toastMessage = `成功导入 ${validCategories.length} 个分类和 ${validNotes.length} 张便签！`;
+    if (hasSettings) {
+      toastMessage = `成功导入 ${validCategories.length} 个分类、${validNotes.length} 张便签及系统设置！`;
+    }
+
+    showToast(toastMessage, 'success');
     return true;
   } catch (e) {
     console.error('Import backup failed:', e);
@@ -155,6 +187,7 @@ export const importBackup = (
     return false;
   }
 };
+
 
 export const exportSingleNoteAsTxt = (
   note: Note,

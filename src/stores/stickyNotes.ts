@@ -9,6 +9,7 @@ import { storage, pasteTextToCursor } from '@utils/storage';
 import { Note, NoteType } from '@type';
 import { useShortcutStore } from './shortcutStore';
 import { getDefaultCategories } from './defaultData';
+import { getCurrentSettings, applySettings } from './settingsHelper';
 
 export { COLOR_PRESETS };
 
@@ -194,7 +195,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       noteStore.loadNotesForCurrentCategory();
 
       // uTools 环境下检测版本更新并对前一版本数据执行自动备份
-      helpers.checkAndAutoBackupPreUpdate(categoryStore.categories, noteStore.allNotes);
+      helpers.checkAndAutoBackupPreUpdate(
+        categoryStore.categories,
+        noteStore.allNotes,
+        getCurrentSettings(uiStore, noteStore, useShortcutStore(), categoryStore)
+      );
     } catch (e) {
       console.error('Failed to load sticky notes data:', e);
     }
@@ -369,10 +374,13 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
 
   // 备份与粘贴代理方法
   const exportBackup = () => {
-    helpers.exportBackup(categoryStore.categories, noteStore.allNotes, uiStore.showToast);
+    const shortcutStore = useShortcutStore();
+    const settings = getCurrentSettings(uiStore, noteStore, shortcutStore, categoryStore);
+    helpers.exportBackup(categoryStore.categories, noteStore.allNotes, settings, uiStore.showToast);
   };
 
   const importBackup = (jsonStr: string): boolean => {
+    const shortcutStore = useShortcutStore();
     const ok = helpers.importBackup(
       jsonStr,
       categoriesRef,
@@ -381,7 +389,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       categoryStore.saveCategories,
       noteStore.saveNotes,
       categoryStore.saveCategoryOrder,
-      uiStore.showToast
+      uiStore.showToast,
+      (settings) => applySettings(settings, uiStore, noteStore, shortcutStore, categoryStore)
     );
     if (ok) {
       noteStore.loadNotesForCurrentCategory();
