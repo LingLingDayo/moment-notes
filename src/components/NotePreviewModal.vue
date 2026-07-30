@@ -59,9 +59,7 @@ onUnmounted(() => {
   position: fixed;
   inset: 0;
   z-index: 9990;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--modal-overlay-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,10 +78,12 @@ onUnmounted(() => {
 
 .preview-modal-fade-enter-active,
 .preview-modal-fade-leave-active {
-  transition: opacity 0.22s ease;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
 
   .note-preview-content {
-    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    will-change: transform, opacity;
   }
 }
 
@@ -92,7 +92,8 @@ onUnmounted(() => {
   opacity: 0;
 
   .note-preview-content {
-    transform: scale(0.96);
+    transform: scale(0.92) translate3d(0, 12px, 0);
+    opacity: 0;
   }
 }
 </style>
