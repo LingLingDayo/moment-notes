@@ -91,6 +91,15 @@ export const useNoteStore = defineStore('noteStore', () => {
     }
   });
 
+  watch(sortMode, (newMode) => {
+    const uiStore = useUiStore();
+    if (uiStore.categoryIndependentToolbar && currentCategoryId.value) {
+      uiStore.updateCategoryViewSetting(currentCategoryId.value, {
+        sortMode: newMode
+      });
+    }
+  });
+
   const saveNotes = () => {
     storage.setItem('sticky_notes_notes', JSON.stringify(allNotes.value));
   };
@@ -220,7 +229,6 @@ export const useNoteStore = defineStore('noteStore', () => {
   };
 
   const setSortMode = (mode: 'date' | 'title' | 'tag' | 'custom' | 'useCount') => {
-    const uiStore = useUiStore();
     if (mode === sortMode.value) {
       if (mode !== 'custom') {
         sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
@@ -239,13 +247,6 @@ export const useNoteStore = defineStore('noteStore', () => {
     }
     storage.setItem('sticky_notes_sort_mode', sortMode.value);
     storage.setItem('sticky_notes_sort_order', sortOrder.value);
-
-    if (uiStore.categoryIndependentToolbar && currentCategoryId.value) {
-      uiStore.updateCategoryViewSetting(currentCategoryId.value, {
-        sortMode: sortMode.value,
-        sortOrder: sortOrder.value
-      });
-    }
   };
 
   const moveNote = (draggedId: string, targetId: string) => {
