@@ -207,11 +207,11 @@ export const getDefaultNotes = (): Note[] => [
     title: '📝 Markdown 演示便签',
     type: 'markdown',
     content:
-      `# Markdown 丰富格式支持
+      `# Markdown 格式参考
 
-拾光便签现已全面支持 **Markdown** 渲染！
+拾光便签支持原生的 **Markdown** 语法渲染。
 
-### 核心特性：
+### 常用语法示例：
 - **列表与任务**：支持 \`- [x]\` 任务复选框
 - **引用块**：
   > 支持精美的暗黑/浅色主题自适应引用样式。
@@ -222,7 +222,7 @@ export const getDefaultNotes = (): Note[] => [
     isPinned: false,
     createdAt: Date.now() - 4000,
     updatedAt: Date.now() - 4000,
-    tags: ['Markdown', '新功能']
+    tags: ['示例', 'Markdown']
   }
 ];
 
