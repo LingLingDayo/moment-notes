@@ -110,4 +110,7 @@ export const applySettings = (
     categoryStore.collapsedCategoryIds = settings.collapsedCategoryIds;
     storage.setItem('sticky_notes_collapsed_categories', JSON.stringify(settings.collapsedCategoryIds));
   }
+  if (typeof noteStore.applyCategoryViewSettings === 'function' && noteStore.currentCategoryId) {
+    noteStore.applyCategoryViewSettings(noteStore.currentCategoryId);
+  }
 };

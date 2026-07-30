@@ -314,6 +314,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     moveNote,
     updateNoteLastUsed,
     loadNotesForCurrentCategory,
-    syncCurrentCategoryNotes
+    syncCurrentCategoryNotes,
+    applyCategoryViewSettings
   };
 });
