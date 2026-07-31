@@ -162,7 +162,7 @@ const handleHandleMouseLeave = () => {
 };
 
 const handleDragStart = (e: DragEvent) => {
-  if (store.sortMode !== 'custom' || isEditing.value || props.note.isDeleted || props.note.isPinned || !isDragTriggered.value) {
+  if (store.sortMode !== 'custom' || isEditing.value || props.note.isDeleted || !isDragTriggered.value) {
     e.preventDefault();
     return;
   }
@@ -307,7 +307,7 @@ onMounted(() => {
       'is-full-screen': isFullScreen
     }"
     :style="[colorStyle, cardMaxHeightStyle]"
-    :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned && isDragTriggered"
+    :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && isDragTriggered"
     @dblclick="handleDoubleClick"
     @dragstart="handleDragStart"
     @dragover.prevent="handleDragOver"
@@ -318,7 +318,7 @@ onMounted(() => {
   >
     <!-- 拖拽手柄区域 -->
     <div
-      v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !note.isPinned && !isFullScreen"
+      v-if="store.sortMode === 'custom' && !isEditing && !note.isDeleted && !isFullScreen"
       class="note-drag-handle"
       data-tooltip="按住拖动调整位置"
       @mouseenter="handleHandleMouseEnter"
