@@ -282,7 +282,6 @@ onUnmounted(() => {
     background: rgba(255, 255, 255, 0.22);
     color: #fff;
     border-color: rgba(255, 255, 255, 0.35);
-    transform: translateY(-50%) scale(1.08);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   }
 
