@@ -56,12 +56,33 @@ export function sortNotes(
   sortOrder: SortOrder = 'desc',
   currentCategoryId = 'all'
 ): Note[] {
+  if (notes.length <= 1) {
+    return [...notes];
+  }
+
+  // 1. 预计算 custom 索引 Map，避免在 sort 回调中频繁执行 findIndex (查找复杂度从 O(N) 降至 O(1))
+  const indexMap = sortMode === 'custom'
+    ? new Map(notes.map((n, i) => [n.id, i]))
+    : null;
+
+  // 2. 预计算 tag 字典序 Map，避免在 sort 回调中频繁做深浅拷贝与中文拼音字典排序
+  const sortedTagsMap = sortMode === 'tag'
+    ? new Map(
+        notes.map(n => [
+          n.id,
+          Array.isArray(n.tags) && n.tags.length > 0
+            ? [...n.tags].sort((t1, t2) => t1.localeCompare(t2, 'zh'))
+            : []
+        ])
+      )
+    : null;
+
   return [...notes].sort((a, b) => {
-    // 1. 置顶(isPinned)始终排在最前面
+    // 置顶(isPinned)始终排在最前面
     if (a.isPinned && !b.isPinned) return -1;
     if (!a.isPinned && b.isPinned) return 1;
 
-    // 2. 最近使用分类特殊按 lastUsedAt 降序
+    // 最近使用分类特殊按 lastUsedAt 降序
     if (currentCategoryId === 'recent') {
       const timeA = a.lastUsedAt || 0;
       const timeB = b.lastUsedAt || 0;
@@ -75,8 +96,8 @@ export function sortNotes(
       if (titleA && !titleB) return -1;
       if (!titleA && !titleB) {
         return sortOrder === 'asc'
-          ? a.updatedAt - b.updatedAt
-          : b.updatedAt - a.updatedAt;
+          ? (a.updatedAt || 0) - (b.updatedAt || 0)
+          : (b.updatedAt || 0) - (a.updatedAt || 0);
       }
 
       const cmp = titleA.localeCompare(titleB, 'zh');
@@ -84,22 +105,17 @@ export function sortNotes(
         return sortOrder === 'asc' ? cmp : -cmp;
       }
       return sortOrder === 'asc'
-        ? a.updatedAt - b.updatedAt
-        : b.updatedAt - a.updatedAt;
+        ? (a.updatedAt || 0) - (b.updatedAt || 0)
+        : (b.updatedAt || 0) - (a.updatedAt || 0);
     } else if (sortMode === 'tag') {
-      const getSortedTags = (note: Note): string[] => {
-        if (!note.tags || note.tags.length === 0) return [];
-        return [...note.tags].sort((t1, t2) => t1.localeCompare(t2, 'zh'));
-      };
-
-      const tagsA = getSortedTags(a);
-      const tagsB = getSortedTags(b);
+      const tagsA = sortedTagsMap?.get(a.id) || [];
+      const tagsB = sortedTagsMap?.get(b.id) || [];
 
       // 无标签垫底
       if (tagsA.length === 0 && tagsB.length > 0) return 1;
       if (tagsA.length > 0 && tagsB.length === 0) return -1;
       if (tagsA.length === 0 && tagsB.length === 0) {
-        return b.updatedAt - a.updatedAt;
+        return (b.updatedAt || 0) - (a.updatedAt || 0);
       }
 
       // 比较代表/主要标签 (拼音字典序，归聚相同标签的分组)
@@ -125,8 +141,8 @@ export function sortNotes(
 
       // 标签完全相同时，对比更新时间
       return sortOrder === 'asc'
-        ? a.updatedAt - b.updatedAt
-        : b.updatedAt - a.updatedAt;
+        ? (a.updatedAt || 0) - (b.updatedAt || 0)
+        : (b.updatedAt || 0) - (a.updatedAt || 0);
     } else if (sortMode === 'useCount') {
       const countA = a.useCount || 0;
       const countB = b.useCount || 0;
@@ -134,8 +150,8 @@ export function sortNotes(
         return sortOrder === 'asc' ? countA - countB : countB - countA;
       }
       return sortOrder === 'asc'
-        ? a.updatedAt - b.updatedAt
-        : b.updatedAt - a.updatedAt;
+        ? (a.updatedAt || 0) - (b.updatedAt || 0)
+        : (b.updatedAt || 0) - (a.updatedAt || 0);
     } else if (sortMode === 'custom') {
       if (currentCategoryId !== 'all' && currentCategoryId !== 'trash') {
         const isOwnA = a.categoryId === currentCategoryId;
@@ -143,13 +159,13 @@ export function sortNotes(
         if (isOwnA && !isOwnB) return -1;
         if (!isOwnA && isOwnB) return 1;
       }
-      const indexA = notes.findIndex(n => n.id === a.id);
-      const indexB = notes.findIndex(n => n.id === b.id);
+      const indexA = indexMap?.get(a.id) ?? 0;
+      const indexB = indexMap?.get(b.id) ?? 0;
       return indexA - indexB;
     } else {
       return sortOrder === 'desc'
-        ? b.updatedAt - a.updatedAt
-        : a.updatedAt - b.updatedAt;
+        ? (b.updatedAt || 0) - (a.updatedAt || 0)
+        : (a.updatedAt || 0) - (b.updatedAt || 0);
     }
   });
 }
