@@ -234,7 +234,7 @@ onUnmounted(() => {
 .image-preview-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 9040;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -255,7 +255,7 @@ onUnmounted(() => {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10000;
+  z-index: 9045;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -307,7 +307,7 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 30px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  z-index: 10000;
+  z-index: 9045;
   cursor: default;
 }
 

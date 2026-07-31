@@ -90,7 +90,7 @@ const handleButtonAction = (actionKey: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9990;
+  z-index: 9000;
 }
 
 .modal-container {

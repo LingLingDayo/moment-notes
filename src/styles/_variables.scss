@@ -10,3 +10,17 @@ $radius-md: 10px;
 $radius-lg: 12px;
 $radius-xl: 16px;
 $radius-round: 50%;
+
+// 全局 z-index 层级架构规范 (各弹窗/浮层保留 10 步长间距)
+$z-index-base: 1;             // 基础卡片与页面元素
+$z-index-popover: 100;         // 下拉菜单、小浮层、搜索建议
+$z-index-dropdown: 1000;       // 控件内部下拉列表
+
+$z-index-modal-level1: 9000;  // 一级全局主弹窗 (如：设置弹窗 SettingsModal、便签大窗 NotePreviewModal)
+$z-index-modal-level2: 9010;  // 二级子功能弹窗 (如：数据导出 ExportModal、数据导入 ImportModal)
+$z-index-modal-level3: 9020;  // 三级确认弹窗 (如：全局二步确认弹窗 ConfirmModal)
+
+$z-index-toast: 9030;         // 全局通知 Toast 提示
+$z-index-media-preview: 9040; // 全局大图预览 Modal
+$z-index-global-tooltip: 99999; // 全局最高层 Hover Tooltip
+

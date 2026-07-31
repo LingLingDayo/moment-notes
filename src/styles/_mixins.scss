@@ -44,7 +44,7 @@
 }
 
 // 浮层/全屏弹窗右上角圆形关闭按钮混入
-@mixin overlay-close-btn($top: 24px, $right: 28px, $z-index: 10000) {
+@mixin overlay-close-btn($top: 24px, $right: 28px, $z-index: 9045) {
   position: fixed;
   top: $top;
   right: $right;

@@ -58,7 +58,7 @@ onUnmounted(() => {
 .note-preview-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9990;
+  z-index: 9000;
   background: var(--modal-overlay-bg);
   display: flex;
   align-items: center;
