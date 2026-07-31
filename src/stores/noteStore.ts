@@ -5,13 +5,14 @@ import { storage } from '@utils/storage';
 import { useUiStore } from './uiStore';
 import { useCategoryStore } from './categoryStore';
 import { COLOR_PRESETS } from './colorPresets';
+import { SearchTarget } from './stickyNotesAlgorithms';
 
 export const useNoteStore = defineStore('noteStore', () => {
   const allNotes = ref<Note[]>([]);
   const notes = ref<Note[]>([]);
   const currentCategoryId = ref<string>('all');
   const searchQuery = ref<string>('');
-  const searchTarget = ref<Array<'all' | 'title' | 'content' | 'tag'>>(['all']);
+  const searchTarget = ref<SearchTarget[]>(['all']);
   const sortMode = ref<'date' | 'title' | 'tag' | 'custom' | 'useCount'>('date');
   const sortOrder = ref<'asc' | 'desc'>('desc');
   const draggedNoteId = ref<string | null>(null);

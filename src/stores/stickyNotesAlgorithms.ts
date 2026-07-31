@@ -1,8 +1,31 @@
 import type { Note, Category } from '../types/index';
 
-export type SearchTarget = 'all' | 'title' | 'content' | 'tag';
+export type SearchTarget = 'all' | 'title' | 'content' | 'tag' | 'category';
 export type SortMode = 'date' | 'title' | 'tag' | 'custom' | 'useCount';
 export type SortOrder = 'asc' | 'desc';
+
+/**
+ * 构建分类 ID 到完整层级路径 (例如: "父分类 / 子分类") 的映射 Map
+ */
+export function getCategoryPathMap(categories: Category[]): Map<string, string> {
+  const pathMap = new Map<string, string>();
+  if (!categories || categories.length === 0) {
+    return pathMap;
+  }
+
+  const catMap = new Map(categories.map(c => [c.id, c]));
+  categories.forEach(c => {
+    const path: string[] = [];
+    let cur: Category | undefined = c;
+    while (cur) {
+      path.unshift(cur.name);
+      cur = cur.parentId ? catMap.get(cur.parentId) : undefined;
+    }
+    pathMap.set(c.id, path.join(' / '));
+  });
+
+  return pathMap;
+}
 
 /**
  * 依据搜索词与目标范围过滤便签列表
@@ -10,7 +33,8 @@ export type SortOrder = 'asc' | 'desc';
 export function filterNotes(
   notes: Note[],
   searchQuery: string,
-  searchTarget: SearchTarget[] = ['all']
+  searchTarget: SearchTarget[] = ['all'],
+  categories: Category[] = []
 ): Note[] {
   const q = searchQuery.trim().toLowerCase();
   if (!q) {
@@ -21,6 +45,8 @@ export function filterNotes(
   if (keywords.length === 0) {
     return notes;
   }
+
+  const categoryPathMap = getCategoryPathMap(categories);
 
   return notes.filter(n => {
     return keywords.every(kw => {
@@ -34,14 +60,20 @@ export function filterNotes(
         ? n.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(term))
         : false;
 
+      const categoryName = (n.categoryId && categoryPathMap.has(n.categoryId))
+        ? categoryPathMap.get(n.categoryId)!
+        : (n.categoryId === 'uncategorized' ? '未分类' : '');
+      const categoryMatch = categoryName ? categoryName.toLowerCase().includes(term) : false;
+
       if (searchTarget.includes('all')) {
-        return titleMatch || contentMatch || tagsMatch;
+        return titleMatch || contentMatch || tagsMatch || categoryMatch;
       }
 
       let match = false;
       if (searchTarget.includes('title') && titleMatch) match = true;
       if (searchTarget.includes('content') && contentMatch) match = true;
       if (searchTarget.includes('tag') && tagsMatch) match = true;
+      if (searchTarget.includes('category') && categoryMatch) match = true;
       return match;
     });
   });
@@ -179,9 +211,10 @@ export function getFilteredAndSortedNotes(
   searchTarget: SearchTarget[] = ['all'],
   sortMode: SortMode = 'date',
   sortOrder: SortOrder = 'desc',
-  currentCategoryId = 'all'
+  currentCategoryId = 'all',
+  categories: Category[] = []
 ): Note[] {
-  const filtered = filterNotes(notes, searchQuery, searchTarget);
+  const filtered = filterNotes(notes, searchQuery, searchTarget, categories);
   const sorted = sortNotes(filtered, sortMode, sortOrder, currentCategoryId);
 
   if (currentCategoryId === 'recent') {

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
+import type { SearchTarget } from '@stores/stickyNotesAlgorithms';
 import { Search, X, ChevronDown } from '@lucide/vue';
 
 const store = useStickyNotesStore();
@@ -8,12 +9,13 @@ const store = useStickyNotesStore();
 // 搜索目标弹窗状态
 const showTargetPopover = ref(false);
 
-const targetOptions = [
+const targetOptions: Array<{ value: SearchTarget; label: string }> = [
   { value: 'all', label: '全部' },
   { value: 'title', label: '标题' },
   { value: 'content', label: '内容' },
-  { value: 'tag', label: '标签' }
-] as const;
+  { value: 'tag', label: '标签' },
+  { value: 'category', label: '分类' }
+];
 
 // 动态 placeholder text
 const searchPlaceholder = computed(() => {
@@ -24,6 +26,7 @@ const searchPlaceholder = computed(() => {
   if (store.searchTarget.includes('title')) parts.push('标题');
   if (store.searchTarget.includes('content')) parts.push('内容');
   if (store.searchTarget.includes('tag')) parts.push('标签');
+  if (store.searchTarget.includes('category')) parts.push('分类');
 
   if (parts.length > 0) {
     return `搜索便签${parts.join('/')}...`;
@@ -42,13 +45,13 @@ const togglePopover = () => {
 };
 
 // 检查是否选中
-const isSelected = (value: 'all' | 'title' | 'content' | 'tag') => {
+const isSelected = (value: SearchTarget) => {
   return store.searchTarget.includes(value);
 };
 
 // 切换选择目标
-const toggleTarget = (target: 'all' | 'title' | 'content' | 'tag') => {
-  let nextTargets: Array<'all' | 'title' | 'content' | 'tag'> = [];
+const toggleTarget = (target: SearchTarget) => {
+  let nextTargets: SearchTarget[] = [];
   if (target === 'all') {
     nextTargets = ['all'];
   } else {
@@ -63,7 +66,7 @@ const toggleTarget = (target: 'all' | 'title' | 'content' | 'tag') => {
     }
 
     // 如果全部都取消了，或者把所有其他选项都选上了，自动变回 'all'
-    const otherOptionsCount = 3; // title, content, tag
+    const otherOptionsCount = 4; // title, content, tag, category
     if (nextTargets.length === 0 || nextTargets.length === otherOptionsCount) {
       nextTargets = ['all'];
     }
@@ -314,6 +317,24 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  max-height: 120px;
+  overflow-y: auto;
+
+  /* 细窄美观的极简滚动条 */
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+
+    .light-theme & {
+      background: rgba(0, 0, 0, 0.15);
+    }
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 .target-item {

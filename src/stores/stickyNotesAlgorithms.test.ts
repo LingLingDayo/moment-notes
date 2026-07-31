@@ -56,6 +56,32 @@ describe('stickyNotesAlgorithms 纯算法单测套件', () => {
       expect(tagResult).toHaveLength(1);
       expect(tagResult[0].id).toBe('1');
     });
+
+    it('支持便签所属分类 (完整层级) 的检索过滤', () => {
+      const categories: Category[] = [
+        { id: 'cat-parent', name: '工作笔记', createdAt: 100 },
+        { id: 'cat-child', name: '前端开发', parentId: 'cat-parent', createdAt: 200 }
+      ];
+
+      const notes = [
+        createMockNote({ id: '1', categoryId: 'cat-child', title: 'Vue 技巧' }),
+        createMockNote({ id: '2', categoryId: 'cat-parent', title: '周报' }),
+        createMockNote({ id: '3', categoryId: 'uncategorized', title: '杂记' })
+      ];
+
+      // 仅分类搜父分类名称
+      const catResult1 = filterNotes(notes, '工作笔记', ['category'], categories);
+      expect(catResult1).toHaveLength(2);
+
+      // 仅分类搜完整层级中的子分类名称
+      const catResult2 = filterNotes(notes, '前端开发', ['category'], categories);
+      expect(catResult2).toHaveLength(1);
+      expect(catResult2[0].id).toBe('1');
+
+      // 全匹配 ('all') 包含分类层级匹配
+      const allResult = filterNotes(notes, '工作笔记', ['all'], categories);
+      expect(allResult).toHaveLength(2);
+    });
   });
 
   describe('sortNotes 多维排序算法', () => {

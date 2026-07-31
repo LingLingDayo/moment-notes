@@ -265,7 +265,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       noteStore.searchTarget,
       noteStore.sortMode,
       noteStore.sortOrder,
-      noteStore.currentCategoryId
+      noteStore.currentCategoryId,
+      categoryStore.categories
     );
   });
 
