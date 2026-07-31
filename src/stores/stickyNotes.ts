@@ -6,7 +6,7 @@ import { useUiStore } from './uiStore';
 import { COLOR_PRESETS } from './colorPresets';
 import * as helpers from './stickyNotesHelpers';
 import { storage, pasteTextToCursor } from '@utils/storage';
-import { Note, NoteType } from '@type';
+import { Note, NoteType, ExportOptions, ImportOptions } from '@type';
 import { useShortcutStore } from './shortcutStore';
 import { getDefaultCategories } from './defaultData';
 import { getCurrentSettings, applySettings } from './settingsHelper';
@@ -277,6 +277,18 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     helpers.exportBackup(categoryStore.categories, noteStore.allNotes, settings, uiStore.showToast);
   };
 
+  const exportSelectedBackup = (options: ExportOptions) => {
+    const shortcutStore = useShortcutStore();
+    const settings = getCurrentSettings(uiStore, noteStore, shortcutStore, categoryStore);
+    helpers.exportSelectedBackup(
+      categoryStore.categories,
+      noteStore.allNotes,
+      settings,
+      options,
+      uiStore.showToast
+    );
+  };
+
   const importBackup = (jsonStr: string): boolean => {
     const shortcutStore = useShortcutStore();
     const ok = helpers.importBackup(
@@ -295,6 +307,53 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     }
     return ok;
   };
+
+  const importSelectedBackup = (options: ImportOptions): boolean => {
+    if (!uiStore.pendingImportData) {
+      uiStore.showToast('导入失败：找不到解析的备份数据', 'error');
+      return false;
+    }
+    const shortcutStore = useShortcutStore();
+    const ok = helpers.importSelectedBackup(
+      uiStore.pendingImportData,
+      options,
+      categoriesRef,
+      toRef(noteStore, 'allNotes'),
+      categoryOrderRef,
+      categoryStore.saveCategories,
+      noteStore.saveNotes,
+      categoryStore.saveCategoryOrder,
+      uiStore.showToast,
+      (settings) => applySettings(settings, uiStore, noteStore, shortcutStore, categoryStore)
+    );
+    if (ok) {
+      noteStore.loadNotesForCurrentCategory();
+      uiStore.closeImportModal();
+    }
+    return ok;
+  };
+
+  const prepareImportFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target?.result as string;
+      if (text) {
+        try {
+          const data = JSON.parse(text);
+          if (!data || typeof data !== 'object') {
+            uiStore.showToast('导入失败：无效的 JSON 备份格式', 'error');
+            return;
+          }
+          uiStore.openImportModal(data);
+        } catch (err) {
+          console.error('Failed to parse backup JSON file:', err);
+          uiStore.showToast('导入失败：JSON 文件解析失败', 'error');
+        }
+      }
+    };
+    reader.readAsText(file);
+  };
+
 
   const exportSingleNoteAsTxt = (note: Note) => {
     helpers.exportSingleNoteAsTxt(note, uiStore.showToast, uiStore.prefixTagWithHash);
@@ -428,11 +487,22 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     closeNotePreview: uiStore.closeNotePreview,
     toggleNotePreview: uiStore.toggleNotePreview,
 
+    showExportModal: toRef(uiStore, 'showExportModal'),
+    openExportModal: uiStore.openExportModal,
+    closeExportModal: uiStore.closeExportModal,
+    showImportModal: toRef(uiStore, 'showImportModal'),
+    pendingImportData: toRef(uiStore, 'pendingImportData'),
+    openImportModal: uiStore.openImportModal,
+    closeImportModal: uiStore.closeImportModal,
+
     // 初始化与备份代理
     isInitialized: readonly(isInitialized),
     loadData,
     exportBackup,
+    exportSelectedBackup,
     importBackup,
+    importSelectedBackup,
+    prepareImportFile,
     exportSingleNoteAsTxt,
     handlePasteNote,
     devResetNotes,
@@ -440,3 +510,4 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     devResetAllData
   };
 });
+

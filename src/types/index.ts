@@ -77,3 +77,19 @@ export interface BackupData {
   settings?: AppSettings;
 }
 
+export interface ExportOptions {
+  categoryIds: string[];
+  includeSettings: boolean;
+  includeTrash: boolean;
+}
+
+export type ImportMode = 'merge' | 'overwrite';
+
+export interface ImportOptions {
+  mode: ImportMode;
+  categoryIds: string[];
+  importUncategorized: boolean;
+  importSettings: boolean;
+}
+
+

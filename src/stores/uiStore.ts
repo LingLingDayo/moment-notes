@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { storage } from '@utils/storage';
-import { NoteType, CategoryViewSetting } from '@type';
+import { NoteType, CategoryViewSetting, BackupData } from '@type';
 
 export const useUiStore = defineStore('uiStore', () => {
   // 确认弹窗状态 (Promise 驱动)
@@ -230,6 +230,27 @@ export const useUiStore = defineStore('uiStore', () => {
     }
   };
 
+  // 导出/导入弹窗状态
+  const showExportModal = ref(false);
+  const openExportModal = () => {
+    showExportModal.value = true;
+  };
+  const closeExportModal = () => {
+    showExportModal.value = false;
+  };
+
+  const showImportModal = ref(false);
+  const pendingImportData = ref<BackupData | null>(null);
+  const openImportModal = (data: BackupData) => {
+    pendingImportData.value = data;
+    showImportModal.value = true;
+  };
+  const closeImportModal = () => {
+    showImportModal.value = false;
+    pendingImportData.value = null;
+  };
+
+
   return {
     confirmState,
     askConfirm,
@@ -279,7 +300,15 @@ export const useUiStore = defineStore('uiStore', () => {
     openedFullscreenForEditNoteId,
     openNotePreview,
     closeNotePreview,
-    toggleNotePreview
+    toggleNotePreview,
+    showExportModal,
+    openExportModal,
+    closeExportModal,
+    showImportModal,
+    pendingImportData,
+    openImportModal,
+    closeImportModal
   };
 });
+
 

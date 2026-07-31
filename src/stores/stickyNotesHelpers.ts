@@ -1,4 +1,4 @@
-import { Category, Note, AppSettings } from '@type';
+import { Category, Note, AppSettings, BackupData, ExportOptions, ImportOptions } from '@type';
 import { storage, downloadOrWriteFile, isUTools } from '@utils/storage';
 import { getDefaultNotes } from './defaultData';
 
@@ -12,7 +12,7 @@ export const createBackupData = (
   notes: Note[],
   settings?: AppSettings,
   versionOverride?: string
-) => {
+): BackupData => {
   return {
     version: versionOverride || __APP_VERSION__,
     timestamp: Date.now(),
@@ -66,6 +66,47 @@ export const exportBackup = (
     showToast('已取消备份导出', 'info');
   } else {
     showToast('备份已导出为 JSON 文件下载', 'success');
+  }
+};
+
+export const exportSelectedBackup = (
+  categories: Category[],
+  notes: Note[],
+  settings: AppSettings,
+  options: ExportOptions,
+  showToast: (msg: string, type?: any) => void
+) => {
+  const selectedCatSet = new Set(options.categoryIds);
+  const filteredCategories = categories.filter(c => selectedCatSet.has(c.id));
+
+  const filteredNotes = notes.filter(n => {
+    if (n.isDeleted && !options.includeTrash) return false;
+    const catId = n.categoryId || 'all';
+    if (catId !== 'all') {
+      return selectedCatSet.has(catId);
+    }
+    return selectedCatSet.has('all') || selectedCatSet.has('uncategorized');
+  });
+
+  const backupData = createBackupData(
+    filteredCategories,
+    filteredNotes,
+    options.includeSettings ? settings : undefined
+  );
+
+  const jsonStr = JSON.stringify(backupData, null, 2);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const now = new Date();
+  const timeStr = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())} ${pad(now.getHours())}.${pad(now.getMinutes())}.${pad(now.getSeconds())}`;
+  const filename = `moment-notes-backup-${timeStr}.json`;
+
+  const result = downloadOrWriteFile(jsonStr, filename, 'application/json');
+  if (result === 'success') {
+    showToast('所选数据已成功导出', 'success');
+  } else if (result === 'canceled') {
+    showToast('已取消备份导出', 'info');
+  } else {
+    showToast('所选数据已导出为 JSON 文件下载', 'success');
   }
 };
 
@@ -187,6 +228,157 @@ export const importBackup = (
     return false;
   }
 };
+
+export const importSelectedBackup = (
+  data: BackupData,
+  options: ImportOptions,
+  categoriesRef: { value: Category[] },
+  notesRef: { value: Note[] },
+  categoryOrderRef: { value: string[] },
+  saveCategories: () => void,
+  saveNotes: () => void,
+  saveCategoryOrder: () => void,
+  showToast: (msg: string, type?: any) => void,
+  applySettings?: (settings: AppSettings) => void
+): boolean => {
+  try {
+    if (!data || typeof data !== 'object') return false;
+
+    const selectedCatSet = new Set(options.categoryIds);
+    const rawCategories = Array.isArray(data.categories) ? data.categories : [];
+    const rawNotes = Array.isArray(data.notes) ? data.notes : [];
+
+    const categoriesToImport = rawCategories.filter(
+      (c: any) => c && typeof c.id === 'string' && typeof c.name === 'string' && selectedCatSet.has(c.id)
+    );
+
+    const notesToImport = rawNotes.filter((n: any) => {
+      if (!n || typeof n.id !== 'string' || typeof n.content !== 'string' || typeof n.color !== 'string') {
+        return false;
+      }
+      const catId = n.categoryId || 'all';
+      if (catId !== 'all' && selectedCatSet.has(catId)) {
+        return true;
+      }
+      if ((catId === 'all' || !catId) && options.importUncategorized) {
+        return true;
+      }
+      return false;
+    });
+
+    const hasCategories = categoriesToImport.length > 0;
+    const hasNotes = notesToImport.length > 0;
+    const hasSettings = options.importSettings && !!(data.settings && typeof data.settings === 'object');
+
+    if (!hasCategories && !hasNotes && !hasSettings) {
+      showToast('未选择任何有效的数据项进行导入', 'warning');
+      return false;
+    }
+
+    if (options.mode === 'overwrite') {
+      if (selectedCatSet.size > 0) {
+        categoriesRef.value = categoriesToImport.map(c => ({
+          id: c.id,
+          name: c.name,
+          createdAt: c.createdAt || Date.now(),
+          parentId: typeof c.parentId === 'string' ? c.parentId : undefined
+        }));
+      } else {
+        categoriesRef.value = [];
+      }
+
+      notesRef.value = notesToImport.map((n: any) => ({
+        id: n.id,
+        categoryId: n.categoryId || 'all',
+        title: n.title || '',
+        content: n.content,
+        color: n.color,
+        isPinned: !!n.isPinned,
+        createdAt: n.createdAt || Date.now(),
+        updatedAt: n.updatedAt || Date.now(),
+        tags: Array.isArray(n.tags) ? n.tags.filter((t: any) => typeof t === 'string') : [],
+        type: n.type || 'text',
+        images: Array.isArray(n.images) ? n.images : undefined,
+        isDeleted: !!n.isDeleted,
+        deletedAt: n.deletedAt,
+        lastUsedAt: n.lastUsedAt,
+        useCount: n.useCount
+      }));
+    } else {
+      if (hasCategories) {
+        const catMap = new Map(categoriesRef.value.map(c => [c.id, c]));
+        categoriesToImport.forEach((c: any) => {
+          catMap.set(c.id, {
+            id: c.id,
+            name: c.name,
+            createdAt: c.createdAt || Date.now(),
+            parentId: typeof c.parentId === 'string' ? c.parentId : undefined
+          });
+        });
+        categoriesRef.value = Array.from(catMap.values());
+      }
+
+      if (hasNotes) {
+        const noteMap = new Map(notesRef.value.map(n => [n.id, n]));
+        notesToImport.forEach((n: any) => {
+          noteMap.set(n.id, {
+            id: n.id,
+            categoryId: n.categoryId || 'all',
+            title: n.title || '',
+            content: n.content,
+            color: n.color,
+            isPinned: !!n.isPinned,
+            createdAt: n.createdAt || Date.now(),
+            updatedAt: n.updatedAt || Date.now(),
+            tags: Array.isArray(n.tags) ? n.tags.filter((t: any) => typeof t === 'string') : [],
+            type: n.type || 'text',
+            images: Array.isArray(n.images) ? n.images : undefined,
+            isDeleted: !!n.isDeleted,
+            deletedAt: n.deletedAt,
+            lastUsedAt: n.lastUsedAt,
+            useCount: n.useCount
+          });
+        });
+        notesRef.value = Array.from(noteMap.values());
+      }
+    }
+
+    saveCategories();
+    saveNotes();
+
+    const currentIds = new Set(categoriesRef.value.map(c => c.id));
+    currentIds.add('all');
+    let newOrder = categoryOrderRef.value.filter(id => currentIds.has(id));
+    categoriesRef.value.forEach(c => {
+      if (!newOrder.includes(c.id)) {
+        newOrder.push(c.id);
+      }
+    });
+    if (!newOrder.includes('all')) {
+      newOrder.unshift('all');
+    }
+    categoryOrderRef.value = newOrder;
+    saveCategoryOrder();
+
+    if (hasSettings && applySettings && data.settings) {
+      applySettings(data.settings);
+    }
+
+    const modeText = options.mode === 'overwrite' ? '覆盖' : '增量';
+    let toastMessage = `成功以【${modeText}】模式导入 ${categoriesToImport.length} 个分类和 ${notesToImport.length} 张便签！`;
+    if (hasSettings) {
+      toastMessage = `成功以【${modeText}】模式导入 ${categoriesToImport.length} 个分类、${notesToImport.length} 张便签及系统设置！`;
+    }
+
+    showToast(toastMessage, 'success');
+    return true;
+  } catch (e) {
+    console.error('Import selected backup failed:', e);
+    showToast('导入失败：处理备份数据时发生错误', 'error');
+    return false;
+  }
+};
+
 
 
 export const exportSingleNoteAsTxt = (

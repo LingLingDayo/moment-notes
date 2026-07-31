@@ -79,22 +79,12 @@ export function useSettings() {
     const file = target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = e => {
-      const text = e.target?.result as string;
-      if (text) {
-        const ok = store.importBackup(text);
-        if (ok) {
-          store.showToast('备份恢复成功', 'success');
-        }
-      }
-      target.value = '';
-    };
-    reader.readAsText(file);
+    store.prepareImportFile(file);
+    target.value = '';
   };
 
   const exportBackup = () => {
-    store.exportBackup();
+    store.openExportModal();
   };
 
   // 快捷操作逻辑

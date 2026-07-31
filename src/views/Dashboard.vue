@@ -8,6 +8,9 @@ import NoteGrid from '@modules/NoteGrid.vue';
 import Toast from '@components/Toast.vue';
 import ConfirmModal from '@components/ConfirmModal.vue';
 import SettingsModal from '@modules/SettingsModal/SettingsModal.vue';
+import ExportModal from '@modules/DataModal/ExportModal.vue';
+import ImportModal from '@modules/DataModal/ImportModal.vue';
+
 
 const store = useStickyNotesStore();
 const shortcutStore = useShortcutStore();
@@ -67,6 +70,10 @@ onUnmounted(() => {
 
     <!-- 全局设置弹窗 -->
     <SettingsModal />
+
+    <!-- 数据导出与导入弹窗 -->
+    <ExportModal />
+    <ImportModal />
   </div>
 </template>
 
