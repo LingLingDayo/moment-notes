@@ -3,14 +3,40 @@ import { ref } from 'vue';
 // 全局图片大图灯箱预览状态
 export const isImagePreviewOpen = ref(false);
 export const activePreviewUrl = ref('');
+export const previewImageList = ref<string[]>([]);
+export const currentImageIndex = ref(0);
 
 /**
  * 唤起全局大图预览
  */
-export function openImagePreview(url: string) {
+export function openImagePreview(url: string, images: string[] = [], index = 0) {
   if (!url) return;
-  activePreviewUrl.value = url;
+
+  const list = images.length > 0 ? images : [url];
+  const targetIndex = index >= 0 && index < list.length ? index : Math.max(0, list.indexOf(url));
+
+  previewImageList.value = list;
+  currentImageIndex.value = targetIndex !== -1 ? targetIndex : 0;
+  activePreviewUrl.value = list[currentImageIndex.value] || url;
   isImagePreviewOpen.value = true;
+}
+
+/**
+ * 切换到上一张图片
+ */
+export function prevImage() {
+  if (previewImageList.value.length <= 1) return;
+  currentImageIndex.value = (currentImageIndex.value - 1 + previewImageList.value.length) % previewImageList.value.length;
+  activePreviewUrl.value = previewImageList.value[currentImageIndex.value];
+}
+
+/**
+ * 切换到下一张图片
+ */
+export function nextImage() {
+  if (previewImageList.value.length <= 1) return;
+  currentImageIndex.value = (currentImageIndex.value + 1) % previewImageList.value.length;
+  activePreviewUrl.value = previewImageList.value[currentImageIndex.value];
 }
 
 /**
@@ -19,6 +45,8 @@ export function openImagePreview(url: string) {
 export function closeImagePreview() {
   isImagePreviewOpen.value = false;
   activePreviewUrl.value = '';
+  previewImageList.value = [];
+  currentImageIndex.value = 0;
 }
 
 /**

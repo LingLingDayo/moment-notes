@@ -1,7 +1,15 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { X, ZoomIn, ZoomOut, Undo2, Redo2, RotateCcw } from '@lucide/vue';
-import { isImagePreviewOpen, activePreviewUrl, closeImagePreview } from '@utils/imageHandler';
+import { X, ZoomIn, ZoomOut, Undo2, Redo2, RotateCcw, ChevronLeft, ChevronRight } from '@lucide/vue';
+import {
+  isImagePreviewOpen,
+  activePreviewUrl,
+  previewImageList,
+  currentImageIndex,
+  prevImage,
+  nextImage,
+  closeImagePreview
+} from '@utils/imageHandler';
 
 const zoomScale = ref(1);
 const rotation = ref(0);
@@ -19,6 +27,16 @@ const handleReset = () => {
   rotation.value = 0;
   translateX.value = 0;
   translateY.value = 0;
+};
+
+const handlePrev = () => {
+  prevImage();
+  handleReset();
+};
+
+const handleNext = () => {
+  nextImage();
+  handleReset();
 };
 
 watch(isImagePreviewOpen, (isOpen) => {
@@ -112,6 +130,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
   if (!isImagePreviewOpen.value) return;
   if (e.key === 'Escape') {
     closeImagePreview();
+  } else if (e.key === 'ArrowLeft') {
+    handlePrev();
+  } else if (e.key === 'ArrowRight') {
+    handleNext();
   }
 };
 
@@ -143,6 +165,25 @@ onUnmounted(() => {
           <X class="close-icon" />
         </button>
 
+        <!-- 悬浮左右切换按钮（多图时显示） -->
+        <button
+          v-if="previewImageList.length > 1"
+          class="nav-btn prev-btn"
+          data-tooltip="上一张 (←)"
+          @click.stop="handlePrev"
+        >
+          <ChevronLeft class="nav-icon" />
+        </button>
+
+        <button
+          v-if="previewImageList.length > 1"
+          class="nav-btn next-btn"
+          data-tooltip="下一张 (→)"
+          @click.stop="handleNext"
+        >
+          <ChevronRight class="nav-icon" />
+        </button>
+
         <!-- 悬浮底部工具栏 -->
         <div class="preview-toolbar" @click.stop>
           <button class="tool-btn" data-tooltip="放大" @click="zoomIn">
@@ -161,6 +202,11 @@ onUnmounted(() => {
             <RotateCcw class="tool-icon" />
           </button>
           <span class="scale-text">{{ Math.round(zoomScale * 100) }}%</span>
+
+          <template v-if="previewImageList.length > 1">
+            <div class="counter-divider"></div>
+            <span class="image-counter">{{ currentImageIndex + 1 }} / {{ previewImageList.length }}</span>
+          </template>
         </div>
 
         <!-- 图片展示区域 -->
@@ -203,6 +249,51 @@ onUnmounted(() => {
 
 .page-close-btn {
   @include overlay-close-btn;
+}
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10000;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.prev-btn {
+    left: 24px;
+  }
+
+  &.next-btn {
+    right: 24px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .nav-icon {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 .preview-toolbar {
@@ -252,6 +343,21 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.9);
   min-width: 40px;
   text-align: center;
+}
+
+.counter-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 2px;
+}
+
+.image-counter {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 0 4px;
+  font-variant-numeric: tabular-nums;
 }
 
 .image-container {

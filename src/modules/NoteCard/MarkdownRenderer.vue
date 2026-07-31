@@ -33,7 +33,11 @@ const handleContainerClick = (e: MouseEvent) => {
     e.stopPropagation();
     const src = (target as HTMLImageElement).src;
     if (src) {
-      openImagePreview(src);
+      const container = e.currentTarget as HTMLElement | null;
+      const imgElements = container ? Array.from(container.querySelectorAll('img')) : [];
+      const imageList = imgElements.map(img => img.src).filter(Boolean);
+      const index = imageList.indexOf(src);
+      openImagePreview(src, imageList, index !== -1 ? index : 0);
     }
   } else if (target.tagName === 'A') {
     // 外部链接在新窗口/浏览器中打开
