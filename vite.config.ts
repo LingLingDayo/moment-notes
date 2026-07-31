@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { fileURLToPath, URL } from 'node:url'
 import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
@@ -36,5 +37,10 @@ export default defineConfig({
         `
       }
     }
+  },
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['src/**/*.{test,spec}.ts']
   }
 })
