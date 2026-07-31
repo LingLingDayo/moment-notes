@@ -10,6 +10,7 @@ import { Note, NoteType } from '@type';
 import { useShortcutStore } from './shortcutStore';
 import { getDefaultCategories } from './defaultData';
 import { getCurrentSettings, applySettings } from './settingsHelper';
+import { getFilteredAndSortedNotes, normalizeCategoryOrder } from './stickyNotesAlgorithms';
 
 export { COLOR_PRESETS };
 
@@ -63,20 +64,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         }
       }
 
-      const currentIds = new Set(categoryStore.categories.map(c => c.id));
-      currentIds.add('all');
-
-      let finalOrder = loadedOrder.filter(id => currentIds.has(id));
-      categoryStore.categories.forEach(c => {
-        if (!finalOrder.includes(c.id)) {
-          finalOrder.push(c.id);
-        }
-      });
-      if (!finalOrder.includes('all')) {
-        finalOrder.unshift('all');
-      }
-
-      categoryStore.categoryOrder = finalOrder;
+      categoryStore.categoryOrder = normalizeCategoryOrder(loadedOrder, categoryStore.categories);
       if (!storedOrder) {
         categoryStore.saveCategoryOrder();
       }
@@ -269,143 +257,16 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     noteStore.clearNotes(categoryId, descendants);
   };
 
-  // 协调便签的检索排序过滤算法 (原为 noteStore.filteredNotes)
+  // 协调便签的检索排序过滤算法 (调用纯算法模块)
   const filteredNotes = computed(() => {
-    let result = noteStore.notes;
-
-    // 2. 搜索词过滤 (支持根据不同目标过滤)
-    if (noteStore.searchQuery.trim()) {
-      const q = noteStore.searchQuery.toLowerCase().trim();
-      const keywords = q.split(/\s+/).filter(k => k.length > 0);
-      if (keywords.length > 0) {
-        result = result.filter(n => {
-          return keywords.every(kw => {
-            const term = kw.toLowerCase();
-            const noteTitle = (n.title || '').toLowerCase();
-            const noteContent = (n.content || '').toLowerCase();
-
-            const titleMatch = noteTitle.includes(term);
-            const contentMatch = noteContent.includes(term);
-            const tagsMatch = Array.isArray(n.tags)
-              ? n.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(term))
-              : false;
-
-            if (noteStore.searchTarget.includes('all')) {
-              return titleMatch || contentMatch || tagsMatch;
-            }
-
-            let match = false;
-            if (noteStore.searchTarget.includes('title') && titleMatch) match = true;
-            if (noteStore.searchTarget.includes('content') && contentMatch) match = true;
-            if (noteStore.searchTarget.includes('tag') && tagsMatch) match = true;
-            return match;
-          });
-        });
-      }
-    }
-
-    // 3. 排序
-    const sortedResult = [...result].sort((a, b) => {
-      // 置顶(isPinned)始终排在最前面
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-
-      if (noteStore.currentCategoryId === 'recent') {
-        const timeA = a.lastUsedAt || 0;
-        const timeB = b.lastUsedAt || 0;
-        return timeB - timeA;
-      }
-
-      if (noteStore.sortMode === 'title') {
-        const titleA = a.title || '';
-        const titleB = b.title || '';
-        if (!titleA && titleB) return 1;
-        if (titleA && !titleB) return -1;
-        if (!titleA && !titleB) {
-          return noteStore.sortOrder === 'asc'
-            ? a.updatedAt - b.updatedAt
-            : b.updatedAt - a.updatedAt;
-        }
-
-        const cmp = titleA.localeCompare(titleB, 'zh');
-        if (cmp !== 0) {
-          return noteStore.sortOrder === 'asc' ? cmp : -cmp;
-        }
-        return noteStore.sortOrder === 'asc'
-          ? a.updatedAt - b.updatedAt
-          : b.updatedAt - a.updatedAt;
-      } else if (noteStore.sortMode === 'tag') {
-        const getSortedTags = (note: Note): string[] => {
-          if (!note.tags || note.tags.length === 0) return [];
-          return [...note.tags].sort((t1, t2) => t1.localeCompare(t2, 'zh'));
-        };
-
-        const tagsA = getSortedTags(a);
-        const tagsB = getSortedTags(b);
-
-        // 1. 无标签垫底
-        if (tagsA.length === 0 && tagsB.length > 0) return 1;
-        if (tagsA.length > 0 && tagsB.length === 0) return -1;
-        if (tagsA.length === 0 && tagsB.length === 0) {
-          return b.updatedAt - a.updatedAt;
-        }
-
-        // 2. 比较代表/主要标签 (拼音字典序，归聚相同标签的分组)
-        const repTagA = tagsA[0];
-        const repTagB = tagsB[0];
-        const repCmp = repTagA.localeCompare(repTagB, 'zh');
-        if (repCmp !== 0) {
-          return noteStore.sortOrder === 'asc' ? repCmp : -repCmp;
-        }
-
-        // 3. 同大组内，标签数量更多的便签优先排在前面
-        if (tagsA.length !== tagsB.length) {
-          return tagsB.length - tagsA.length;
-        }
-
-        // 4. 标签数量相同时，逐项比较剩余标签字典序
-        for (let i = 1; i < tagsA.length; i++) {
-          const itemCmp = tagsA[i].localeCompare(tagsB[i], 'zh');
-          if (itemCmp !== 0) {
-            return noteStore.sortOrder === 'asc' ? itemCmp : -itemCmp;
-          }
-        }
-
-        // 5. 标签完全相同时，对比更新时间
-        return noteStore.sortOrder === 'asc'
-          ? a.updatedAt - b.updatedAt
-          : b.updatedAt - a.updatedAt;
-      } else if (noteStore.sortMode === 'useCount') {
-        const countA = a.useCount || 0;
-        const countB = b.useCount || 0;
-        if (countA !== countB) {
-          return noteStore.sortOrder === 'asc' ? countA - countB : countB - countA;
-        }
-        return noteStore.sortOrder === 'asc'
-          ? a.updatedAt - b.updatedAt
-          : b.updatedAt - a.updatedAt;
-      } else if (noteStore.sortMode === 'custom') {
-        const currentId = noteStore.currentCategoryId;
-        if (currentId !== 'all' && currentId !== 'trash') {
-          const isOwnA = a.categoryId === currentId;
-          const isOwnB = b.categoryId === currentId;
-          if (isOwnA && !isOwnB) return -1;
-          if (!isOwnA && isOwnB) return 1;
-        }
-        const indexA = noteStore.notes.findIndex(n => n.id === a.id);
-        const indexB = noteStore.notes.findIndex(n => n.id === b.id);
-        return indexA - indexB;
-      } else {
-        return noteStore.sortOrder === 'desc'
-          ? b.updatedAt - a.updatedAt
-          : a.updatedAt - b.updatedAt;
-      }
-    });
-
-    if (noteStore.currentCategoryId === 'recent') {
-      return sortedResult.slice(0, 30);
-    }
-    return sortedResult;
+    return getFilteredAndSortedNotes(
+      noteStore.notes,
+      noteStore.searchQuery,
+      noteStore.searchTarget,
+      noteStore.sortMode,
+      noteStore.sortOrder,
+      noteStore.currentCategoryId
+    );
   });
 
   // 备份与粘贴代理方法
