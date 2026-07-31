@@ -66,7 +66,7 @@ const toggleTarget = (target: SearchTarget) => {
     }
 
     // 如果全部都取消了，或者把所有其他选项都选上了，自动变回 'all'
-    const otherOptionsCount = 4; // title, content, tag, category
+    const otherOptionsCount = targetOptions.filter(opt => opt.value !== 'all').length;
     if (nextTargets.length === 0 || nextTargets.length === otherOptionsCount) {
       nextTargets = ['all'];
     }
