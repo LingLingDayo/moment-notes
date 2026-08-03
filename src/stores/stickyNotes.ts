@@ -151,6 +151,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.enableHoverAnimation = storedEnableHoverAnimation === 'true';
       }
 
+      const storedEnableAutoCopySelection = storage.getItem('sticky_notes_enable_auto_copy_selection');
+      if (storedEnableAutoCopySelection !== null) {
+        uiStore.enableAutoCopySelection = storedEnableAutoCopySelection === 'true';
+      }
+
       const storedShowNoteCount = storage.getItem('sticky_notes_show_note_count');
       if (storedShowNoteCount !== null) {
         uiStore.showNoteCount = storedShowNoteCount === 'true';
@@ -477,6 +482,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setStartPageMode: uiStore.setStartPageMode,
     enableHoverAnimation: toRef(uiStore, 'enableHoverAnimation'),
     setEnableHoverAnimation: uiStore.setEnableHoverAnimation,
+    enableAutoCopySelection: toRef(uiStore, 'enableAutoCopySelection'),
+    setEnableAutoCopySelection: uiStore.setEnableAutoCopySelection,
     showNoteCount: toRef(uiStore, 'showNoteCount'),
     setShowNoteCount: uiStore.setShowNoteCount,
     prefixTagWithHash: toRef(uiStore, 'prefixTagWithHash'),

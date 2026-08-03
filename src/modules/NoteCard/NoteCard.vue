@@ -127,7 +127,7 @@ let autoCopyTimer: number | null = null;
 let lastAutoCopiedText = '';
 
 const handleSelectionChange = () => {
-  if (isEditing.value || props.note.isDeleted) return;
+  if (!store.enableAutoCopySelection || isEditing.value || props.note.isDeleted) return;
 
   const selectedText = getContainerSelectedText(cardRef.value);
 

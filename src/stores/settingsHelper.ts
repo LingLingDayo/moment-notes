@@ -20,6 +20,7 @@ export const getCurrentSettings = (
     superPanelDefaultCategory: uiStore.superPanelDefaultCategory,
     startPageMode: uiStore.startPageMode,
     enableHoverAnimation: uiStore.enableHoverAnimation,
+    enableAutoCopySelection: uiStore.enableAutoCopySelection,
     showNoteCount: uiStore.showNoteCount,
     prefixTagWithHash: uiStore.prefixTagWithHash,
     sortMode: noteStore.sortMode,
@@ -78,6 +79,9 @@ export const applySettings = (
   }
   if (typeof settings.enableHoverAnimation === 'boolean') {
     uiStore.setEnableHoverAnimation(settings.enableHoverAnimation);
+  }
+  if (typeof settings.enableAutoCopySelection === 'boolean') {
+    uiStore.setEnableAutoCopySelection(settings.enableAutoCopySelection);
   }
   if (typeof settings.showNoteCount === 'boolean') {
     uiStore.setShowNoteCount(settings.showNoteCount);

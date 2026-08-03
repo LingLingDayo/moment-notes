@@ -59,6 +59,7 @@ export interface AppSettings {
   superPanelDefaultCategory?: string;
   startPageMode?: 'last' | 'default';
   enableHoverAnimation?: boolean;
+  enableAutoCopySelection?: boolean;
   showNoteCount?: boolean;
   prefixTagWithHash?: boolean;
   sortMode?: 'date' | 'title' | 'tag' | 'custom' | 'useCount';

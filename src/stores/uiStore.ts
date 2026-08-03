@@ -195,6 +195,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_enable_hover_animation', val ? 'true' : 'false');
   };
 
+  const enableAutoCopySelection = ref(true);
+
+  const setEnableAutoCopySelection = (val: boolean) => {
+    enableAutoCopySelection.value = val;
+    storage.setItem('sticky_notes_enable_auto_copy_selection', val ? 'true' : 'false');
+  };
+
   const showNoteCount = ref(true);
 
   const setShowNoteCount = (val: boolean) => {
@@ -287,6 +294,8 @@ export const useUiStore = defineStore('uiStore', () => {
     setNoteMaxHeight,
     enableHoverAnimation,
     setEnableHoverAnimation,
+    enableAutoCopySelection,
+    setEnableAutoCopySelection,
     showNoteCount,
     setShowNoteCount,
     prefixTagWithHash,
