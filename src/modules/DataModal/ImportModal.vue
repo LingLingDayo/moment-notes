@@ -6,16 +6,13 @@ import {
   X,
   CheckSquare,
   Square,
-  Folder,
-  FileText,
   Settings,
-  GitMerge,
-  RotateCcw,
-  AlertTriangle,
-  Calendar,
-  FileCode
+  AlertTriangle
 } from '@lucide/vue';
 import { ImportMode, ImportOptions } from '@type';
+import DataCategorySelector from './components/DataCategorySelector.vue';
+import ImportFileInfoCard from './components/ImportFileInfoCard.vue';
+import ImportModeSelector from './components/ImportModeSelector.vue';
 
 const store = useStickyNotesStore();
 
@@ -175,109 +172,32 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
           <!-- 内容主体区 -->
           <div class="modal-body custom-scrollbar">
             <!-- 备份文件信息卡片 -->
-            <div class="file-info-card">
-              <div class="info-meta">
-                <div class="meta-item">
-                  <FileCode class="meta-icon" />
-                  <span>版本: <strong>{{ backupData.version || '未知' }}</strong></span>
-                </div>
-                <div class="meta-item">
-                  <Calendar class="meta-icon" />
-                  <span>生成时间: {{ formattedBackupTime }}</span>
-                </div>
-              </div>
-              <div class="info-stats">
-                <span>包含 {{ rawCategories.length }} 个分类</span>
-                <span>•</span>
-                <span>{{ backupData.notes?.length || 0 }} 张便签</span>
-                <template v-if="backupData.settings">
-                  <span>•</span>
-                  <span>包含偏好设置</span>
-                </template>
-              </div>
-            </div>
+            <ImportFileInfoCard
+              :version="backupData.version"
+              :formatted-time="formattedBackupTime"
+              :categories-count="rawCategories.length"
+              :notes-count="backupData.notes?.length || 0"
+              :has-settings="!!backupData.settings"
+            />
 
             <!-- 1. 导入方式选择 (Radio Group) -->
-            <div class="section-container">
-              <div class="section-title">
-                选择导入方式
-              </div>
-              <div class="mode-grid">
-                <!-- 增量合并模式 -->
-                <div
-                  class="mode-card"
-                  :class="{ active: importMode === 'merge' }"
-                  @click="importMode = 'merge'"
-                >
-                  <div class="mode-header">
-                    <GitMerge class="mode-icon merge" />
-                    <span class="mode-name">增量合并</span>
-                  </div>
-                  <p class="mode-desc">
-                    保留现有数据，仅追加新项并更新相同 ID 项
-                  </p>
-                </div>
-
-                <!-- 覆盖已有模式 -->
-                <div
-                  class="mode-card danger"
-                  :class="{ active: importMode === 'overwrite' }"
-                  @click="importMode = 'overwrite'"
-                >
-                  <div class="mode-header">
-                    <RotateCcw class="mode-icon overwrite" />
-                    <span class="mode-name">覆盖已有</span>
-                  </div>
-                  <p class="mode-desc">
-                    ⚠️ 清空当前全部数据，完全替换为导入内容
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ImportModeSelector v-model="importMode" />
 
             <!-- 2. 导入数据内容勾选区 -->
             <div class="section-container">
-              <div class="selection-toolbar">
-                <span class="section-title">选择导入分类 ({{ selectedCategoryIds.length }}/{{ rawCategories.length }})</span>
-                <button v-if="rawCategories.length > 0" class="text-action-btn" @click="toggleSelectAll">
-                  {{ isAllSelected ? '取消全选' : '全选' }}
-                </button>
-              </div>
-
-              <!-- 分类列表 -->
-              <div class="category-list custom-scrollbar">
-                <div
-                  v-for="cat in rawCategories"
-                  :key="cat.id"
-                  class="category-item"
-                  :class="{ active: selectedCategoryIds.includes(cat.id) }"
-                  @click="toggleCategory(cat.id)"
-                >
-                  <div class="item-left">
-                    <CheckSquare v-if="selectedCategoryIds.includes(cat.id)" class="checkbox-icon checked" />
-                    <Square v-else class="checkbox-icon" />
-                    <Folder class="folder-icon" />
-                    <span class="cat-name">{{ cat.name }}</span>
-                  </div>
-                  <span class="badge">{{ backupCategoryNoteMap[cat.id] || 0 }} 贴</span>
-                </div>
-
-                <!-- 无分类/全域便签 -->
-                <div
-                  v-if="(backupCategoryNoteMap['uncategorized'] || 0) > 0"
-                  class="category-item"
-                  :class="{ active: importUncategorized }"
-                  @click="importUncategorized = !importUncategorized"
-                >
-                  <div class="item-left">
-                    <CheckSquare v-if="importUncategorized" class="checkbox-icon checked" />
-                    <Square v-else class="checkbox-icon" />
-                    <FileText class="folder-icon" />
-                    <span class="cat-name">未分类/全域便签</span>
-                  </div>
-                  <span class="badge">{{ backupCategoryNoteMap['uncategorized'] }} 贴</span>
-                </div>
-              </div>
+              <DataCategorySelector
+                title="选择导入分类"
+                :categories="rawCategories"
+                :selected-category-ids="selectedCategoryIds"
+                :note-count-map="backupCategoryNoteMap"
+                :is-all-selected="isAllSelected"
+                :show-uncategorized="(backupCategoryNoteMap['uncategorized'] || 0) > 0"
+                :is-uncategorized-selected="importUncategorized"
+                uncategorized-label="未分类/全域便签"
+                @toggle-category="toggleCategory"
+                @toggle-select-all="toggleSelectAll"
+                @toggle-uncategorized="importUncategorized = !importUncategorized"
+              />
 
               <!-- 导入系统设置选项 -->
               <div v-if="backupData.settings" class="options-section">
@@ -398,201 +318,10 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
   overflow-y: auto;
 }
 
-.file-info-card {
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: var(--item-bg, rgba(59, 130, 246, 0.05));
-  border: 1px solid rgba(59, 130, 246, 0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  .info-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text-secondary, #666);
-
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-
-      .meta-icon {
-        width: 13px;
-        height: 13px;
-      }
-    }
-  }
-
-  .info-stats {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--primary-color, #3b82f6);
-  }
-}
-
 .section-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
-
-  .section-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary, #333);
-  }
-}
-
-.mode-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.mode-card {
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1.5px solid var(--border-color, rgba(0, 0, 0, 0.1));
-  background: var(--item-bg, rgba(0, 0, 0, 0.02));
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-
-  &:hover {
-    border-color: rgba(59, 130, 246, 0.4);
-  }
-
-  &.active {
-    border-color: var(--primary-color, #3b82f6);
-    background: rgba(59, 130, 246, 0.08);
-  }
-
-  &.danger {
-    &.active {
-      border-color: #ef4444;
-      background: rgba(239, 68, 68, 0.08);
-    }
-  }
-
-  .mode-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 4px;
-
-    .mode-icon {
-      width: 15px;
-      height: 15px;
-
-      &.merge {
-        color: #3b82f6;
-      }
-      &.overwrite {
-        color: #ef4444;
-      }
-    }
-  }
-
-  .mode-desc {
-    font-size: 11px;
-    color: var(--text-secondary, #666);
-    margin: 0;
-    line-height: 1.4;
-  }
-}
-
-.selection-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  .text-action-btn {
-    background: none;
-    border: none;
-    color: var(--primary-color, #3b82f6);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
-
-    &:hover {
-      background: rgba(59, 130, 246, 0.1);
-    }
-  }
-}
-
-.category-list {
-  max-height: 160px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-right: 4px;
-}
-
-.category-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: var(--item-bg, rgba(0, 0, 0, 0.03));
-  border: 1px solid transparent;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: var(--item-hover-bg, rgba(0, 0, 0, 0.06));
-  }
-
-  &.active {
-    background: var(--item-active-bg, rgba(59, 130, 246, 0.08));
-    border-color: rgba(59, 130, 246, 0.3);
-  }
-
-  .item-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .checkbox-icon {
-      width: 16px;
-      height: 16px;
-      color: var(--text-secondary, #999);
-
-      &.checked {
-        color: var(--primary-color, #3b82f6);
-      }
-    }
-
-    .folder-icon {
-      width: 15px;
-      height: 15px;
-      color: var(--text-secondary, #666);
-    }
-
-    .cat-name {
-      font-size: 13px;
-      font-weight: 500;
-    }
-  }
-
-  .badge {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--text-secondary, #666);
-  }
 }
 
 .options-section {

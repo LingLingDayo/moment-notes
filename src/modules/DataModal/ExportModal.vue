@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
-import { Download, X, CheckSquare, Square, Folder, FileText, Settings, Trash2 } from '@lucide/vue';
+import { Download, X, CheckSquare, Square, Settings, Trash2 } from '@lucide/vue';
 import { ExportOptions } from '@type';
+import DataCategorySelector from './components/DataCategorySelector.vue';
 
 const store = useStickyNotesStore();
 
@@ -135,49 +136,21 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
               请选择需要包含在备份 JSON 文件中的分类与数据：
             </p>
 
-            <!-- 分类选择头部工具栏 -->
-            <div class="selection-toolbar">
-              <span class="sub-title">分类数据 ({{ selectedCategoryIds.length }}/{{ store.categories.length + (categoryNoteCountMap['uncategorized'] > 0 ? 1 : 0) }})</span>
-              <button class="text-action-btn" @click="toggleSelectAll">
-                {{ isAllSelected ? '取消全选' : '全选' }}
-              </button>
-            </div>
-
-            <!-- 分类多选列表容器 -->
-            <div class="category-list custom-scrollbar">
-              <!-- 自定义分类项目 -->
-              <div
-                v-for="cat in store.categories"
-                :key="cat.id"
-                class="category-item"
-                :class="{ active: selectedCategoryIds.includes(cat.id) }"
-                @click="toggleCategory(cat.id)"
-              >
-                <div class="item-left">
-                  <CheckSquare v-if="selectedCategoryIds.includes(cat.id)" class="checkbox-icon checked" />
-                  <Square v-else class="checkbox-icon" />
-                  <Folder class="folder-icon" />
-                  <span class="cat-name">{{ cat.name }}</span>
-                </div>
-                <span class="badge">{{ categoryNoteCountMap[cat.id] || 0 }} 贴</span>
-              </div>
-
-              <!-- 全局/未明确分配分类的便签 -->
-              <div
-                v-if="categoryNoteCountMap['uncategorized'] > 0"
-                class="category-item"
-                :class="{ active: selectedCategoryIds.includes('uncategorized') }"
-                @click="toggleCategory('uncategorized')"
-              >
-                <div class="item-left">
-                  <CheckSquare v-if="selectedCategoryIds.includes('uncategorized')" class="checkbox-icon checked" />
-                  <Square v-else class="checkbox-icon" />
-                  <FileText class="folder-icon" />
-                  <span class="cat-name">未分类/全部便签</span>
-                </div>
-                <span class="badge">{{ categoryNoteCountMap['uncategorized'] }} 贴</span>
-              </div>
-            </div>
+            <!-- 分类选择列表 -->
+            <DataCategorySelector
+              title="分类数据"
+              :categories="store.categories"
+              :selected-category-ids="selectedCategoryIds"
+              :note-count-map="categoryNoteCountMap"
+              :is-all-selected="isAllSelected"
+              :total-count="store.categories.length + (categoryNoteCountMap['uncategorized'] > 0 ? 1 : 0)"
+              :show-uncategorized="categoryNoteCountMap['uncategorized'] > 0"
+              :is-uncategorized-selected="selectedCategoryIds.includes('uncategorized')"
+              uncategorized-label="未分类/全部便签"
+              @toggle-category="toggleCategory"
+              @toggle-select-all="toggleSelectAll"
+              @toggle-uncategorized="toggleCategory('uncategorized')"
+            />
 
             <!-- 附加选项配置区 -->
             <div class="options-section">
@@ -303,100 +276,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
     font-size: 13px;
     color: var(--text-secondary, #666);
     margin: 0;
-  }
-}
-
-.selection-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  .sub-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary, #333);
-  }
-
-  .text-action-btn {
-    background: none;
-    border: none;
-    color: var(--primary-color, #3b82f6);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: background 0.2s;
-
-    &:hover {
-      background: rgba(59, 130, 246, 0.1);
-    }
-  }
-}
-
-.category-list {
-  max-height: 200px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-right: 4px;
-}
-
-.category-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: var(--item-bg, rgba(0, 0, 0, 0.03));
-  border: 1px solid transparent;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: var(--item-hover-bg, rgba(0, 0, 0, 0.06));
-  }
-
-  &.active {
-    background: var(--item-active-bg, rgba(59, 130, 246, 0.08));
-    border-color: rgba(59, 130, 246, 0.3);
-  }
-
-  .item-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .checkbox-icon {
-      width: 16px;
-      height: 16px;
-      color: var(--text-secondary, #999);
-
-      &.checked {
-        color: var(--primary-color, #3b82f6);
-      }
-    }
-
-    .folder-icon {
-      width: 15px;
-      height: 15px;
-      color: var(--text-secondary, #666);
-    }
-
-    .cat-name {
-      font-size: 13px;
-      font-weight: 500;
-    }
-  }
-
-  .badge {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--text-secondary, #666);
   }
 }
 
