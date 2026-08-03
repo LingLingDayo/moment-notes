@@ -5,7 +5,6 @@ describe('selection 划词选中工具单测', () => {
   const originalWindow = globalThis.window;
 
   beforeEach(() => {
-    // Setup mock window on globalThis
     (globalThis as unknown as { window: unknown }).window = {
       getSelection: () => null
     };
@@ -28,7 +27,7 @@ describe('selection 划词选中工具单测', () => {
     expect(getContainerSelectedText(mockContainer)).toBe('');
   });
 
-  it('当划词选中的节点在容器内时，应正确提取选中文本', () => {
+  it('当划词选中的起点与终点节点都在容器内时，应正确提取选中文本', () => {
     const mockAnchorNode = {
       nodeType: 1,
       parentElement: null
@@ -65,6 +64,26 @@ describe('selection 划词选中工具单测', () => {
         isCollapsed: false,
         toString: () => 'Other',
         anchorNode: mockOutsideNode,
+        focusNode: mockOutsideNode
+      })
+    };
+
+    expect(getContainerSelectedText(mockContainer)).toBe('');
+  });
+
+  it('当划词选中的节点跨容器 (起点在内，终点在外) 时，应返回空字符串', () => {
+    const mockInsideNode = { nodeType: 1, parentElement: null };
+    const mockOutsideNode = { nodeType: 1, parentElement: null };
+
+    const mockContainer = {
+      contains: (node: unknown) => node === mockInsideNode
+    } as unknown as HTMLElement;
+
+    (globalThis as unknown as { window: { getSelection: () => unknown } }).window = {
+      getSelection: () => ({
+        isCollapsed: false,
+        toString: () => 'Cross Container Text',
+        anchorNode: mockInsideNode,
         focusNode: mockOutsideNode
       })
     };

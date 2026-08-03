@@ -31,8 +31,10 @@ export const getContainerSelectedText = (containerEl: HTMLElement | null): strin
     : focusNode?.parentElement;
 
   if (
-    (anchorEl && containerEl.contains(anchorEl)) ||
-    (focusEl && containerEl.contains(focusEl))
+    anchorEl &&
+    focusEl &&
+    containerEl.contains(anchorEl) &&
+    containerEl.contains(focusEl)
   ) {
     return text;
   }
