@@ -158,7 +158,6 @@ const handleSelectionChange = () => {
       } else {
         await navigator.clipboard.writeText(currentText);
       }
-      store.showToast('已复制选中内容', 'success');
       store.updateNoteLastUsed(props.note.id);
     } catch (err) {
       console.error('Auto copy failed:', err);
