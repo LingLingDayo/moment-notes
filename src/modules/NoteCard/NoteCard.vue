@@ -6,6 +6,7 @@ import NoteCardHeader from './NoteCardHeader.vue';
 import NoteCardBody from './NoteCardBody.vue';
 import NoteCardTagEditor from './NoteCardTagEditor.vue';
 import NoteCardFooter from './NoteCardFooter.vue';
+import { getContainerSelectedText } from '@utils/selection';
 
 const props = withDefaults(
   defineProps<{
@@ -120,10 +121,40 @@ const handleTogglePreview = () => {
   }
 };
 
-// 双击粘贴逻辑
+// 划词选中状态心智
+const lastSelectedText = ref<string>('');
+let clearSelectionTimer: number | null = null;
+
+const updateSelectedText = () => {
+  const selectedText = getContainerSelectedText(cardRef.value);
+  if (selectedText) {
+    if (clearSelectionTimer) {
+      clearTimeout(clearSelectionTimer);
+      clearSelectionTimer = null;
+    }
+    lastSelectedText.value = selectedText;
+  } else {
+    if (!clearSelectionTimer) {
+      clearSelectionTimer = window.setTimeout(() => {
+        lastSelectedText.value = '';
+        clearSelectionTimer = null;
+      }, 350);
+    }
+  }
+};
+
+// 双击粘贴逻辑 (优先使用划词选中的部分文本)
 const handleDoubleClick = () => {
   if (isEditing.value) return; // 如果在编辑中，不触发双击粘贴
-  store.handlePasteNote(props.note.content, props.note.id);
+  const textToPaste = lastSelectedText.value || props.note.content;
+
+  if (clearSelectionTimer) {
+    clearTimeout(clearSelectionTimer);
+    clearSelectionTimer = null;
+  }
+  lastSelectedText.value = '';
+
+  store.handlePasteNote(textToPaste, props.note.id);
 };
 
 // 切换置顶
@@ -144,6 +175,7 @@ const isDragTriggered = ref(false);
 
 const handleGlobalMouseUp = () => {
   isDragTriggered.value = false;
+  updateSelectedText();
 };
 
 const handleHandleMouseEnter = () => {
@@ -271,6 +303,10 @@ watch(isEditing, editing => {
 });
 
 onBeforeUnmount(() => {
+  if (clearSelectionTimer) {
+    clearTimeout(clearSelectionTimer);
+    clearSelectionTimer = null;
+  }
   if (isEditing.value) {
     saveEdit();
   }

@@ -56,15 +56,34 @@ const originalCategoryName = computed(() => {
   return cat ? cat.name : '全部便签';
 });
 
-// 复制便签内容逻辑
-const copyNoteContent = async () => {
+import { getContainerSelectedText } from '@utils/selection';
+
+// 复制便签内容逻辑 (支持划词选中复制与全量复制)
+const copyNoteContent = async (e?: MouseEvent) => {
   try {
-    if (isUTools()) {
-      window.utools.copyText(props.note.content);
-    } else {
-      await navigator.clipboard.writeText(props.note.content);
+    let textToCopy = props.note.content;
+    let isSelectedText = false;
+
+    if (e && e.currentTarget) {
+      const cardEl = (e.currentTarget as HTMLElement).closest('.note-card') as HTMLElement;
+      const selectedText = getContainerSelectedText(cardEl);
+      if (selectedText) {
+        textToCopy = selectedText;
+        isSelectedText = true;
+      }
     }
-    store.showToast('已复制便签内容', 'success');
+
+    if (!textToCopy.trim()) {
+      store.showToast('便签内容为空，无法复制', 'warning');
+      return;
+    }
+
+    if (isUTools()) {
+      window.utools.copyText(textToCopy);
+    } else {
+      await navigator.clipboard.writeText(textToCopy);
+    }
+    store.showToast(isSelectedText ? '已复制选中内容' : '已复制便签内容', 'success');
     store.updateNoteLastUsed(props.note.id);
   } catch (err) {
     console.error('Failed to copy:', err);
