@@ -50,7 +50,7 @@ const iconComponent = computed(() => {
   padding: 12px 20px;
   border-radius: 12px;
   box-shadow: var(--popover-shadow);
-  z-index: 9030;
+  z-index: $z-index-toast;
   border: 1px solid transparent;
   max-width: 90%;
   pointer-events: none;

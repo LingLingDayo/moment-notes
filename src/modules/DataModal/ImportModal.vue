@@ -322,7 +322,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 9010;
+  z-index: $z-index-modal-level2;
   display: flex;
   align-items: center;
   justify-content: center;

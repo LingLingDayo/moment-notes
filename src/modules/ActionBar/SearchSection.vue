@@ -300,7 +300,7 @@ onUnmounted(() => {
   padding: 6px;
   border-radius: 12px;
   box-shadow: var(--popover-shadow);
-  z-index: 100;
+  z-index: $z-index-popover;
   min-width: 120px;
   animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 

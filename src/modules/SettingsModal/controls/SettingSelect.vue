@@ -264,7 +264,7 @@ const displayLabel = computed(() => {
   border: 1px solid var(--popover-border);
   border-radius: 12px;
   box-shadow: var(--popover-shadow);
-  z-index: 1000;
+  z-index: $z-index-dropdown;
   padding: 4px;
   display: flex;
   flex-direction: column;

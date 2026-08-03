@@ -159,7 +159,7 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom' | 'useCount') 
   padding: 8px;
   border-radius: 12px;
   box-shadow: var(--popover-shadow);
-  z-index: 100;
+  z-index: $z-index-popover;
   min-width: 150px;
   animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 

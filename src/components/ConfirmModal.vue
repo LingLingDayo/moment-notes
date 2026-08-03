@@ -87,7 +87,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9020;
+  z-index: $z-index-modal-level3;
 }
 
 .modal-container {

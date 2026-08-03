@@ -111,7 +111,7 @@ onUnmounted(() => {
   padding: 8px;
   border-radius: 12px;
   box-shadow: var(--popover-shadow);
-  z-index: 100;
+  z-index: $z-index-popover;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 

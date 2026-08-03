@@ -255,7 +255,7 @@ defineExpose({
   border: 1px solid var(--popover-border);
   border-radius: 6px;
   box-shadow: var(--popover-shadow);
-  z-index: 100;
+  z-index: $z-index-popover;
   padding: 4px 0;
 
   .dropdown-item {
