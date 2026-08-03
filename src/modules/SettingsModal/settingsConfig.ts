@@ -147,7 +147,7 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         key: 'enableAutoCopySelection',
         label: '划词自动复制文本',
         type: 'switch',
-        desc: '开启后，在便签只读视图中划词选中部分文本时，将在 200ms 后静默自动复制所选文本到剪贴板。',
+        desc: '开启后，在浏览便签时划词选中文本即可自动复制到剪贴板。',
         default: true
       },
       {
