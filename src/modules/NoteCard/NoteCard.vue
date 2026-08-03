@@ -7,6 +7,7 @@ import NoteCardBody from './NoteCardBody.vue';
 import NoteCardTagEditor from './NoteCardTagEditor.vue';
 import NoteCardFooter from './NoteCardFooter.vue';
 import { getContainerSelectedText } from '@utils/selection';
+import { isUTools } from '@utils/storage';
 
 const props = withDefaults(
   defineProps<{
@@ -121,40 +122,54 @@ const handleTogglePreview = () => {
   }
 };
 
-// 划词选中状态心智
-const lastSelectedText = ref<string>('');
-let clearSelectionTimer: number | null = null;
+// 划词结束 200ms 防抖自动复制逻辑
+let autoCopyTimer: number | null = null;
+let lastAutoCopiedText = '';
 
-const updateSelectedText = () => {
+const handleSelectionChange = () => {
+  if (isEditing.value || props.note.isDeleted) return;
+
   const selectedText = getContainerSelectedText(cardRef.value);
-  if (selectedText) {
-    if (clearSelectionTimer) {
-      clearTimeout(clearSelectionTimer);
-      clearSelectionTimer = null;
+
+  if (!selectedText) {
+    if (autoCopyTimer) {
+      clearTimeout(autoCopyTimer);
+      autoCopyTimer = null;
     }
-    lastSelectedText.value = selectedText;
-  } else {
-    if (!clearSelectionTimer) {
-      clearSelectionTimer = window.setTimeout(() => {
-        lastSelectedText.value = '';
-        clearSelectionTimer = null;
-      }, 350);
-    }
+    lastAutoCopiedText = '';
+    return;
   }
+
+  if (selectedText === lastAutoCopiedText) return;
+
+  if (autoCopyTimer) {
+    clearTimeout(autoCopyTimer);
+  }
+
+  autoCopyTimer = window.setTimeout(async () => {
+    autoCopyTimer = null;
+    const currentText = getContainerSelectedText(cardRef.value);
+    if (!currentText || currentText !== selectedText) return;
+
+    lastAutoCopiedText = currentText;
+    try {
+      if (isUTools()) {
+        window.utools.copyText(currentText);
+      } else {
+        await navigator.clipboard.writeText(currentText);
+      }
+      store.showToast('已复制选中内容', 'success');
+      store.updateNoteLastUsed(props.note.id);
+    } catch (err) {
+      console.error('Auto copy failed:', err);
+    }
+  }, 200);
 };
 
-// 双击粘贴逻辑 (优先使用划词选中的部分文本)
+// 双击粘贴逻辑 (严格只粘贴整篇便签内容)
 const handleDoubleClick = () => {
   if (isEditing.value) return; // 如果在编辑中，不触发双击粘贴
-  const textToPaste = lastSelectedText.value || props.note.content;
-
-  if (clearSelectionTimer) {
-    clearTimeout(clearSelectionTimer);
-    clearSelectionTimer = null;
-  }
-  lastSelectedText.value = '';
-
-  store.handlePasteNote(textToPaste, props.note.id);
+  store.handlePasteNote(props.note.content, props.note.id);
 };
 
 // 切换置顶
@@ -175,7 +190,6 @@ const isDragTriggered = ref(false);
 
 const handleGlobalMouseUp = () => {
   isDragTriggered.value = false;
-  updateSelectedText();
 };
 
 const handleHandleMouseEnter = () => {
@@ -303,9 +317,9 @@ watch(isEditing, editing => {
 });
 
 onBeforeUnmount(() => {
-  if (clearSelectionTimer) {
-    clearTimeout(clearSelectionTimer);
-    clearSelectionTimer = null;
+  if (autoCopyTimer) {
+    clearTimeout(autoCopyTimer);
+    autoCopyTimer = null;
   }
   if (isEditing.value) {
     saveEdit();
@@ -313,6 +327,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleMousedown, true);
   document.removeEventListener('click', handleClickOutside, true);
   window.removeEventListener('mouseup', handleGlobalMouseUp);
+  document.removeEventListener('selectionchange', handleSelectionChange);
 });
 
 const cardMaxHeightStyle = computed(() => {
@@ -323,6 +338,7 @@ const cardMaxHeightStyle = computed(() => {
 
 onMounted(() => {
   window.addEventListener('mouseup', handleGlobalMouseUp);
+  document.addEventListener('selectionchange', handleSelectionChange);
   if (store.editingNoteId === props.note.id) {
     enterEditMode();
   }
