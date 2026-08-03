@@ -80,7 +80,7 @@ const emit = defineEmits<{
           <Folder class="folder-icon" />
           <span class="cat-name">{{ cat.name }}</span>
         </div>
-        <span class="badge">{{ props.noteCountMap[cat.id] || 0 }} 贴</span>
+        <span class="badge">{{ props.noteCountMap[cat.id] || 0 }}</span>
       </div>
 
       <!-- 全局/未明确分配分类的便签 -->
@@ -99,7 +99,7 @@ const emit = defineEmits<{
           <FileText class="folder-icon" />
           <span class="cat-name">{{ props.uncategorizedLabel }}</span>
         </div>
-        <span class="badge">{{ props.noteCountMap['uncategorized'] || 0 }} 贴</span>
+        <span class="badge">{{ props.noteCountMap['uncategorized'] || 0 }}</span>
       </div>
     </div>
   </div>
