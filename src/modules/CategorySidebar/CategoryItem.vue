@@ -181,46 +181,14 @@ const vFocusSelect = {
 }
 
 .menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 40px;
-  --level-indent: 14px;
-  padding-left: calc(14px + var(--item-level, 0) * var(--level-indent));
-  padding-right: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition:
-    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid transparent;
-  position: relative;
-  margin-bottom: 6px;
-  flex-shrink: 0;
-
-  .active-indicator {
-    position: absolute;
-    left: 0;
-    width: 3px;
-    height: 0;
-    background: var(--accent-color);
-    border-radius: 0 4px 4px 0;
-    transition: height 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
   .collapse-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 20px;
     height: 20px;
-    margin-right: 4px;
-    margin-left: -4px;
+    margin-right: 2px;
+    margin-left: -8px;
     border-radius: 4px;
     color: var(--text-muted);
     cursor: pointer;
@@ -261,11 +229,6 @@ const vFocusSelect = {
     }
   }
 
-  &:hover {
-    background: var(--item-hover-bg);
-    color: var(--text-primary);
-  }
-
   &.has-actions:hover {
     .item-badge {
       opacity: 0;
@@ -275,27 +238,6 @@ const vFocusSelect = {
     .item-actions {
       opacity: 1;
       transform: translateX(0);
-    }
-  }
-
-  &.active {
-    background: var(--panel-bg);
-    border-color: var(--panel-border);
-    color: var(--text-primary);
-    box-shadow: var(--shadow-sm);
-    font-weight: 600;
-
-    .active-indicator {
-      height: 16px;
-    }
-
-    .item-icon {
-      color: var(--accent-color);
-    }
-
-    .item-badge {
-      background: var(--accent-color);
-      color: var(--text-on-accent);
     }
   }
 
@@ -359,30 +301,6 @@ const vFocusSelect = {
   }
 }
 
-.item-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-
-  .item-icon {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    color: var(--text-muted);
-    transition: color 0.2s;
-  }
-
-  .item-name {
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    user-select: none;
-  }
-}
-
 .item-right {
   display: flex;
   align-items: center;
@@ -390,20 +308,6 @@ const vFocusSelect = {
   width: 48px;
   height: 20px;
   justify-content: flex-end;
-}
-
-.item-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background: var(--badge-bg);
-  color: var(--text-secondary);
-  transition:
-    opacity 0.2s,
-    background-color 0.2s,
-    color 0.2s,
-    transform 0.2s;
 }
 
 .item-actions {
@@ -500,7 +404,7 @@ const vFocusSelect = {
   }
 
   .item-left {
-    gap: 8px;
+    gap: 6px;
   }
 }
 </style>
