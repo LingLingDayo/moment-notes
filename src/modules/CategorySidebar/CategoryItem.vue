@@ -160,6 +160,10 @@ const vFocusSelect = {
 </template>
 
 <style lang="scss" scoped>
+@use './category-menu-item.scss' as *;
+
+@include category-menu-item-styles;
+
 .category-node {
   display: block;
 }

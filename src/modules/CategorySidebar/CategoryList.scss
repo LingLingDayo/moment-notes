@@ -1,5 +1,7 @@
 @use './category-menu-item.scss' as *;
 
+@include category-menu-item-styles;
+
 .sidebar-menu {
   position: relative;
   flex: 1;
