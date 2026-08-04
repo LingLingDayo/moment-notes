@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { storage } from '@utils/storage';
 import { NoteType, CategoryViewSetting, BackupData } from '@type';
+import { eventBus, DomainEvent, ToastPayload } from '../domain/events/DomainEventBus';
 
 export const useUiStore = defineStore('uiStore', () => {
   // 确认弹窗状态 (Promise 驱动)
@@ -42,6 +43,13 @@ export const useUiStore = defineStore('uiStore', () => {
       toastMessage.value = '';
     }, 2500);
   };
+
+  // 监听领域事件，解耦业务发出 Toast 请求
+  eventBus.subscribe<ToastPayload>('TOAST_REQUESTED', (event: DomainEvent<ToastPayload>) => {
+    if (event.payload) {
+      showToast(event.payload.message, event.payload.type, event.payload.position);
+    }
+  });
 
   const gridColumns = ref<'auto' | 1 | 2 | 3 | 4>('auto');
   const minNoteWidth = ref<number>(260);
@@ -257,7 +265,6 @@ export const useUiStore = defineStore('uiStore', () => {
     pendingImportData.value = null;
   };
 
-
   return {
     confirmState,
     askConfirm,
@@ -319,5 +326,3 @@ export const useUiStore = defineStore('uiStore', () => {
     closeImportModal
   };
 });
-
-

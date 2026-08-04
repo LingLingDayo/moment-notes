@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { storage } from '@utils/storage';
-import { useStickyNotesStore } from './stickyNotes';
+import { commandRegistry } from '../domain/commands/CommandRegistry';
 
 export interface Shortcut {
   id: string;
@@ -79,7 +79,6 @@ export const useShortcutStore = defineStore('shortcutStore', () => {
       return { success: true };
     }
 
-    // 冲突排查
     const conflict = shortcuts.value.find(s => s.id !== id && s.currentKey.toLowerCase() === newKey.toLowerCase());
     if (conflict) {
       return { success: false, message: `与 [${conflict.name}] 快捷键冲突` };
@@ -132,11 +131,12 @@ export const useShortcutStore = defineStore('shortcutStore', () => {
   };
 
   const triggerShortcut = (id: string) => {
-    const stickyNotesStore = useStickyNotesStore();
-    if (id === 'addNote') {
-      stickyNotesStore.addNote(stickyNotesStore.currentCategoryId, '', '');
-      stickyNotesStore.showToast('已快捷新建空便签，可以直接编辑');
-    } else if (id === 'focusSearch') {
+    if (commandRegistry.has(id)) {
+      commandRegistry.execute(id);
+      return;
+    }
+
+    if (id === 'focusSearch') {
       const activeEl = document.activeElement;
       const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
       if (!isInput) {

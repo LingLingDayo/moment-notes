@@ -11,6 +11,8 @@ import { useShortcutStore } from './shortcutStore';
 import { getDefaultCategories } from './defaultData';
 import { getCurrentSettings, applySettings } from './settingsHelper';
 import { getFilteredAndSortedNotes, normalizeCategoryOrder } from './stickyNotesAlgorithms';
+import { commandRegistry } from '../domain/commands/CommandRegistry';
+import { categoryRepository, noteRepository } from '../infrastructure/storage/Repository';
 
 export { COLOR_PRESETS };
 
@@ -28,44 +30,36 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   // 记录数据是否完成初始化加载
   const isInitialized = ref(false);
 
+  // 注册全局命令处理函数
+  commandRegistry.registerHandler('addNote', '新建便签', () => {
+    let targetCat = noteStore.currentCategoryId;
+    if (targetCat === 'all' || targetCat === 'trash' || targetCat === 'recent') {
+      targetCat = 'uncategorized';
+    }
+    noteStore.addNote(targetCat, '', '');
+    uiStore.showToast('已快捷新建空便签，可以直接编辑');
+  });
+
   // 集中式数据加载
   const loadData = () => {
     try {
       const shortcutStore = useShortcutStore();
       shortcutStore.loadShortcuts();
 
-      const storedCategories = storage.getItem('sticky_notes_categories');
-      const storedNotes = storage.getItem('sticky_notes_notes');
-
-      if (storedCategories) {
-        categoryStore.categories = JSON.parse(storedCategories);
+      const storedCategories = categoryRepository.getAll();
+      if (storedCategories && storedCategories.length > 0) {
+        categoryStore.categories = storedCategories;
       } else {
         categoryStore.categories = getDefaultCategories();
         categoryStore.saveCategories();
       }
 
-      const storedCollapsed = storage.getItem('sticky_notes_collapsed_categories');
-      if (storedCollapsed) {
-        try {
-          categoryStore.collapsedCategoryIds = JSON.parse(storedCollapsed);
-        } catch (e) {
-          console.error(e);
-        }
-      }
+      categoryStore.collapsedCategoryIds = categoryRepository.getCollapsed();
 
       // 初始化或加载分类顺序
-      const storedOrder = storage.getItem('sticky_notes_category_order');
-      let loadedOrder: string[] = [];
-      if (storedOrder) {
-        try {
-          loadedOrder = JSON.parse(storedOrder);
-        } catch (e) {
-          console.error('Failed to parse category order:', e);
-        }
-      }
-
+      const loadedOrder = categoryRepository.getOrder();
       categoryStore.categoryOrder = normalizeCategoryOrder(loadedOrder, categoryStore.categories);
-      if (!storedOrder) {
+      if (loadedOrder.length === 0) {
         categoryStore.saveCategoryOrder();
       }
 
@@ -180,8 +174,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         }
       }
 
-      if (storedNotes) {
-        noteStore.allNotes = JSON.parse(storedNotes);
+      const storedNotes = noteRepository.getAll();
+      if (storedNotes && storedNotes.length > 0) {
+        noteStore.allNotes = storedNotes;
       } else {
         noteStore.allNotes = helpers.getDefaultNotes();
         noteStore.saveNotes();
@@ -201,11 +196,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         noteStore.currentCategoryId = exists ? lastCategoryId : 'all';
       }
 
-      // 显式执行一次初始化的分类便签加载 (传入 true 保持同步加载，避免 DOM 阶段性空状态)
       noteStore.loadNotesForCurrentCategory(true);
       isInitialized.value = true;
 
-      // uTools 环境下检测版本更新并对前一版本数据执行自动备份
       helpers.checkAndAutoBackupPreUpdate(
         categoryStore.categories,
         noteStore.allNotes,
@@ -228,7 +221,6 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   const deleteCategory = (id: string) => {
     categoryStore.deleteCategory(id);
 
-    // 将属于该被删除分类的所有便签移至最近删除
     noteStore.allNotes = noteStore.allNotes.map(n => {
       if (n.categoryId === id) {
         return {
@@ -243,7 +235,6 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     noteStore.saveNotes();
     noteStore.syncCurrentCategoryNotes();
 
-    // 如果删除的分类是当前选中的，切回“全部”
     if (noteStore.currentCategoryId === id) {
       noteStore.currentCategoryId = 'all';
     }
@@ -262,7 +253,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     noteStore.clearNotes(categoryId, descendants);
   };
 
-  // 协调便签的检索排序过滤算法 (调用纯算法模块)
+  // 协调便签的检索排序过滤算法
   const filteredNotes = computed(() => {
     return getFilteredAndSortedNotes(
       noteStore.notes,
@@ -359,7 +350,6 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     reader.readAsText(file);
   };
 
-
   const exportSingleNoteAsTxt = (note: Note) => {
     helpers.exportSingleNoteAsTxt(note, uiStore.showToast, uiStore.prefixTagWithHash);
   };
@@ -399,7 +389,6 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   };
 
   return {
-    // 分类状态与方法 (Category Store 代理)
     categories: categoriesRef,
     categoryOrder: categoryOrderRef,
     collapsedCategoryIds: toRef(categoryStore, 'collapsedCategoryIds'),
@@ -417,7 +406,6 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     deleteCategory,
     updateCategory: categoryStore.updateCategory,
 
-    // 便签状态与方法 (Note Store 代理)
     allNotes: toRef(noteStore, 'allNotes'),
     notes: notesRef,
     isLoadingNotes: toRef(noteStore, 'isLoadingNotes'),
@@ -443,7 +431,6 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     moveNote: noteStore.moveNote,
     updateNoteLastUsed: noteStore.updateNoteLastUsed,
 
-    // UI 状态与方法 (UI Store 代理)
     toastMessage: toRef(uiStore, 'toastMessage'),
     toastType: toRef(uiStore, 'toastType'),
     toastPosition: toRef(uiStore, 'toastPosition'),
@@ -502,7 +489,6 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     openImportModal: uiStore.openImportModal,
     closeImportModal: uiStore.closeImportModal,
 
-    // 初始化与备份代理
     isInitialized: readonly(isInitialized),
     loadData,
     exportBackup,
@@ -517,4 +503,3 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     devResetAllData
   };
 });
-

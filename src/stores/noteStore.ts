@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia';
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { Note, NoteType } from '@type';
 import { storage } from '@utils/storage';
 import { useUiStore } from './uiStore';
 import { useCategoryStore } from './categoryStore';
 import { COLOR_PRESETS } from './colorPresets';
 import { SearchTarget } from './stickyNotesAlgorithms';
+import { noteRepository } from '../infrastructure/storage/Repository';
+import { eventBus } from '../domain/events/DomainEventBus';
 
 export const useNoteStore = defineStore('noteStore', () => {
   const allNotes = ref<Note[]>([]);
@@ -102,7 +104,7 @@ export const useNoteStore = defineStore('noteStore', () => {
   });
 
   const saveNotes = () => {
-    storage.setItem('sticky_notes_notes', JSON.stringify(allNotes.value));
+    noteRepository.saveAll(allNotes.value);
   };
 
   let lastRandomColor = '';
@@ -137,6 +139,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     syncCurrentCategoryNotes();
 
     editingNoteId.value = newNote.id;
+    eventBus.emit('NOTE_CREATED', newNote);
     return newNote;
   };
 
@@ -144,18 +147,18 @@ export const useNoteStore = defineStore('noteStore', () => {
     const note = allNotes.value.find(n => n.id === id);
     if (!note) return;
 
-    const uiStore = useUiStore();
     if (note.isDeleted) {
       allNotes.value = allNotes.value.filter(n => n.id !== id);
-      uiStore.showToast('已彻底删除便签', 'success');
+      eventBus.requestToast('已彻底删除便签', 'success');
     } else {
       note.isDeleted = true;
       note.deletedAt = Date.now();
       note.isPinned = false;
-      uiStore.showToast('已将便签移至最近删除', 'success');
+      eventBus.requestToast('已将便签移至最近删除', 'success');
     }
     saveNotes();
     syncCurrentCategoryNotes();
+    eventBus.emit('NOTE_DELETED', id);
   };
 
   const restoreNote = (id: string) => {
@@ -166,8 +169,8 @@ export const useNoteStore = defineStore('noteStore', () => {
       note.updatedAt = Date.now();
       saveNotes();
       syncCurrentCategoryNotes();
-      const uiStore = useUiStore();
-      uiStore.showToast('已成功恢复便签', 'success');
+      eventBus.requestToast('已成功恢复便签', 'success');
+      eventBus.emit('NOTE_RESTORED', id);
     }
   };
 
@@ -175,13 +178,17 @@ export const useNoteStore = defineStore('noteStore', () => {
     allNotes.value = allNotes.value.filter(n => n.isDeleted !== true);
     saveNotes();
     syncCurrentCategoryNotes();
-    const uiStore = useUiStore();
-    uiStore.showToast('已清空最近删除的所有便签', 'success');
+    eventBus.requestToast('已清空最近删除的所有便签', 'success');
   };
 
-  const trashNotesCount = computed(() => {
-    return allNotes.value.filter(n => n.isDeleted === true).length;
-  });
+  const trashNotesCount = ref(0);
+  watch(
+    () => allNotes.value,
+    (notesList) => {
+      trashNotesCount.value = notesList.filter(n => n.isDeleted === true).length;
+    },
+    { deep: true, immediate: true }
+  );
 
   const updateNote = (
     id: string,
@@ -196,11 +203,11 @@ export const useNoteStore = defineStore('noteStore', () => {
       }
       saveNotes();
       syncCurrentCategoryNotes();
+      eventBus.emit('NOTE_UPDATED', note);
     }
   };
 
   const clearNotes = (categoryId: string, descendants?: Set<string>) => {
-    const uiStore = useUiStore();
     if (categoryId === 'all') {
       allNotes.value.forEach(n => {
         if (!n.isDeleted) {
@@ -226,7 +233,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     }
     saveNotes();
     syncCurrentCategoryNotes();
-    uiStore.showToast('已清空当前分类下的便签', 'success');
+    eventBus.requestToast('已清空当前分类下的便签', 'success');
   };
 
   const setSortMode = (mode: 'date' | 'title' | 'tag' | 'custom' | 'useCount') => {

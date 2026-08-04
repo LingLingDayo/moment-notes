@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { Category } from '@type';
-import { storage } from '@utils/storage';
-import { useUiStore } from './uiStore';
+import { categoryRepository } from '../infrastructure/storage/Repository';
+import { eventBus } from '../domain/events/DomainEventBus';
 
 export const useCategoryStore = defineStore('categoryStore', () => {
   const categories = ref<Category[]>([]);
@@ -12,18 +12,15 @@ export const useCategoryStore = defineStore('categoryStore', () => {
   const newSubCategoryName = ref('');
 
   const saveCategories = () => {
-    storage.setItem('sticky_notes_categories', JSON.stringify(categories.value));
+    categoryRepository.saveAll(categories.value);
   };
 
   const saveCategoryOrder = () => {
-    storage.setItem('sticky_notes_category_order', JSON.stringify(categoryOrder.value));
+    categoryRepository.saveOrder(categoryOrder.value);
   };
 
   const saveCollapsedCategories = () => {
-    storage.setItem(
-      'sticky_notes_collapsed_categories',
-      JSON.stringify(collapsedCategoryIds.value)
-    );
+    categoryRepository.saveCollapsed(collapsedCategoryIds.value);
   };
 
   const toggleCategoryCollapse = (id: string) => {
@@ -182,21 +179,19 @@ export const useCategoryStore = defineStore('categoryStore', () => {
     targetSiblingId: string | undefined,
     position: 'before' | 'after' | 'inside'
   ) => {
-    let cat = categories.value.find(c => c.id === categoryId);
+    const cat = categories.value.find(c => c.id === categoryId);
     if (!cat && categoryId !== 'all') return;
 
     if (categoryId === 'all') {
       if (targetParentId !== undefined) {
-        const uiStore = useUiStore();
-        uiStore.showToast('“全部便签”只能作为一级分类排序', 'error');
+        eventBus.requestToast('“全部便签”只能作为一级分类排序', 'error');
         return;
       }
     } else {
       if (targetParentId === categoryId) return;
       const descendants = getCategoryDescendants(categoryId);
       if (targetParentId && descendants.has(targetParentId)) {
-        const uiStore = useUiStore();
-        uiStore.showToast('无法将分类移动到其子分类下', 'error');
+        eventBus.requestToast('无法将分类移动到其子分类下', 'error');
         return;
       }
 
@@ -254,6 +249,7 @@ export const useCategoryStore = defineStore('categoryStore', () => {
     categoryOrder.value.push(newCategory.id);
     saveCategoryOrder();
 
+    eventBus.emit('CATEGORY_CREATED', newCategory);
     return newCategory;
   };
 
@@ -271,6 +267,8 @@ export const useCategoryStore = defineStore('categoryStore', () => {
 
     categoryOrder.value = categoryOrder.value.filter(itemId => itemId !== id);
     saveCategoryOrder();
+
+    eventBus.emit('CATEGORY_DELETED', id);
   };
 
   const updateCategory = (id: string, name: string) => {
@@ -279,6 +277,7 @@ export const useCategoryStore = defineStore('categoryStore', () => {
     if (category) {
       category.name = name.trim();
       saveCategories();
+      eventBus.emit('CATEGORY_UPDATED', category);
     }
   };
 
