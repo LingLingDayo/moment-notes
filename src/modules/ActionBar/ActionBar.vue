@@ -278,7 +278,7 @@ const handleAddNote = () => {
   }
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .action-bar-container {
     padding: 12px 16px;
     padding-bottom: 0;
@@ -302,7 +302,7 @@ const handleAddNote = () => {
   }
 }
 
-@media (max-width: 869px) {
+@media (max-width: $screen-tablet) {
   .primary-btn {
     width: 34px;
     padding: 0;

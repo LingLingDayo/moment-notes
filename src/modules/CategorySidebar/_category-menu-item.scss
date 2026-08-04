@@ -97,7 +97,7 @@
       transform 0.2s;
   }
 
-  @media (max-width: 1049px) {
+  @media (max-width: $screen-compact) {
     .menu-item {
       height: 36px;
       padding-left: calc(10px + var(--item-level, 0) * 10px);

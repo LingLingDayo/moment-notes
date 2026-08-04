@@ -184,7 +184,7 @@ const changeGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4) => {
   }
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .icon-btn {
     width: 34px;
     height: 34px;

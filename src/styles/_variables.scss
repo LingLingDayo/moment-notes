@@ -25,3 +25,9 @@ $z-index-media-preview: 9040; // 全局大图预览 Modal
 $z-index-media-preview-controls: 9050; // 大图预览控制按钮/工具栏
 $z-index-global-tooltip: 99999; // 全局最高层 Hover Tooltip
 
+// 响应式断点系统 (Breakpoints)
+$screen-compact: 1049px; // 响应式/侧栏折叠/紧凑屏断点
+$screen-tablet: 869px;   // 平板/中等宽度断点
+$screen-mobile: 599px;   // 移动端/小屏断点
+
+

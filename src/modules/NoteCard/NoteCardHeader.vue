@@ -249,7 +249,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
   z-index: 2;
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .absolute-edit-btn {
     top: 10px;
     right: 12px;

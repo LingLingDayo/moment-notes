@@ -38,7 +38,7 @@
     top 0.12s cubic-bezier(0.4, 0, 0.2, 1),
     left 0.12s cubic-bezier(0.4, 0, 0.2, 1);
 
-  @media (max-width: 1049px) {
+  @media (max-width: $screen-compact) {
     --level-indent: 10px;
     left: calc(10px + var(--item-level, 0) * var(--level-indent));
     right: 6px;
@@ -65,7 +65,7 @@
   }
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .sidebar-menu {
     padding: 10px 8px;
     margin-top: 8px;

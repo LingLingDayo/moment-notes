@@ -265,7 +265,7 @@ const handleButtonAction = (actionKey: string) => {
   }
 }
 
-@media (max-width: 599px) {
+@media (max-width: $screen-mobile) {
   .modal-container {
     width: 95%;
     height: 90vh;

@@ -400,7 +400,7 @@ const vFocusSelect = {
   }
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .menu-item {
     height: 36px;
     padding-left: calc(10px + var(--item-level, 0) * 12px);

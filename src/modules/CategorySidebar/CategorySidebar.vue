@@ -227,7 +227,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .sidebar-header {
     padding: 14px;
     padding-bottom: 0;

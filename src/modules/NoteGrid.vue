@@ -227,7 +227,7 @@ const handleAddNote = () => {
   box-sizing: border-box;
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .note-grid-container {
     padding: 16px;
     height: calc(100% - 59px); // 减去更窄的头部工具栏高度 (12px * 2 + 34px + 1px)

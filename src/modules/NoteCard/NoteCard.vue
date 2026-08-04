@@ -606,7 +606,7 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .note-card {
     padding: 14px 16px 8px 16px;
     min-height: 80px;

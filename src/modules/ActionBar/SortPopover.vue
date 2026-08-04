@@ -226,7 +226,7 @@ const changeSortMode = (mode: 'date' | 'title' | 'tag' | 'custom' | 'useCount') 
   }
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .icon-btn {
     width: 34px;
     height: 34px;

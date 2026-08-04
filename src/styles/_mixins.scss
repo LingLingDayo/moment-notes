@@ -96,3 +96,29 @@
   }
 }
 
+// 响应式媒体查询混入
+@mixin respond-to($screen) {
+  @if $screen == 'compact' {
+    @media (max-width: $screen-compact) { @content; }
+  } @else if $screen == 'tablet' {
+    @media (max-width: $screen-tablet) { @content; }
+  } @else if $screen == 'mobile' {
+    @media (max-width: $screen-mobile) { @content; }
+  } @else {
+    @media (max-width: $screen) { @content; }
+  }
+}
+
+@mixin respond-compact {
+  @media (max-width: $screen-compact) { @content; }
+}
+
+@mixin respond-tablet {
+  @media (max-width: $screen-tablet) { @content; }
+}
+
+@mixin respond-mobile {
+  @media (max-width: $screen-mobile) { @content; }
+}
+
+

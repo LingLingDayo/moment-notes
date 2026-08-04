@@ -261,7 +261,7 @@ const controlStyle = computed(() => {
   }
 }
 
-@media (max-width: 599px) {
+@media (max-width: $screen-mobile) {
   .setting-item {
     width: 100% !important;
   }

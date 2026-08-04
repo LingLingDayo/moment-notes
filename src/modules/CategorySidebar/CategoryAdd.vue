@@ -77,7 +77,7 @@ const submitAdd = () => {
   width: 100%;
   height: 36px;
 
-  @media (max-width: 1049px) {
+  @media (max-width: $screen-compact) {
     height: 34px;
   }
 }

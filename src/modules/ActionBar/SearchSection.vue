@@ -392,7 +392,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 1049px) {
+@media (max-width: $screen-compact) {
   .search-section {
     max-width: 280px;
   }
