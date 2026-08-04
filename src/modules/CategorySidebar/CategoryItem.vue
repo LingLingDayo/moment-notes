@@ -403,8 +403,11 @@ const vFocusSelect = {
 @media (max-width: 1049px) {
   .menu-item {
     height: 36px;
-    padding-left: calc(10px + var(--item-level, 0) * 10px);
+    padding-left: calc(10px + var(--item-level, 0) * 12px);
     padding-right: 6px;
+    .collapse-toggle {
+      margin-right: 0px;
+    }
   }
 
   .item-left {

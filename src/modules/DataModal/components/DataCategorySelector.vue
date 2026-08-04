@@ -174,13 +174,15 @@ const categoryTree = computed<CategoryTreeNode[]>(() => {
   }
 
   .text-action-btn {
+    height: 20px;
+    line-height: 20px;
     background: none;
     border: none;
     color: var(--primary-color, #3b82f6);
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
-    padding: 2px 6px;
+    padding: 0 6px;
     border-radius: 4px;
     transition: background 0.2s;
 
@@ -191,7 +193,7 @@ const categoryTree = computed<CategoryTreeNode[]>(() => {
 }
 
 .category-list {
-  max-height: 220px;
+  max-height: 240px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;

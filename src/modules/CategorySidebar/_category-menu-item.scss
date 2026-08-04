@@ -5,7 +5,7 @@
     justify-content: space-between;
     height: 40px;
     --level-indent: 14px;
-    padding-left: calc(14px + var(--item-level, 0) * var(--level-indent));
+    padding-left: calc(12px + var(--item-level, 0) * var(--level-indent));
     padding-right: 10px;
     border-radius: 10px;
     cursor: pointer;
@@ -105,7 +105,7 @@
     }
 
     .item-left {
-      gap: 8px;
+      gap: 6px;
     }
   }
 }
