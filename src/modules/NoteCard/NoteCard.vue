@@ -165,10 +165,17 @@ const handleSelectionChange = () => {
   }, 200);
 };
 
-// 双击粘贴逻辑 (严格只粘贴整篇便签内容)
+// 双击响应逻辑 (根据设置配置执行复制粘贴、全屏预览或删除)
 const handleDoubleClick = () => {
-  if (isEditing.value) return; // 如果在编辑中，不触发双击粘贴
-  store.handlePasteNote(props.note.content, props.note.id);
+  if (isEditing.value) return; // 如果在编辑中，不触发双击动作
+  const action = store.doubleClickNoteAction || 'copyAndPaste';
+  if (action === 'copyAndPaste') {
+    store.handlePasteNote(props.note.content, props.note.id);
+  } else if (action === 'fullscreen') {
+    handleTogglePreview();
+  } else if (action === 'delete') {
+    store.deleteNote(props.note.id);
+  }
 };
 
 // 切换置顶

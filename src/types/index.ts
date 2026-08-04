@@ -46,6 +46,8 @@ export interface CategoryViewSetting {
   gridColumns?: 'auto' | 1 | 2 | 3 | 4;
 }
 
+export type DoubleClickNoteAction = 'copyAndPaste' | 'fullscreen' | 'delete';
+
 export interface AppSettings {
   theme?: 'dark' | 'light';
   gridColumns?: 'auto' | 1 | 2 | 3 | 4;
@@ -56,6 +58,7 @@ export interface AppSettings {
   defaultNoteColor?: string;
   defaultNoteType?: NoteType;
   defaultEditMode?: 'inline' | 'fullscreen';
+  doubleClickNoteAction?: DoubleClickNoteAction;
   superPanelDefaultCategory?: string;
   startPageMode?: 'last' | 'default';
   enableHoverAnimation?: boolean;

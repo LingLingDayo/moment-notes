@@ -50,6 +50,8 @@ export function useSettings() {
           store.setDefaultNoteType(val);
         } else if (key === 'defaultEditMode') {
           store.setDefaultEditMode(val);
+        } else if (key === 'doubleClickNoteAction') {
+          store.setDoubleClickNoteAction(val);
         } else if (key === 'superPanelDefaultCategory') {
           store.setSuperPanelDefaultCategory(val);
         } else if (key === 'startPageMode') {

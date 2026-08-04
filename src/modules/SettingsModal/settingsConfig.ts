@@ -10,6 +10,7 @@ export interface SettingOption {
   icon?: any;
   html?: string;
   color?: string;
+  tooltip?: string;
 }
 
 export type SettingType = 'input' | 'textarea' | 'select' | 'multiselect' | 'radio' | 'button-group' | 'component' | 'shortcut' | 'text' | 'slider' | 'switch';
@@ -149,6 +150,23 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         type: 'switch',
         desc: '开启后，在浏览便签时划词选中文本即可自动复制到剪贴板。',
         default: true
+      },
+      {
+        key: 'doubleClickNoteAction',
+        label: '双击便签响应动作',
+        type: 'select',
+        desc: '设置双击便签卡片时触发的操作。',
+        default: 'copyAndPaste',
+        controlWidth: '240px',
+        options: [
+          { label: '双击复制并粘贴到光标处', value: 'copyAndPaste' },
+          { label: '全屏查看便签', value: 'fullscreen' },
+          {
+            label: '删除便签(移入"最近删除")',
+            value: 'delete',
+            tooltip: '如果双击的是"最近删除"的便签就直接删除'
+          }
+        ]
       },
       {
         key: 'showNoteCount',

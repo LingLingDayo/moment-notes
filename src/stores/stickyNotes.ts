@@ -130,6 +130,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.defaultEditMode = storedDefaultEditMode as 'inline' | 'fullscreen';
       }
 
+      const storedDoubleClickNoteAction = storage.getItem('sticky_notes_double_click_note_action');
+      if (storedDoubleClickNoteAction && ['copyAndPaste', 'fullscreen', 'delete'].includes(storedDoubleClickNoteAction)) {
+        uiStore.doubleClickNoteAction = storedDoubleClickNoteAction as any;
+      }
+
       const storedSuperPanelCat = storage.getItem('sticky_notes_super_panel_default_category');
       if (storedSuperPanelCat) {
         uiStore.superPanelDefaultCategory = storedSuperPanelCat;
@@ -463,6 +468,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setDefaultNoteType: uiStore.setDefaultNoteType,
     defaultEditMode: toRef(uiStore, 'defaultEditMode'),
     setDefaultEditMode: uiStore.setDefaultEditMode,
+    doubleClickNoteAction: toRef(uiStore, 'doubleClickNoteAction'),
+    setDoubleClickNoteAction: uiStore.setDoubleClickNoteAction,
     superPanelDefaultCategory: toRef(uiStore, 'superPanelDefaultCategory'),
     setSuperPanelDefaultCategory: uiStore.setSuperPanelDefaultCategory,
     startPageMode: toRef(uiStore, 'startPageMode'),

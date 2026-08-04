@@ -17,6 +17,7 @@ export const getCurrentSettings = (
     defaultNoteColor: uiStore.defaultNoteColor,
     defaultNoteType: uiStore.defaultNoteType,
     defaultEditMode: uiStore.defaultEditMode,
+    doubleClickNoteAction: uiStore.doubleClickNoteAction,
     superPanelDefaultCategory: uiStore.superPanelDefaultCategory,
     startPageMode: uiStore.startPageMode,
     enableHoverAnimation: uiStore.enableHoverAnimation,
@@ -70,6 +71,9 @@ export const applySettings = (
   }
   if (settings.defaultEditMode && ['inline', 'fullscreen'].includes(settings.defaultEditMode)) {
     uiStore.setDefaultEditMode(settings.defaultEditMode);
+  }
+  if (settings.doubleClickNoteAction && ['copyAndPaste', 'fullscreen', 'delete'].includes(settings.doubleClickNoteAction)) {
+    uiStore.setDoubleClickNoteAction(settings.doubleClickNoteAction);
   }
   if (typeof settings.superPanelDefaultCategory === 'string') {
     uiStore.setSuperPanelDefaultCategory(settings.superPanelDefaultCategory);

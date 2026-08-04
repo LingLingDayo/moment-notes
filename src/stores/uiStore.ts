@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { storage } from '@utils/storage';
-import { NoteType, CategoryViewSetting, BackupData } from '@type';
+import { NoteType, CategoryViewSetting, BackupData, DoubleClickNoteAction } from '@type';
 import { eventBus, DomainEvent, ToastPayload } from '../domain/events/DomainEventBus';
 
 export const useUiStore = defineStore('uiStore', () => {
@@ -182,6 +182,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_default_edit_mode', defaultEditMode.value);
   };
 
+  const doubleClickNoteAction = ref<DoubleClickNoteAction>('copyAndPaste');
+
+  const setDoubleClickNoteAction = (val: DoubleClickNoteAction) => {
+    doubleClickNoteAction.value = val || 'copyAndPaste';
+    storage.setItem('sticky_notes_double_click_note_action', doubleClickNoteAction.value);
+  };
+
   const superPanelDefaultCategory = ref<string>('all');
 
   const setSuperPanelDefaultCategory = (val: string) => {
@@ -293,6 +300,8 @@ export const useUiStore = defineStore('uiStore', () => {
     setDefaultNoteType,
     defaultEditMode,
     setDefaultEditMode,
+    doubleClickNoteAction,
+    setDoubleClickNoteAction,
     superPanelDefaultCategory,
     setSuperPanelDefaultCategory,
     startPageMode,

@@ -142,7 +142,7 @@ const displayLabel = computed(() => {
               :key="option.value"
               class="dropdown-item"
               :class="{ active: isSelected(option.value) }"
-              :data-tooltip="option.label"
+              :data-tooltip="option.tooltip || option.label"
               @click="handleSelect(option)"
             >
               <div class="item-content-wrapper">
