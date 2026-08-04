@@ -1,9 +1,17 @@
 <script lang="ts" setup>
-import { CheckSquare, Square, Folder, FileText } from '@lucide/vue';
+import { computed } from 'vue';
+import { CheckSquare, Square, FileText } from '@lucide/vue';
+import DataCategoryTreeItem from './DataCategoryTreeItem.vue';
 
 export interface CategoryItem {
   id: string;
   name: string;
+  parentId?: string;
+}
+
+export interface CategoryTreeNode extends CategoryItem {
+  children: CategoryTreeNode[];
+  level: number;
 }
 
 interface Props {
@@ -27,6 +35,8 @@ interface Props {
   isUncategorizedSelected?: boolean;
   /** 未分类便签项名称 */
   uncategorizedLabel?: string;
+  /** 分类排序数组（可选） */
+  categoryOrder?: string[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -35,14 +45,63 @@ const props = withDefaults(defineProps<Props>(), {
   totalCount: undefined,
   showUncategorized: false,
   isUncategorizedSelected: false,
-  uncategorizedLabel: '未分类便签'
+  uncategorizedLabel: '未分类便签',
+  categoryOrder: () => []
 });
 
 const emit = defineEmits<{
-  (e: 'toggleCategory', id: string): void;
+  (e: 'toggleCategory', id: string, subtreeIds?: string[]): void;
   (e: 'toggleSelectAll'): void;
   (e: 'toggleUncategorized'): void;
 }>();
+
+// 构建并排序分类树形结构
+const categoryTree = computed<CategoryTreeNode[]>(() => {
+  const catMap = new Map<string, CategoryTreeNode>();
+
+  props.categories.forEach(c => {
+    catMap.set(c.id, { ...c, children: [], level: 0 });
+  });
+
+  const rootNodes: CategoryTreeNode[] = [];
+
+  props.categories.forEach(c => {
+    const node = catMap.get(c.id)!;
+    if (c.parentId && catMap.has(c.parentId)) {
+      catMap.get(c.parentId)!.children.push(node);
+    } else {
+      rootNodes.push(node);
+    }
+  });
+
+  // 如果提供了 categoryOrder 排序，则按其索引值排序
+  if (props.categoryOrder && props.categoryOrder.length > 0) {
+    const getOrderIndex = (id: string) => {
+      const idx = props.categoryOrder!.indexOf(id);
+      return idx === -1 ? Infinity : idx;
+    };
+    const sortFn = (a: CategoryTreeNode, b: CategoryTreeNode) =>
+      getOrderIndex(a.id) - getOrderIndex(b.id);
+
+    rootNodes.sort(sortFn);
+    catMap.forEach(node => {
+      node.children.sort(sortFn);
+    });
+  }
+
+  // 递归递归设置 level 层级深度
+  const setLevel = (nodes: CategoryTreeNode[], currentLevel: number) => {
+    nodes.forEach(n => {
+      n.level = currentLevel;
+      if (n.children.length > 0) {
+        setLevel(n.children, currentLevel + 1);
+      }
+    });
+  };
+  setLevel(rootNodes, 0);
+
+  return rootNodes;
+});
 </script>
 
 <template>
@@ -61,36 +120,27 @@ const emit = defineEmits<{
       </button>
     </div>
 
-    <!-- 分类多选列表容器 -->
+    <!-- 分类多选列表容器 (树形加载) -->
     <div class="category-list custom-scrollbar">
-      <!-- 自定义分类项目 -->
-      <div
-        v-for="cat in props.categories"
-        :key="cat.id"
-        class="category-item"
-        :class="{ active: props.selectedCategoryIds.includes(cat.id) }"
-        @click="emit('toggleCategory', cat.id)"
-      >
-        <div class="item-left">
-          <CheckSquare
-            v-if="props.selectedCategoryIds.includes(cat.id)"
-            class="checkbox-icon checked"
-          />
-          <Square v-else class="checkbox-icon" />
-          <Folder class="folder-icon" />
-          <span class="cat-name">{{ cat.name }}</span>
-        </div>
-        <span class="badge">{{ props.noteCountMap[cat.id] || 0 }}</span>
-      </div>
+      <!-- 树形渲染顶级节点及其递归子树 -->
+      <DataCategoryTreeItem
+        v-for="rootNode in categoryTree"
+        :key="rootNode.id"
+        :node="rootNode"
+        :selected-category-ids="props.selectedCategoryIds"
+        :note-count-map="props.noteCountMap"
+        @toggle-category="(id, subtreeIds) => emit('toggleCategory', id, subtreeIds)"
+      />
 
       <!-- 全局/未明确分配分类的便签 -->
       <div
         v-if="props.showUncategorized"
-        class="category-item"
+        class="category-item uncategorized-item"
         :class="{ active: props.isUncategorizedSelected }"
         @click="emit('toggleUncategorized')"
       >
         <div class="item-left">
+          <span class="collapse-spacer"></span>
           <CheckSquare
             v-if="props.isUncategorizedSelected"
             class="checkbox-icon checked"
@@ -141,25 +191,29 @@ const emit = defineEmits<{
 }
 
 .category-list {
-  max-height: 180px;
+  max-height: 220px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
   padding-right: 4px;
 }
 
-.category-item {
+.category-item.uncategorized-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 10px;
+  padding-right: 12px;
   border-radius: 8px;
   background: var(--item-bg, rgba(0, 0, 0, 0.03));
   border: 1px solid transparent;
   cursor: pointer;
   user-select: none;
   transition: all 0.2s ease;
+  margin-top: 4px;
 
   &:hover {
     background: var(--item-hover-bg, rgba(0, 0, 0, 0.06));
@@ -173,11 +227,20 @@ const emit = defineEmits<{
   .item-left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+
+    .collapse-spacer {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
 
     .checkbox-icon {
       width: 16px;
       height: 16px;
+      flex-shrink: 0;
       color: var(--text-secondary, #999);
 
       &.checked {
@@ -188,12 +251,16 @@ const emit = defineEmits<{
     .folder-icon {
       width: 15px;
       height: 15px;
+      flex-shrink: 0;
       color: var(--text-secondary, #666);
     }
 
     .cat-name {
       font-size: 13px;
       font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 
@@ -203,6 +270,7 @@ const emit = defineEmits<{
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.06);
     color: var(--text-secondary, #666);
+    flex-shrink: 0;
   }
 }
 </style>

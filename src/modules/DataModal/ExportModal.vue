@@ -68,12 +68,15 @@ const toggleSelectAll = () => {
   }
 };
 
-const toggleCategory = (id: string) => {
-  const idx = selectedCategoryIds.value.indexOf(id);
-  if (idx > -1) {
-    selectedCategoryIds.value.splice(idx, 1);
+const toggleCategory = (id: string, subtreeIds?: string[]) => {
+  const targets = subtreeIds && subtreeIds.length > 0 ? subtreeIds : [id];
+  const isSelected = selectedCategoryIds.value.includes(id);
+
+  if (isSelected) {
+    selectedCategoryIds.value = selectedCategoryIds.value.filter(catId => !targets.includes(catId));
   } else {
-    selectedCategoryIds.value.push(id);
+    const set = new Set([...selectedCategoryIds.value, ...targets]);
+    selectedCategoryIds.value = Array.from(set);
   }
 };
 
@@ -140,6 +143,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
             <DataCategorySelector
               title="分类数据"
               :categories="store.categories"
+              :category-order="store.categoryOrder"
               :selected-category-ids="selectedCategoryIds"
               :note-count-map="categoryNoteCountMap"
               :is-all-selected="isAllSelected"
