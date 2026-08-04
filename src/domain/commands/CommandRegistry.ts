@@ -15,6 +15,9 @@ class CommandRegistry {
   private commands = new Map<string, Command>();
 
   public register(command: Command): () => void {
+    if (this.commands.has(command.id)) {
+      console.warn(`[CommandRegistry] Warning: Command with ID "${command.id}" is already registered and will be overwritten.`);
+    }
     this.commands.set(command.id, command);
     return () => {
       this.commands.delete(command.id);

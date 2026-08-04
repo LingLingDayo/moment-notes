@@ -21,14 +21,23 @@ describe('Domain Architecture & Bus Modules', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
-  it('CommandRegistry 应正确注册与分发命令', () => {
-    const handler = vi.fn();
-    commandRegistry.registerHandler('testCommand', '测试命令', handler);
+  it('CommandRegistry 应正确注册与分发命令，且在重复注册时警告', () => {
+    const handler1 = vi.fn();
+    const handler2 = vi.fn();
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
+    commandRegistry.registerHandler('testCommand', '测试命令1', handler1);
+    commandRegistry.registerHandler('testCommand', '测试命令2', handler2);
+
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('already registered'));
     expect(commandRegistry.has('testCommand')).toBe(true);
+
     const executed = commandRegistry.execute('testCommand', { foo: 'bar' });
     expect(executed).toBe(true);
-    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler2).toHaveBeenCalledTimes(1);
+    expect(handler1).not.toHaveBeenCalled();
+
+    warnSpy.mockRestore();
   });
 
   it('NoteFilterPipeline 截断阶段应生效', () => {
