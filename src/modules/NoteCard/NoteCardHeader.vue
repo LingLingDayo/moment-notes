@@ -25,7 +25,7 @@ const shortcutStore = useShortcutStore();
 const store = useStickyNotesStore();
 
 const isPreviewActive = computed(() => store.previewNoteId === props.note.id);
-const isFullScreenMode = computed(() => props.isFullScreen || isPreviewActive.value);
+const isFullScreenMode = computed(() => !!props.isFullScreen);
 
 const handleKeyDown = (e: KeyboardEvent) => {
   const keyString = shortcutStore.getEventKeyString(e);
