@@ -16,20 +16,7 @@ const store = useStickyNotesStore();
 const shortcutStore = useShortcutStore();
 
 const handleGlobalKeyDown = (e: KeyboardEvent) => {
-  // 正在录制快捷键时，不触发全局动作响应
-  if (shortcutStore.isRecording) return;
-
-  const keyString = shortcutStore.getEventKeyString(e);
-  if (!keyString) return;
-
-  const matched = shortcutStore.shortcuts.find(s => s.currentKey === keyString);
-  if (matched) {
-    // 局部快捷键不触发全局动作
-    if (['saveEdit', 'cancelEdit'].includes(matched.id)) return;
-
-    e.preventDefault();
-    shortcutStore.triggerShortcut(matched.id);
-  }
+  shortcutStore.handleKeyDown(e);
 };
 
 onMounted(() => {

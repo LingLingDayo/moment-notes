@@ -2,6 +2,10 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { storage } from '@utils/storage';
 import { commandRegistry } from '../domain/commands/CommandRegistry';
+import { parseKeyboardEvent } from '../domain/shortcuts/KeyCombo';
+import { defaultContextService } from '../domain/shortcuts/KeybindingContextService';
+import { defaultKeybindingRegistry } from '../domain/shortcuts/KeybindingRegistry';
+import { ShortcutPipeline } from '../domain/shortcuts/ShortcutPipeline';
 
 export interface Shortcut {
   id: string;
@@ -13,37 +17,27 @@ export interface Shortcut {
 
 export const useShortcutStore = defineStore('shortcutStore', () => {
   const isRecording = ref(false);
+  const shortcuts = ref<Shortcut[]>(defaultKeybindingRegistry.getAll());
 
-  const shortcuts = ref<Shortcut[]>([
-    {
-      id: 'addNote',
-      name: '新建便签',
-      defaultKey: 'Ctrl+Alt+N',
-      currentKey: 'Ctrl+Alt+N',
-      description: '在当前所在分类下极速新建一个空白便签'
-    },
-    {
-      id: 'focusSearch',
-      name: '聚焦搜索',
-      defaultKey: 'Ctrl+F',
-      currentKey: 'Ctrl+F',
-      description: '一键将输入光标聚焦到顶部的搜索框中'
-    },
-    {
-      id: 'saveEdit',
-      name: '保存编辑',
-      defaultKey: 'Ctrl+Enter',
-      currentKey: 'Ctrl+Enter',
-      description: '在编辑便签内容时，快捷保存并结束编辑状态'
-    },
-    {
-      id: 'cancelEdit',
-      name: '取消编辑',
-      defaultKey: 'Escape',
-      currentKey: 'Escape',
-      description: '在编辑便签内容时取消修改并退出编辑状态'
+  // 基础快捷键处理管线
+  const pipeline = new ShortcutPipeline({
+    keybindingRegistry: defaultKeybindingRegistry,
+    contextService: defaultContextService,
+    isRecordingGetter: () => isRecording.value,
+    onExecuteCommand: (commandId: string) => {
+      triggerShortcut(commandId);
     }
-  ]);
+  });
+
+  const syncShortcuts = () => {
+    shortcuts.value = defaultKeybindingRegistry.getAll().map(b => ({
+      id: b.id,
+      name: b.name,
+      defaultKey: b.defaultKey,
+      currentKey: b.currentKey,
+      description: b.description
+    }));
+  };
 
   const loadShortcuts = () => {
     const stored = storage.getItem('sticky_notes_shortcuts');
@@ -51,10 +45,9 @@ export const useShortcutStore = defineStore('shortcutStore', () => {
       try {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
-          parsed.forEach((item: any) => {
-            const match = shortcuts.value.find(s => s.id === item.id);
-            if (match) {
-              match.currentKey = item.currentKey !== undefined ? item.currentKey : match.defaultKey;
+          parsed.forEach((item: { id: string; currentKey: string }) => {
+            if (item.id && item.currentKey !== undefined) {
+              defaultKeybindingRegistry.updateKeybinding(item.id, item.currentKey);
             }
           });
         }
@@ -62,6 +55,7 @@ export const useShortcutStore = defineStore('shortcutStore', () => {
         console.error('Failed to parse stored shortcuts:', e);
       }
     }
+    syncShortcuts();
   };
 
   const saveShortcuts = () => {
@@ -70,64 +64,29 @@ export const useShortcutStore = defineStore('shortcutStore', () => {
   };
 
   const updateShortcut = (id: string, newKey: string) => {
-    if (!newKey) {
-      const match = shortcuts.value.find(s => s.id === id);
-      if (match) {
-        match.currentKey = '';
-        saveShortcuts();
-      }
-      return { success: true };
-    }
-
-    const conflict = shortcuts.value.find(s => s.id !== id && s.currentKey.toLowerCase() === newKey.toLowerCase());
-    if (conflict) {
-      return { success: false, message: `与 [${conflict.name}] 快捷键冲突` };
-    }
-
-    const match = shortcuts.value.find(s => s.id === id);
-    if (match) {
-      match.currentKey = newKey;
+    const res = defaultKeybindingRegistry.updateKeybinding(id, newKey);
+    if (res.success) {
+      syncShortcuts();
       saveShortcuts();
     }
-    return { success: true };
+    return res;
   };
 
   const resetShortcut = (id: string) => {
-    const match = shortcuts.value.find(s => s.id === id);
-    if (match) {
-      match.currentKey = match.defaultKey;
-      saveShortcuts();
-    }
+    defaultKeybindingRegistry.resetKeybinding(id);
+    syncShortcuts();
+    saveShortcuts();
   };
 
   const clearShortcut = (id: string) => {
-    const match = shortcuts.value.find(s => s.id === id);
-    if (match) {
-      match.currentKey = '';
-      saveShortcuts();
-    }
+    defaultKeybindingRegistry.clearKeybinding(id);
+    syncShortcuts();
+    saveShortcuts();
   };
 
   const getEventKeyString = (e: KeyboardEvent): string | null => {
-    const key = e.key;
-    if (['Control', 'Shift', 'Alt', 'Meta'].includes(key)) {
-      return null;
-    }
-    const parts: string[] = [];
-    if (e.ctrlKey || e.metaKey) parts.push('Ctrl');
-    if (e.shiftKey) parts.push('Shift');
-    if (e.altKey) parts.push('Alt');
-
-    let displayKey = key;
-    if (key === ' ') displayKey = 'Space';
-    else if (key === 'ArrowLeft') displayKey = 'Left';
-    else if (key === 'ArrowRight') displayKey = 'Right';
-    else if (key === 'ArrowUp') displayKey = 'Up';
-    else if (key === 'ArrowDown') displayKey = 'Down';
-    else if (key.length === 1) displayKey = key.toUpperCase();
-
-    parts.push(displayKey);
-    return parts.join('+');
+    const combo = parseKeyboardEvent(e);
+    return combo ? combo.rawString : null;
   };
 
   const triggerShortcut = (id: string) => {
@@ -149,6 +108,20 @@ export const useShortcutStore = defineStore('shortcutStore', () => {
     }
   };
 
+  /**
+   * 动态更新上下文标识 (如 inEditor, searchFocused, modalOpen)
+   */
+  const setContext = (key: string, value: boolean) => {
+    defaultContextService.setContext(key, value);
+  };
+
+  /**
+   * 处理键盘事件主逻辑，交由领域管线安全调度
+   */
+  const handleKeyDown = (e: KeyboardEvent) => {
+    return pipeline.handleEvent(e);
+  };
+
   return {
     isRecording,
     shortcuts,
@@ -158,6 +131,8 @@ export const useShortcutStore = defineStore('shortcutStore', () => {
     resetShortcut,
     clearShortcut,
     getEventKeyString,
-    triggerShortcut
+    triggerShortcut,
+    setContext,
+    handleKeyDown
   };
 });
