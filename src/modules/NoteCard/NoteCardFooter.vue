@@ -114,6 +114,10 @@ const changeNoteType = (type: NoteType) => {
 
 // 删除便签
 const deleteSelf = async () => {
+  if (store.skipDeleteConfirm) {
+    store.deleteNote(props.note.id);
+    return;
+  }
   const ok = await store.askConfirm(
     props.note.isDeleted ? '确认彻底删除' : '确认删除便签',
     props.note.isDeleted

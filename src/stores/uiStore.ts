@@ -231,6 +231,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_prefix_tag_with_hash', val ? 'true' : 'false');
   };
 
+  const skipDeleteConfirm = ref(false);
+
+  const setSkipDeleteConfirm = (val: boolean) => {
+    skipDeleteConfirm.value = val;
+    storage.setItem('sticky_notes_skip_delete_confirm', val ? 'true' : 'false');
+  };
+
   // 全屏便签预览状态
   const previewNoteId = ref<string | null>(null);
   const openedFullscreenForEditNoteId = ref<string | null>(null);
@@ -316,6 +323,8 @@ export const useUiStore = defineStore('uiStore', () => {
     setShowNoteCount,
     prefixTagWithHash,
     setPrefixTagWithHash,
+    skipDeleteConfirm,
+    setSkipDeleteConfirm,
     categoryIndependentToolbar,
     setCategoryIndependentToolbar,
     categoryViewSettings,

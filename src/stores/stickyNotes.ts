@@ -165,6 +165,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.prefixTagWithHash = storedPrefixTagWithHash === 'true';
       }
 
+      const storedSkipDeleteConfirm = storage.getItem('sticky_notes_skip_delete_confirm');
+      if (storedSkipDeleteConfirm !== null) {
+        uiStore.skipDeleteConfirm = storedSkipDeleteConfirm === 'true';
+      }
+
       const storedCategoryIndependentToolbar = storage.getItem('sticky_notes_category_independent_toolbar');
       if (storedCategoryIndependentToolbar !== null) {
         uiStore.categoryIndependentToolbar = storedCategoryIndependentToolbar === 'true';
@@ -482,6 +487,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setShowNoteCount: uiStore.setShowNoteCount,
     prefixTagWithHash: toRef(uiStore, 'prefixTagWithHash'),
     setPrefixTagWithHash: uiStore.setPrefixTagWithHash,
+    skipDeleteConfirm: toRef(uiStore, 'skipDeleteConfirm'),
+    setSkipDeleteConfirm: uiStore.setSkipDeleteConfirm,
     previewNoteId: toRef(uiStore, 'previewNoteId'),
     openedFullscreenForEditNoteId: toRef(uiStore, 'openedFullscreenForEditNoteId'),
     openNotePreview: uiStore.openNotePreview,

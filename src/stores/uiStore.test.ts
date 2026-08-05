@@ -40,4 +40,17 @@ describe('uiStore 持久化与规范单测', () => {
     uiStore.setDoubleClickNoteAction('delete');
     expect(uiStore.doubleClickNoteAction).toBe('delete');
   });
+
+  it('skipDeleteConfirm 默认应为 false 并支持变更持久化', () => {
+    const uiStore = useUiStore();
+    expect(uiStore.skipDeleteConfirm).toBe(false);
+
+    uiStore.setSkipDeleteConfirm(true);
+    expect(uiStore.skipDeleteConfirm).toBe(true);
+    expect(globalThis.localStorage.getItem('sticky_notes_skip_delete_confirm')).toBe('true');
+
+    uiStore.setSkipDeleteConfirm(false);
+    expect(uiStore.skipDeleteConfirm).toBe(false);
+    expect(globalThis.localStorage.getItem('sticky_notes_skip_delete_confirm')).toBe('false');
+  });
 });

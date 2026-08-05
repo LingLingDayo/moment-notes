@@ -62,6 +62,8 @@ export function useSettings() {
           store.setShowNoteCount(val);
         } else if (key === 'prefixTagWithHash') {
           store.setPrefixTagWithHash(val);
+        } else if (key === 'skipDeleteConfirm') {
+          store.setSkipDeleteConfirm(val);
         } else if (key === 'categoryIndependentToolbar') {
           store.setCategoryIndependentToolbar(val);
         } else {

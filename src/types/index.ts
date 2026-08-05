@@ -68,6 +68,7 @@ export interface AppSettings {
   sortMode?: 'date' | 'title' | 'tag' | 'custom' | 'useCount';
   sortOrder?: 'asc' | 'desc';
   categoryIndependentToolbar?: boolean;
+  skipDeleteConfirm?: boolean;
   categoryViewSettings?: Record<string, CategoryViewSetting>;
   shortcuts?: Array<{ id: string; currentKey: string }>;
   collapsedCategoryIds?: string[];

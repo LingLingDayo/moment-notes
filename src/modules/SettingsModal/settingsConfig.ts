@@ -169,6 +169,13 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         ]
       },
       {
+        key: 'skipDeleteConfirm',
+        label: '删除便签免确认',
+        type: 'switch',
+        desc: '开启后，点击便签的删除按钮时将直接删除，不显示确认弹窗。',
+        default: false
+      },
+      {
         key: 'showNoteCount',
         label: '显示分类便签数',
         type: 'switch',

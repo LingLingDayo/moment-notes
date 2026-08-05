@@ -24,6 +24,7 @@ export const getCurrentSettings = (
     enableAutoCopySelection: uiStore.enableAutoCopySelection,
     showNoteCount: uiStore.showNoteCount,
     prefixTagWithHash: uiStore.prefixTagWithHash,
+    skipDeleteConfirm: uiStore.skipDeleteConfirm,
     sortMode: noteStore.sortMode,
     sortOrder: noteStore.sortOrder,
     categoryIndependentToolbar: uiStore.categoryIndependentToolbar,
@@ -92,6 +93,9 @@ export const applySettings = (
   }
   if (typeof settings.prefixTagWithHash === 'boolean') {
     uiStore.setPrefixTagWithHash(settings.prefixTagWithHash);
+  }
+  if (typeof settings.skipDeleteConfirm === 'boolean') {
+    uiStore.setSkipDeleteConfirm(settings.skipDeleteConfirm);
   }
   if (typeof settings.categoryIndependentToolbar === 'boolean') {
     uiStore.setCategoryIndependentToolbar(settings.categoryIndependentToolbar);
