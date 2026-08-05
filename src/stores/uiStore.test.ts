@@ -5,9 +5,11 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 describe('uiStore 持久化与规范单测', () => {
+  let storeMap: Map<string, string>;
+
   beforeEach(() => {
     setActivePinia(createPinia());
-    const storeMap = new Map<string, string>();
+    storeMap = new Map<string, string>();
     globalThis.localStorage = {
       getItem: (key: string) => storeMap.get(key) || null,
       setItem: (key: string, value: string) => storeMap.set(key, value),
@@ -42,10 +44,22 @@ describe('uiStore 持久化与规范单测', () => {
 
     uiStore.setDoubleClickNoteAction('none');
     expect(uiStore.doubleClickNoteAction).toBe('none');
+    expect(globalThis.localStorage.getItem('sticky_notes_double_click_note_action')).toBe('none');
 
-    // 非法值测试应回退为 copyAndPaste
     uiStore.setDoubleClickNoteAction('invalid' as any);
     expect(uiStore.doubleClickNoteAction).toBe('copyAndPaste');
+    expect(globalThis.localStorage.getItem('sticky_notes_double_click_note_action')).toBe('copyAndPaste');
+  });
+
+  it('doubleClickNoteAction 应在 Store 初始化时读取并修复持久化值', () => {
+    storeMap.set('sticky_notes_double_click_note_action', 'fullscreen');
+    expect(useUiStore().doubleClickNoteAction).toBe('fullscreen');
+
+    setActivePinia(createPinia());
+    storeMap.set('sticky_notes_double_click_note_action', 'invalid');
+
+    expect(useUiStore().doubleClickNoteAction).toBe('copyAndPaste');
+    expect(storeMap.get('sticky_notes_double_click_note_action')).toBe('copyAndPaste');
   });
 
   it('skipDeleteConfirm 默认应为 false 并支持变更持久化', () => {
