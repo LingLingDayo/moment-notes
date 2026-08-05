@@ -1,5 +1,7 @@
 import { AppSettings } from '@type';
 import { storage } from '@utils/storage';
+import { DOUBLE_CLICK_NOTE_ACTION_SETTING } from '../domain/noteInteractions/DoubleClickNoteActionRegistry';
+import { decodeSettingValue } from '../domain/settings/SettingDefinition';
 
 export const getCurrentSettings = (
   uiStore: any,
@@ -73,8 +75,12 @@ export const applySettings = (
   if (settings.defaultEditMode && ['inline', 'fullscreen'].includes(settings.defaultEditMode)) {
     uiStore.setDefaultEditMode(settings.defaultEditMode);
   }
-  if (settings.doubleClickNoteAction && ['copyAndPaste', 'fullscreen', 'delete', 'none'].includes(settings.doubleClickNoteAction)) {
-    uiStore.setDoubleClickNoteAction(settings.doubleClickNoteAction);
+  const doubleClickNoteAction = decodeSettingValue(
+    DOUBLE_CLICK_NOTE_ACTION_SETTING,
+    settings.doubleClickNoteAction
+  );
+  if (doubleClickNoteAction) {
+    uiStore.setDoubleClickNoteAction(doubleClickNoteAction);
   }
   if (typeof settings.superPanelDefaultCategory === 'string') {
     uiStore.setSuperPanelDefaultCategory(settings.superPanelDefaultCategory);

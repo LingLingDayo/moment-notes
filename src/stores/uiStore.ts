@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import { storage } from '@utils/storage';
 import { NoteType, CategoryViewSetting, BackupData, DoubleClickNoteAction } from '@type';
 import { eventBus, DomainEvent, ToastPayload } from '../domain/events/DomainEventBus';
+import { DOUBLE_CLICK_NOTE_ACTION_SETTING } from '../domain/noteInteractions/DoubleClickNoteActionRegistry';
+import { settingRepository } from '../infrastructure/storage/SettingRepository';
 
 export const useUiStore = defineStore('uiStore', () => {
   // 确认弹窗状态 (Promise 驱动)
@@ -182,12 +184,12 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_default_edit_mode', defaultEditMode.value);
   };
 
-  const doubleClickNoteAction = ref<DoubleClickNoteAction>('copyAndPaste');
+  const doubleClickNoteAction = ref<DoubleClickNoteAction>(
+    settingRepository.get(DOUBLE_CLICK_NOTE_ACTION_SETTING)
+  );
 
   const setDoubleClickNoteAction = (val: DoubleClickNoteAction) => {
-    const validActions: DoubleClickNoteAction[] = ['copyAndPaste', 'fullscreen', 'delete', 'none'];
-    doubleClickNoteAction.value = validActions.includes(val) ? val : 'copyAndPaste';
-    storage.setItem('sticky_notes_double_click_note_action', doubleClickNoteAction.value);
+    doubleClickNoteAction.value = settingRepository.set(DOUBLE_CLICK_NOTE_ACTION_SETTING, val);
   };
 
   const superPanelDefaultCategory = ref<string>('all');

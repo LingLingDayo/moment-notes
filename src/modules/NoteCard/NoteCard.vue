@@ -8,6 +8,7 @@ import NoteCardTagEditor from './NoteCardTagEditor.vue';
 import NoteCardFooter from './NoteCardFooter.vue';
 import { getContainerSelectedText } from '@utils/selection';
 import { isUTools } from '@utils/storage';
+import { executeDoubleClickNoteAction } from '../../domain/noteInteractions/DoubleClickNoteActionRegistry';
 
 const props = withDefaults(
   defineProps<{
@@ -165,19 +166,14 @@ const handleSelectionChange = () => {
   }, 200);
 };
 
-// 双击响应逻辑 (根据设置配置执行复制粘贴、全屏预览、删除或无动作)
 const handleDoubleClick = () => {
-  if (isEditing.value) return; // 如果在编辑中，不触发双击动作
-  const action = store.doubleClickNoteAction || 'copyAndPaste';
-  if (action === 'none') {
-    return;
-  } else if (action === 'copyAndPaste') {
-    store.handlePasteNote(props.note.content, props.note.id);
-  } else if (action === 'fullscreen') {
-    handleTogglePreview();
-  } else if (action === 'delete') {
-    store.deleteNote(props.note.id);
-  }
+  if (isEditing.value) return;
+
+  executeDoubleClickNoteAction(store.doubleClickNoteAction, {
+    copyAndPaste: () => store.handlePasteNote(props.note.content, props.note.id),
+    openFullscreen: handleTogglePreview,
+    deleteNote: () => store.deleteNote(props.note.id)
+  });
 };
 
 // 切换置顶

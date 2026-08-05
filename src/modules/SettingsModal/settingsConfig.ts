@@ -1,5 +1,9 @@
 import { markRaw } from 'vue';
 import { Sun, Moon, Columns, Settings, Database, Info, Trash2, Keyboard } from '@lucide/vue';
+import {
+  DOUBLE_CLICK_NOTE_ACTIONS,
+  DOUBLE_CLICK_NOTE_ACTION_SETTING
+} from '../../domain/noteInteractions/DoubleClickNoteActionRegistry';
 import DataPanel from './DataPanel.vue';
 import AboutPanel from './AboutPanel.vue';
 
@@ -156,22 +160,13 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         label: '双击便签响应动作',
         type: 'select',
         desc: '设置双击便签卡片时触发的操作。',
-        default: 'copyAndPaste',
+        default: DOUBLE_CLICK_NOTE_ACTION_SETTING.defaultValue,
         controlWidth: '240px',
-        options: [
-          { label: '双击复制并粘贴到光标处', value: 'copyAndPaste' },
-          { label: '全屏查看便签', value: 'fullscreen' },
-          {
-            label: '删除便签(移入"最近删除")',
-            value: 'delete',
-            tooltip: '如果双击的是"最近删除"的便签就直接删除'
-          },
-          {
-            label: '无效果 (禁用双击)',
-            value: 'none',
-            tooltip: '双击便签卡片时不触发任何操作'
-          }
-        ]
+        options: DOUBLE_CLICK_NOTE_ACTIONS.map(action => ({
+          label: action.label,
+          value: action.id,
+          tooltip: 'tooltip' in action ? action.tooltip : undefined
+        }))
       },
       {
         key: 'skipDeleteConfirm',

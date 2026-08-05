@@ -130,13 +130,6 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.defaultEditMode = storedDefaultEditMode as 'inline' | 'fullscreen';
       }
 
-      const storedDoubleClickNoteAction = storage.getItem('sticky_notes_double_click_note_action');
-      if (storedDoubleClickNoteAction && ['copyAndPaste', 'fullscreen', 'delete', 'none'].includes(storedDoubleClickNoteAction)) {
-        uiStore.doubleClickNoteAction = storedDoubleClickNoteAction as any;
-      } else {
-        uiStore.doubleClickNoteAction = 'copyAndPaste';
-      }
-
       const storedSuperPanelCat = storage.getItem('sticky_notes_super_panel_default_category');
       if (storedSuperPanelCat) {
         uiStore.superPanelDefaultCategory = storedSuperPanelCat;

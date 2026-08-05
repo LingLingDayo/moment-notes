@@ -1,3 +1,7 @@
+import type { DoubleClickNoteAction } from '../domain/noteInteractions/DoubleClickNoteActionRegistry';
+
+export type { DoubleClickNoteAction } from '../domain/noteInteractions/DoubleClickNoteActionRegistry';
+
 export interface Category {
   id: string;
   name: string;
@@ -45,8 +49,6 @@ export interface CategoryViewSetting {
   sortOrder?: 'asc' | 'desc';
   gridColumns?: 'auto' | 1 | 2 | 3 | 4;
 }
-
-export type DoubleClickNoteAction = 'copyAndPaste' | 'fullscreen' | 'delete' | 'none';
 
 export interface AppSettings {
   theme?: 'dark' | 'light';
