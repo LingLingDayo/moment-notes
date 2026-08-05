@@ -165,6 +165,11 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
             label: '删除便签(移入"最近删除")',
             value: 'delete',
             tooltip: '如果双击的是"最近删除"的便签就直接删除'
+          },
+          {
+            label: '无效果 (禁用双击)',
+            value: 'none',
+            tooltip: '双击便签卡片时不触发任何操作'
           }
         ]
       },

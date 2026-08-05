@@ -39,6 +39,13 @@ describe('uiStore 持久化与规范单测', () => {
 
     uiStore.setDoubleClickNoteAction('delete');
     expect(uiStore.doubleClickNoteAction).toBe('delete');
+
+    uiStore.setDoubleClickNoteAction('none');
+    expect(uiStore.doubleClickNoteAction).toBe('none');
+
+    // 非法值测试应回退为 copyAndPaste
+    uiStore.setDoubleClickNoteAction('invalid' as any);
+    expect(uiStore.doubleClickNoteAction).toBe('copyAndPaste');
   });
 
   it('skipDeleteConfirm 默认应为 false 并支持变更持久化', () => {

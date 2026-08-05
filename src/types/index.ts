@@ -46,7 +46,7 @@ export interface CategoryViewSetting {
   gridColumns?: 'auto' | 1 | 2 | 3 | 4;
 }
 
-export type DoubleClickNoteAction = 'copyAndPaste' | 'fullscreen' | 'delete';
+export type DoubleClickNoteAction = 'copyAndPaste' | 'fullscreen' | 'delete' | 'none';
 
 export interface AppSettings {
   theme?: 'dark' | 'light';

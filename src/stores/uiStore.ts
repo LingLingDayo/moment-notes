@@ -185,7 +185,8 @@ export const useUiStore = defineStore('uiStore', () => {
   const doubleClickNoteAction = ref<DoubleClickNoteAction>('copyAndPaste');
 
   const setDoubleClickNoteAction = (val: DoubleClickNoteAction) => {
-    doubleClickNoteAction.value = val || 'copyAndPaste';
+    const validActions: DoubleClickNoteAction[] = ['copyAndPaste', 'fullscreen', 'delete', 'none'];
+    doubleClickNoteAction.value = validActions.includes(val) ? val : 'copyAndPaste';
     storage.setItem('sticky_notes_double_click_note_action', doubleClickNoteAction.value);
   };
 

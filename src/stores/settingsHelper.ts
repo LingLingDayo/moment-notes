@@ -73,7 +73,7 @@ export const applySettings = (
   if (settings.defaultEditMode && ['inline', 'fullscreen'].includes(settings.defaultEditMode)) {
     uiStore.setDefaultEditMode(settings.defaultEditMode);
   }
-  if (settings.doubleClickNoteAction && ['copyAndPaste', 'fullscreen', 'delete'].includes(settings.doubleClickNoteAction)) {
+  if (settings.doubleClickNoteAction && ['copyAndPaste', 'fullscreen', 'delete', 'none'].includes(settings.doubleClickNoteAction)) {
     uiStore.setDoubleClickNoteAction(settings.doubleClickNoteAction);
   }
   if (typeof settings.superPanelDefaultCategory === 'string') {
