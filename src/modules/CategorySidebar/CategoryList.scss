@@ -1,8 +1,3 @@
-@use '@/styles/variables' as *;
-@use './category-menu-item.scss' as *;
-
-@include category-menu-item-styles;
-
 .sidebar-menu {
   position: relative;
   flex: 1;
@@ -54,18 +49,6 @@
   flex-shrink: 0;
 }
 
-.trash-item {
-  &.active {
-    .item-icon {
-      color: var(--danger-color, #ff4d4f) !important;
-    }
-    .item-badge {
-      background: var(--danger-color, #ff4d4f) !important;
-      color: var(--text-on-accent, #ffffff) !important;
-    }
-  }
-}
-
 @media (max-width: $screen-compact) {
   .sidebar-menu {
     padding: 10px 8px;
@@ -81,4 +64,3 @@
     margin: 0 0 6px 0;
   }
 }
-

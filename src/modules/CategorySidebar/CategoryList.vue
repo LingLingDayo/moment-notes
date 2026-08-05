@@ -4,6 +4,7 @@ import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Trash2, History } from '@lucide/vue';
 import { isUTools } from '@/utils/storage';
 import CategoryItem from './CategoryItem.vue';
+import CategoryMenuItem from './CategoryMenuItem.vue';
 import { useDragAutoScroll } from '@utils/useDragAutoScroll';
 
 const store = useStickyNotesStore();
@@ -429,32 +430,26 @@ provide('categoryContext', {
     <div class="menu-divider"></div>
 
     <!-- 最近使用分类 -->
-    <div
-      class="menu-item recent-item"
-      :class="{ active: store.currentCategoryId === 'recent' }"
+    <CategoryMenuItem
+      title="最近使用"
+      :icon="History"
+      :is-active="store.currentCategoryId === 'recent'"
+      :badge="store.showNoteCount ? store.recentNotesCount : 0"
+      custom-class="recent-item"
+      tooltip="最近复制/双击使用过的便签"
       @click="store.currentCategoryId = 'recent'"
-    >
-      <div class="active-indicator"></div>
-      <div class="item-left">
-        <History class="item-icon" />
-        <span class="item-name" data-tooltip="最近复制/双击使用过的便签">最近使用</span>
-      </div>
-      <span v-if="store.showNoteCount && store.recentNotesCount > 0" class="item-badge">{{ store.recentNotesCount }}</span>
-    </div>
+    />
 
     <!-- 垃圾箱分类 -->
-    <div
-      class="menu-item trash-item"
-      :class="{ active: store.currentCategoryId === 'trash' }"
+    <CategoryMenuItem
+      title="最近删除"
+      :icon="Trash2"
+      :is-active="store.currentCategoryId === 'trash'"
+      :badge="store.showNoteCount ? store.trashNotesCount : 0"
+      custom-class="trash-item"
+      tooltip="已删除的便签"
       @click="store.currentCategoryId = 'trash'"
-    >
-      <div class="active-indicator"></div>
-      <div class="item-left">
-        <Trash2 class="item-icon" />
-        <span class="item-name" data-tooltip="已删除的便签">最近删除</span>
-      </div>
-      <span v-if="store.showNoteCount && store.trashNotesCount > 0" class="item-badge">{{ store.trashNotesCount }}</span>
-    </div>
+    />
   </div>
 </template>
 
