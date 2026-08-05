@@ -383,7 +383,7 @@ const deleteSelf = async () => {
   max-width: 0;
   pointer-events: none;
   overflow: hidden;
-  transition: opacity 0.18s linear, max-width 0.18s cubic-bezier(0.9, 0.03, 0.56, 0.96);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   flex-shrink: 0;
 
