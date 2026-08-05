@@ -1,3 +1,5 @@
+@use '@/styles/variables' as *;
+
 @mixin category-menu-item-styles {
   .menu-item {
     display: flex;
