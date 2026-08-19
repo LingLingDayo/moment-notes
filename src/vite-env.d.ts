@@ -11,6 +11,15 @@ interface Window {
     readFile(file: string): string;
     writeTextFile(text: string, filePath?: string): string;
     writeImageFile(base64Url: string): string | undefined;
+    detachedNote: {
+      notifyParentChanged(noteId: string): void;
+      requestAlwaysOnTop(noteId: string, alwaysOnTop: boolean): void;
+      onChildChanged(callback: (noteId: string) => void): () => void;
+      onAlwaysOnTopRequested(
+        callback: (payload: { noteId: string; alwaysOnTop: boolean }) => void
+      ): () => void;
+      onRefreshRequested(callback: () => void): () => void;
+    };
   };
 }
 

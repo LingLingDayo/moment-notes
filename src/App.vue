@@ -1,14 +1,20 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { isUTools } from '@utils/storage';
 import Dashboard from '@views/Dashboard.vue';
 import ImagePreviewModal from '@components/ImagePreviewModal.vue';
 import NotePreviewModal from '@components/NotePreviewModal.vue';
+import { eventBus } from './domain/events/DomainEventBus';
+import {
+  refreshDetachedNoteWindows,
+  setDetachedNoteWindowAlwaysOnTop
+} from './infrastructure/windows/detachedNoteWindow';
+
+const store = useStickyNotesStore();
+const unsubscribeCallbacks: Array<() => void> = [];
 
 onMounted(() => {
-  const store = useStickyNotesStore();
-
   const isDevMode =
     import.meta.env.DEV ||
     window.location.hostname === 'localhost' ||
@@ -27,6 +33,20 @@ onMounted(() => {
 
   if (isUTools()) {
     document.documentElement.classList.add('is-utools');
+
+    const detachedNoteService = window.services?.detachedNote;
+    if (detachedNoteService) {
+      unsubscribeCallbacks.push(
+        detachedNoteService.onChildChanged(() => {
+          store.reloadNotes();
+          refreshDetachedNoteWindows();
+        }),
+        detachedNoteService.onAlwaysOnTopRequested(({ noteId, alwaysOnTop }) => {
+          setDetachedNoteWindowAlwaysOnTop(noteId, alwaysOnTop);
+        })
+      );
+    }
+
     // 监听 uTools 插件进入事件
     window.utools.onPluginEnter(action => {
       // 触发数据加载以保证是最新的
@@ -64,7 +84,26 @@ onMounted(() => {
         }
       }
     });
+  } else {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'sticky_notes_notes') {
+        store.reloadNotes();
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    unsubscribeCallbacks.push(() => window.removeEventListener('storage', handleStorage));
   }
+
+  unsubscribeCallbacks.push(
+    eventBus.subscribe('NOTE_CREATED', refreshDetachedNoteWindows),
+    eventBus.subscribe('NOTE_UPDATED', refreshDetachedNoteWindows),
+    eventBus.subscribe('NOTE_DELETED', refreshDetachedNoteWindows),
+    eventBus.subscribe('NOTE_RESTORED', refreshDetachedNoteWindows)
+  );
+});
+
+onUnmounted(() => {
+  unsubscribeCallbacks.splice(0).forEach(unsubscribe => unsubscribe());
 });
 </script>
 

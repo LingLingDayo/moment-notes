@@ -1,9 +1,13 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { Pin, Edit2, Maximize2, Minimize2 } from '@lucide/vue';
+import { Pin, Edit2, Maximize2, Minimize2, Share2 } from '@lucide/vue';
 import { Note } from '@type';
 import { useShortcutStore } from '@stores/shortcutStore';
-import { useStickyNotesStore } from '@stores/stickyNotes';
+import { COLOR_PRESETS, useStickyNotesStore } from '@stores/stickyNotes';
+import {
+  isDetachedNoteWindow,
+  openDetachedNoteWindow
+} from '../../infrastructure/windows/detachedNoteWindow';
 
 const props = defineProps<{
   note: Note;
@@ -26,6 +30,20 @@ const store = useStickyNotesStore();
 
 const isPreviewActive = computed(() => store.previewNoteId === props.note.id);
 const isFullScreenMode = computed(() => !!props.isFullScreen);
+const isDetachedWindow = isDetachedNoteWindow();
+
+const handleOpenDetachedNote = () => {
+  const preset = COLOR_PRESETS[props.note.color] || COLOR_PRESETS.yellow;
+  const result = openDetachedNoteWindow({
+    id: props.note.id,
+    title: props.note.title,
+    backgroundColor: store.isDark ? preset.darkBg : preset.lightBg
+  });
+
+  if (result === 'failed') {
+    store.showToast('独立便签窗口打开失败', 'error');
+  }
+};
 
 const handleKeyDown = (e: KeyboardEvent) => {
   const keyString = shortcutStore.getEventKeyString(e);
@@ -52,8 +70,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
 </script>
 
 <template>
-  <!-- 卡片左上角操作按钮组 (置顶 & 全屏显示) -->
-  <div v-if="!note.isDeleted" class="header-left-actions" :class="{ 'is-full-screen': isFullScreenMode }">
+  <!-- 卡片左上角操作按钮组 -->
+  <div
+    v-if="!note.isDeleted && !isDetachedWindow"
+    class="header-left-actions"
+    :class="{ 'is-full-screen': isFullScreenMode }"
+  >
     <!-- 置顶针和大头针效果 -->
     <button
       class="pin-btn"
@@ -62,6 +84,16 @@ const handleKeyDown = (e: KeyboardEvent) => {
       @click.stop="emit('toggle-pin')"
     >
       <Pin class="pin-icon" />
+    </button>
+
+    <button
+      v-if="!isFullScreenMode"
+      class="detach-btn"
+      aria-label="在独立窗口打开"
+      data-tooltip="在独立窗口打开"
+      @click.stop="handleOpenDetachedNote"
+    >
+      <Share2 class="detach-icon" />
     </button>
 
     <!-- 全屏显示/收起按钮 -->
@@ -123,10 +155,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
     gap: 12px;
 
     .pin-btn,
+    .detach-btn,
     .preview-btn {
       padding: 7px;
 
       .pin-icon,
+      .detach-icon,
       .preview-icon {
         width: 15px;
         height: 15px;
@@ -135,6 +169,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 
   .pin-btn,
+  .detach-btn,
   .preview-btn {
     padding: 6px;
     border-radius: 50%;
@@ -152,6 +187,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
     }
 
     .pin-icon,
+    .detach-icon,
     .preview-icon {
       width: 13px;
       height: 13px;
@@ -170,6 +206,14 @@ const handleKeyDown = (e: KeyboardEvent) => {
   .preview-btn {
     &:hover {
       transform: scale(1.1);
+      background: var(--card-btn-hover-bg);
+      color: var(--card-btn-hover-color);
+    }
+  }
+
+  .detach-btn {
+    &:hover {
+      transform: scale(1.1) rotate(-8deg);
       background: var(--card-btn-hover-bg);
       color: var(--card-btn-hover-color);
     }

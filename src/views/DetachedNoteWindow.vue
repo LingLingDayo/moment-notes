@@ -1,0 +1,254 @@
+<script lang="ts" setup>
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { Pin, X } from '@lucide/vue';
+import NoteCard from '@modules/NoteCard/NoteCard.vue';
+import Toast from '@components/Toast.vue';
+import ConfirmModal from '@components/ConfirmModal.vue';
+import ImagePreviewModal from '@components/ImagePreviewModal.vue';
+import { COLOR_PRESETS, useStickyNotesStore } from '@stores/stickyNotes';
+import { isUTools } from '@utils/storage';
+import { eventBus } from '../domain/events/DomainEventBus';
+import { getDetachedNoteId } from '../infrastructure/windows/detachedNoteWindow';
+import type { Note } from '@type';
+
+const store = useStickyNotesStore();
+const noteId = getDetachedNoteId();
+const isReady = ref(false);
+const isAlwaysOnTop = ref(false);
+const unsubscribeCallbacks: Array<() => void> = [];
+
+const note = computed(() => {
+  if (!noteId) return null;
+  return store.allNotes.find(item => item.id === noteId && !item.isDeleted) || null;
+});
+
+const windowColorStyle = computed(() => {
+  const preset = COLOR_PRESETS[note.value?.color || 'yellow'] || COLOR_PRESETS.yellow;
+  return {
+    '--detached-note-bg': preset.lightBg,
+    '--detached-note-bg-dark': preset.darkBg,
+    '--detached-note-border': preset.lightBorder,
+    '--detached-note-border-dark': preset.darkBorder
+  };
+});
+
+const closeWindow = () => {
+  window.close();
+};
+
+const toggleAlwaysOnTop = () => {
+  if (!noteId || !isUTools() || !window.services?.detachedNote) return;
+  isAlwaysOnTop.value = !isAlwaysOnTop.value;
+  window.services.detachedNote.requestAlwaysOnTop(noteId, isAlwaysOnTop.value);
+};
+
+const notifyParentChanged = () => {
+  if (!noteId || !isUTools() || !window.services?.detachedNote) return;
+  window.services.detachedNote.notifyParentChanged(noteId);
+};
+
+onMounted(() => {
+  document.documentElement.classList.add('detached-note-window');
+  document.body.classList.add('detached-note-window');
+
+  store.loadData();
+  store.initTheme(isUTools());
+  isReady.value = true;
+
+  if (isUTools() && window.services?.detachedNote) {
+    unsubscribeCallbacks.push(
+      window.services.detachedNote.onRefreshRequested(() => {
+        store.reloadNotes();
+      })
+    );
+  } else {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'sticky_notes_notes') {
+        store.reloadNotes();
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    unsubscribeCallbacks.push(() => window.removeEventListener('storage', handleStorage));
+  }
+
+  unsubscribeCallbacks.push(
+    eventBus.subscribe<Note>('NOTE_UPDATED', event => {
+      if (event.payload.id === noteId) {
+        notifyParentChanged();
+      }
+    }),
+    eventBus.subscribe<string>('NOTE_DELETED', event => {
+      if (event.payload !== noteId) return;
+      notifyParentChanged();
+      window.setTimeout(closeWindow, 0);
+    })
+  );
+});
+
+onUnmounted(() => {
+  unsubscribeCallbacks.splice(0).forEach(unsubscribe => unsubscribe());
+  document.documentElement.classList.remove('detached-note-window');
+  document.body.classList.remove('detached-note-window');
+});
+</script>
+
+<template>
+  <main class="detached-note-shell" :style="windowColorStyle">
+    <div class="window-drag-region" aria-hidden="true"></div>
+
+    <div class="window-controls">
+      <button
+        v-if="isUTools()"
+        class="window-control"
+        :class="{ active: isAlwaysOnTop }"
+        :aria-label="isAlwaysOnTop ? '取消窗口置顶' : '窗口置顶'"
+        :data-tooltip="isAlwaysOnTop ? '取消窗口置顶' : '窗口置顶'"
+        @click="toggleAlwaysOnTop"
+      >
+        <Pin class="window-control-icon pin-icon" />
+      </button>
+      <button
+        class="window-control close"
+        aria-label="关闭便签"
+        data-tooltip="关闭便签"
+        @click="closeWindow"
+      >
+        <X class="window-control-icon" />
+      </button>
+    </div>
+
+    <div v-if="isReady && note" class="note-window-content">
+      <NoteCard :note="note" :is-full-screen="true" />
+    </div>
+
+    <div v-else-if="isReady" class="note-missing-state">
+      <p>便签不存在或已被删除</p>
+      <button class="close-missing-btn" @click="closeWindow">
+        关闭
+      </button>
+    </div>
+
+    <Toast />
+    <ConfirmModal />
+    <ImagePreviewModal />
+  </main>
+</template>
+
+<style lang="scss" scoped>
+:global(html.detached-note-window),
+:global(body.detached-note-window) {
+  background: transparent;
+}
+
+.detached-note-shell {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: var(--detached-note-bg);
+  border: 1px solid var(--detached-note-border);
+  color: var(--text-primary);
+
+  .dark-theme &,
+  &.dark-theme {
+    background: var(--detached-note-bg-dark);
+    border-color: var(--detached-note-border-dark);
+  }
+}
+
+.window-drag-region {
+  position: absolute;
+  inset: 0 84px auto 0;
+  height: 42px;
+  z-index: 120;
+  -webkit-app-region: drag;
+}
+
+.window-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 130;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+}
+
+.window-control {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+
+  &:hover,
+  &.active {
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-color);
+  }
+
+  &.active .pin-icon {
+    transform: rotate(45deg);
+    fill: currentColor;
+  }
+
+  &.close:hover {
+    background: var(--danger-hover-bg);
+    color: var(--danger-color);
+  }
+}
+
+.window-control-icon {
+  width: 14px;
+  height: 14px;
+  transition: transform $transition-normal;
+}
+
+.note-window-content {
+  width: 100%;
+  height: 100%;
+}
+
+.note-window-content :deep(.note-card.is-full-screen) {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding-top: 48px;
+}
+
+.note-window-content :deep(.absolute-edit-btn) {
+  top: 46px;
+}
+
+.note-missing-state {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.close-missing-btn {
+  padding: 7px 16px;
+  border-radius: 7px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  color: var(--text-primary);
+
+  &:hover {
+    background: var(--btn-hover-bg);
+    border-color: var(--btn-hover-border);
+  }
+}
+</style>

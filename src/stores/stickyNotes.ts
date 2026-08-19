@@ -214,6 +214,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     }
   };
 
+  const reloadNotes = () => {
+    noteStore.allNotes = noteRepository.getAll();
+    noteStore.syncCurrentCategoryNotes();
+  };
+
   // 跨 Store 协调的 Action 方法包装
   const addCategory = (name: string, parentId?: string) => {
     const newCategory = categoryStore.addCategory(name, parentId);
@@ -500,6 +505,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
 
     isInitialized: readonly(isInitialized),
     loadData,
+    reloadNotes,
     exportBackup,
     exportSelectedBackup,
     importBackup,
