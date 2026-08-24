@@ -29,7 +29,6 @@ export interface Note {
   useCount?: number;
 }
 
-
 export interface NoteColorPreset {
   name: string;
   lightBg: string;
@@ -98,5 +97,3 @@ export interface ImportOptions {
   importUncategorized: boolean;
   importSettings: boolean;
 }
-
-

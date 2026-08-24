@@ -1,0 +1,200 @@
+.note-card {
+  --card-bg: hsl(48, 100%, 88%, 0.75);
+  --card-border: hsl(48, 100%, 75%);
+  --card-text: hsl(48, 80%, 15%);
+  --card-bg-dark: hsl(48, 40%, 18%, 0.75);
+  --card-border-dark: hsl(48, 40%, 30%);
+  --card-text-dark: hsl(48, 100%, 85%);
+
+  display: flex;
+  flex-direction: column;
+  border-radius: $radius-xl;
+  padding: 16px 18px 8px 18px;
+  position: relative;
+  min-height: 90px;
+  max-height: var(--card-max-height, 300px);
+  cursor: default;
+  // user-select: none;
+
+  @include glass-panel(var(--card-bg), var(--card-border));
+  color: var(--card-text);
+
+  &.enable-hover-anim {
+    @include hover-lift(-4px, var(--shadow-md));
+  }
+
+  .dark-theme & {
+    background: var(--card-bg-dark);
+    border-color: var(--card-border-dark);
+    color: var(--card-text-dark);
+    --card-btn-hover-bg: var(--card-btn-hover-bg-dark);
+    --card-btn-hover-color: var(--card-btn-hover-color-dark);
+  }
+
+  &:hover {
+    :deep(.edit-trigger-btn) {
+      opacity: 1;
+    }
+
+    :deep(.card-footer) {
+      opacity: 1;
+
+      .card-actions {
+        opacity: 1;
+        max-width: 160px;
+        pointer-events: auto;
+        overflow: hidden;
+
+        &.has-active-popover {
+          overflow: visible;
+        }
+      }
+    }
+  }
+
+  &.pinned {
+    box-shadow: 0 8px 20px -8px var(--accent-light);
+    border-width: 1.5px;
+
+    :deep(.pin-icon) {
+      transform: rotate(45deg);
+      fill: currentColor;
+    }
+  }
+
+  &.editing {
+    transform: none !important;
+    box-shadow: var(--shadow-md) !important;
+    min-height: 220px;
+    z-index: 10;
+    cursor: default;
+  }
+
+  &.has-active-popover {
+    z-index: 10;
+  }
+
+  &.dragging {
+    opacity: 0.35;
+    border-style: dashed !important;
+    transform: scale(0.98);
+    box-shadow: none !important;
+  }
+
+  &[draggable='true'] {
+    cursor: default;
+
+    &:active {
+      cursor: default;
+    }
+  }
+
+  .note-drag-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 16px;
+    z-index: 1;
+    cursor: default;
+    border-radius: $radius-xl $radius-xl 0 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    transition: background-color 0.2s;
+
+    &::after {
+      content: '';
+      width: 24px;
+      height: 3px;
+      border-radius: 1.5px;
+      background: currentColor;
+      opacity: 0;
+      margin-top: 3.5px;
+      transition: opacity 0.2s;
+    }
+
+    &:hover {
+      &::after {
+        opacity: 0.15;
+      }
+    }
+
+    &:active {
+      cursor: default;
+    }
+  }
+
+  &.is-full-screen {
+    width: 90vw;
+    height: 85vh;
+    max-width: 90vw;
+    max-height: 85vh;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    padding: 20px 24px 16px 24px;
+    z-index: 100;
+
+    .note-drag-handle {
+      display: none;
+    }
+
+    :deep(.card-body) {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    :deep(.markdown-body) {
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    :deep(.card-content) {
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    :deep(.card-footer) {
+      opacity: 1;
+      padding-top: 12px;
+    }
+
+    :deep(.card-meta-info) {
+      font-size: 12px;
+    }
+
+    :deep(.updated-time),
+    :deep(.char-count) {
+      font-size: 12px;
+    }
+
+    :deep(.card-actions) {
+      opacity: 1 !important;
+      max-width: 200px !important;
+      pointer-events: auto !important;
+      overflow: hidden !important;
+      gap: 6px !important;
+
+      &.has-active-popover {
+        overflow: visible !important;
+      }
+    }
+
+    :deep(.action-btn) {
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 7px !important;
+
+      .action-icon {
+        width: 14px !important;
+        height: 14px !important;
+      }
+    }
+  }
+}
+
+@media (max-width: $screen-compact) {
+  .note-card {
+    padding: 14px 16px 8px 16px;
+    min-height: 80px;
+  }
+}

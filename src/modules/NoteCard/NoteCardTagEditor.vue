@@ -202,8 +202,12 @@ defineExpose({
 
   &:focus {
     border-style: solid;
-    border-color: var(--accent-color);
+    border-color: var(--card-border);
     outline: none;
+
+    .dark-theme & {
+      border-color: var(--card-border-dark);
+    }
   }
 
   &::placeholder {

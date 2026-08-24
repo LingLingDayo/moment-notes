@@ -61,6 +61,16 @@ onMounted(() => {
   store.initTheme(isUTools());
   isReady.value = true;
 
+  if (isUTools() && window.services?.detachedNote && noteId) {
+    // 挂载后触发一次瞬时置顶属性重置，强迫 Windows DWM 在页面加载后重算并剥离系统默认灰色边框
+    window.services.detachedNote.requestAlwaysOnTop(noteId, true);
+    window.setTimeout(() => {
+      if (!isAlwaysOnTop.value && window.services?.detachedNote && noteId) {
+        window.services.detachedNote.requestAlwaysOnTop(noteId, false);
+      }
+    }, 50);
+  }
+
   if (isUTools() && window.services?.detachedNote) {
     unsubscribeCallbacks.push(
       window.services.detachedNote.onRefreshRequested(() => {
@@ -143,12 +153,18 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 :global(html.detached-note-window),
 :global(body.detached-note-window) {
-  background: transparent;
+  background: transparent !important;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .detached-note-shell {
-  width: 100vw;
-  height: 100vh;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  margin: 1px;
   position: relative;
   overflow: hidden;
   border-radius: $radius-xl;
@@ -156,11 +172,13 @@ onUnmounted(() => {
   background: var(--detached-note-bg);
   border: 1px solid var(--detached-note-border);
   color: var(--text-primary);
+  box-shadow: none;
 
   .dark-theme &,
   &.dark-theme {
     background: var(--detached-note-bg-dark);
     border-color: var(--detached-note-border-dark);
+    box-shadow: none;
   }
 }
 
@@ -255,9 +273,10 @@ onUnmounted(() => {
   height: 100%;
   max-width: none;
   max-height: none;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   padding-top: 48px;
 }
 

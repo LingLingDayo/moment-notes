@@ -252,7 +252,11 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
   &:focus {
     background: var(--input-bg);
-    border-color: var(--accent-color);
+    border-color: var(--card-border);
+
+    .dark-theme & {
+      border-color: var(--card-border-dark);
+    }
   }
 }
 
