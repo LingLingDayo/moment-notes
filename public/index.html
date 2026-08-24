@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>拾光便签</title>
+  </head>
+  <body>
+    <script>
+      (function () {
+        if (window.location.protocol === 'file:') {
+          const devServer = 'http://localhost:4021';
+          const search = window.location.search || '';
+          const hash = window.location.hash || '';
+          window.location.replace(devServer + '/' + search + hash);
+        }
+      })();
+    </script>
+  </body>
+</html>

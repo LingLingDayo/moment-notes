@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildDetachedNoteWindowBrowserUrl,
+  buildDetachedNoteWindowPath,
   buildDetachedNoteWindowUrl,
   createDetachedNoteWindowOptions,
   getDetachedNoteId,
@@ -18,24 +20,26 @@ describe('detachedNoteWindow', () => {
     expect(isDetachedNoteWindow('?view=dashboard&noteId=note-1')).toBe(false);
   });
 
-  it('生产环境应生成 uTools 可解析的相对 HTML 地址', () => {
-    const url = buildDetachedNoteWindowUrl(
-      'note id/中文',
-      'http://localhost:4021/current?foo=bar#hash',
-      false
-    );
-
-    expect(url).toBe('index.html?view=detached-note&noteId=note+id%2F%E4%B8%AD%E6%96%87');
+  it('应生成 uTools createBrowserWindow 可解析的相对 HTML 路径', () => {
+    const path = buildDetachedNoteWindowPath('note id/中文');
+    expect(path).toBe('index.html?view=detached-note&noteId=note+id%2F%E4%B8%AD%E6%96%87');
   });
 
-  it('开发环境应复用当前开发服务器地址', () => {
-    const url = buildDetachedNoteWindowUrl(
+  it('浏览器环境应复用当前服务器地址构建完整 URL', () => {
+    const url = buildDetachedNoteWindowBrowserUrl(
       'note-2',
-      'http://localhost:4021/current?foo=bar#hash',
-      true
+      'http://localhost:4021/current?foo=bar#hash'
     );
 
     expect(url).toBe('http://localhost:4021/current?view=detached-note&noteId=note-2');
+  });
+
+  it('buildDetachedNoteWindowUrl 应在非开发环境生成相对路径，在开发环境生成完整 URL', () => {
+    const prodUrl = buildDetachedNoteWindowUrl('note-1', 'http://localhost:4021/', false);
+    const devUrl = buildDetachedNoteWindowUrl('note-1', 'http://localhost:4021/', true);
+
+    expect(prodUrl).toBe('index.html?view=detached-note&noteId=note-1');
+    expect(devUrl).toBe('http://localhost:4021/?view=detached-note&noteId=note-1');
   });
 
   it('应生成无边框且可缩放的独立便签窗口配置', () => {

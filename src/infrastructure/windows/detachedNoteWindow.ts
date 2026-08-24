@@ -30,24 +30,39 @@ export const isDetachedNoteWindow = (search = window.location.search): boolean =
   return getDetachedNoteId(search) !== null;
 };
 
-export const buildDetachedNoteWindowUrl = (
+export const buildDetachedNoteWindowPath = (noteId: string): string => {
+  const params = new URLSearchParams({
+    view: DETACHED_NOTE_VIEW,
+    noteId
+  });
+
+  return `index.html?${params.toString()}`;
+};
+
+export const buildDetachedNoteWindowBrowserUrl = (
   noteId: string,
-  currentUrl = window.location.href,
-  isDevelopment = import.meta.env.DEV
+  currentUrl = window.location.href
 ): string => {
   const params = new URLSearchParams({
     view: DETACHED_NOTE_VIEW,
     noteId
   });
 
-  if (!isDevelopment) {
-    return `index.html?${params.toString()}`;
-  }
-
   const url = new URL(currentUrl);
   url.search = params.toString();
   url.hash = '';
   return url.toString();
+};
+
+export const buildDetachedNoteWindowUrl = (
+  noteId: string,
+  currentUrl = window.location.href,
+  isDevelopment = import.meta.env.DEV
+): string => {
+  if (!isDevelopment) {
+    return buildDetachedNoteWindowPath(noteId);
+  }
+  return buildDetachedNoteWindowBrowserUrl(noteId, currentUrl);
 };
 
 export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptions) => ({
@@ -87,7 +102,7 @@ const focusExistingWindow = (noteWindow: DetachedWindowInstance) => {
 
 const openBrowserFallback = (options: DetachedNoteWindowOptions): boolean => {
   const noteWindow = window.open(
-    buildDetachedNoteWindowUrl(options.id, window.location.href, true),
+    buildDetachedNoteWindowBrowserUrl(options.id, window.location.href),
     `moment-notes-${options.id}`,
     `popup,width=${DEFAULT_WINDOW_WIDTH},height=${DEFAULT_WINDOW_HEIGHT},resizable=yes`
   );
@@ -112,7 +127,7 @@ export const openDetachedNoteWindow = (
   try {
     let noteWindow: DetachedWindowInstance | null = null;
     noteWindow = window.utools.createBrowserWindow(
-      buildDetachedNoteWindowUrl(options.id),
+      buildDetachedNoteWindowPath(options.id),
       createDetachedNoteWindowOptions(options),
       () => {
         if (!noteWindow || noteWindow.isDestroyed()) return;
