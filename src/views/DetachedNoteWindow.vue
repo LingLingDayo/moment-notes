@@ -28,7 +28,13 @@ const windowColorStyle = computed(() => {
     '--detached-note-bg': preset.lightBg,
     '--detached-note-bg-dark': preset.darkBg,
     '--detached-note-border': preset.lightBorder,
-    '--detached-note-border-dark': preset.darkBorder
+    '--detached-note-border-dark': preset.darkBorder,
+    '--detached-note-text': preset.lightText,
+    '--detached-note-text-dark': preset.darkText,
+    '--detached-note-btn-hover-bg': preset.lightBtnHoverBg,
+    '--detached-note-btn-hover-color': preset.lightBtnHoverColor,
+    '--detached-note-btn-hover-bg-dark': preset.darkBtnHoverBg,
+    '--detached-note-btn-hover-color-dark': preset.darkBtnHoverColor
   };
 });
 
@@ -99,7 +105,7 @@ onUnmounted(() => {
     <div class="window-controls">
       <button
         v-if="isUTools()"
-        class="window-control"
+        class="window-control pin-btn"
         :class="{ active: isAlwaysOnTop }"
         :aria-label="isAlwaysOnTop ? '取消窗口置顶' : '窗口置顶'"
         :data-tooltip="isAlwaysOnTop ? '取消窗口置顶' : '窗口置顶'"
@@ -108,7 +114,7 @@ onUnmounted(() => {
         <Pin class="window-control-icon pin-icon" />
       </button>
       <button
-        class="window-control close"
+        class="window-control close-btn"
         aria-label="关闭便签"
         data-tooltip="关闭便签"
         @click="closeWindow"
@@ -145,6 +151,8 @@ onUnmounted(() => {
   height: 100vh;
   position: relative;
   overflow: hidden;
+  border-radius: $radius-xl;
+  box-sizing: border-box;
   background: var(--detached-note-bg);
   border: 1px solid var(--detached-note-border);
   color: var(--text-primary);
@@ -166,46 +174,75 @@ onUnmounted(() => {
 
 .window-controls {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 12px;
   z-index: 130;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   -webkit-app-region: no-drag;
 }
 
 .window-control {
   width: 28px;
   height: 28px;
-  border-radius: 7px;
+  padding: 6px;
+  border-radius: $radius-round;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: inherit;
-  background: color-mix(in srgb, currentColor 7%, transparent);
+  background: var(--detached-note-border);
+  color: var(--detached-note-text);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, color 0.2s;
 
-  &:hover,
-  &.active {
-    background: var(--btn-hover-bg);
-    color: var(--btn-hover-color);
+  .dark-theme & {
+    background: var(--detached-note-border-dark);
+    color: var(--detached-note-text-dark);
   }
 
-  &.active .pin-icon {
-    transform: rotate(45deg);
-    fill: currentColor;
+  &.pin-btn {
+    &:hover {
+      transform: scale(1.1) rotate(15deg);
+      background: var(--detached-note-btn-hover-bg);
+      color: var(--detached-note-btn-hover-color);
+
+      .dark-theme & {
+        background: var(--detached-note-btn-hover-bg-dark);
+        color: var(--detached-note-btn-hover-color-dark);
+      }
+    }
+
+    &.active {
+      transform: scale(1.05);
+      background: var(--detached-note-btn-hover-bg);
+      color: var(--detached-note-btn-hover-color);
+
+      .dark-theme & {
+        background: var(--detached-note-btn-hover-bg-dark);
+        color: var(--detached-note-btn-hover-color-dark);
+      }
+
+      .pin-icon {
+        transform: rotate(45deg);
+        fill: currentColor;
+      }
+    }
   }
 
-  &.close:hover {
-    background: var(--danger-hover-bg);
-    color: var(--danger-color);
+  &.close-btn {
+    &:hover {
+      transform: scale(1.1);
+      background: var(--danger-hover-bg);
+      color: var(--danger-color);
+    }
   }
 }
 
 .window-control-icon {
   width: 14px;
   height: 14px;
-  transition: transform $transition-normal;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .note-window-content {
