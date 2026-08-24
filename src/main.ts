@@ -6,6 +6,11 @@ import '@styles/main.scss';
 import { initTooltip } from '@utils/tooltip';
 import { isDetachedNoteWindow } from './infrastructure/windows/detachedNoteWindow';
 
+if (isDetachedNoteWindow()) {
+  document.documentElement.classList.add('detached-note-window');
+  document.body.classList.add('detached-note-window');
+}
+
 const app = createApp(isDetachedNoteWindow() ? DetachedNoteWindow : App);
 const pinia = createPinia();
 

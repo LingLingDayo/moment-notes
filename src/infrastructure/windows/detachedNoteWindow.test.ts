@@ -52,12 +52,14 @@ describe('detachedNoteWindow', () => {
     expect(options).toMatchObject({
       title: '测试便签',
       frame: false,
-      transparent: false,
+      transparent: true,
+      hasShadow: true,
+      roundedCorners: false,
       resizable: true,
       minimizable: false,
       maximizable: false,
       closable: true,
-      backgroundColor: '#fff6d1',
+      backgroundColor: '#00000000',
       webPreferences: {
         preload: 'preload/services.js'
       }
