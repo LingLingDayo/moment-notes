@@ -1,5 +1,16 @@
 const fs = require('node:fs')
 const path = require('node:path')
+const { ipcRenderer } = require('electron')
+
+const DETACHED_NOTE_CHANGED_CHANNEL = 'moment-notes:detached-note-changed'
+const DETACHED_NOTE_REFRESH_CHANNEL = 'moment-notes:detached-note-refresh'
+const DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL = 'moment-notes:detached-note-always-on-top'
+
+function subscribeIpc (channel, callback) {
+  const listener = (_event, payload) => callback(payload)
+  ipcRenderer.on(channel, listener)
+  return () => ipcRenderer.removeListener(channel, listener)
+}
 
 function formatDateTime (date) {
   const pad = (n) => String(n).padStart(2, '0')
@@ -27,5 +38,22 @@ window.services = {
     const filePath = path.join(window.utools.getPath('downloads'), timeStr + '.' + matchs[1])
     fs.writeFileSync(filePath, base64Url.substring(matchs[0].length), { encoding: 'base64' })
     return filePath
+  },
+  detachedNote: {
+    notifyParentChanged (noteId) {
+      window.utools.sendToParent(DETACHED_NOTE_CHANGED_CHANNEL, noteId)
+    },
+    requestAlwaysOnTop (noteId, alwaysOnTop) {
+      window.utools.sendToParent(DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL, { noteId, alwaysOnTop })
+    },
+    onChildChanged (callback) {
+      return subscribeIpc(DETACHED_NOTE_CHANGED_CHANNEL, callback)
+    },
+    onAlwaysOnTopRequested (callback) {
+      return subscribeIpc(DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL, callback)
+    },
+    onRefreshRequested (callback) {
+      return subscribeIpc(DETACHED_NOTE_REFRESH_CHANNEL, callback)
+    }
   }
 }
