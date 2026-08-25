@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { Pin, Edit2, Maximize2, Minimize2, Share2 } from '@lucide/vue';
+import { Pin, Edit2, Maximize2, Minimize2, ExternalLink } from '@lucide/vue';
 import { Note } from '@type';
 import { useShortcutStore } from '@stores/shortcutStore';
 import { COLOR_PRESETS, useStickyNotesStore } from '@stores/stickyNotes';
@@ -93,7 +93,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
       data-tooltip="在独立窗口打开"
       @click.stop="handleOpenDetachedNote"
     >
-      <Share2 class="detach-icon" />
+      <ExternalLink class="detach-icon" />
     </button>
 
     <!-- 全屏显示/收起按钮 -->
@@ -161,23 +161,20 @@ const handleKeyDown = (e: KeyboardEvent) => {
     left: 24px;
     gap: 12px;
 
-    .pin-btn,
-    .detach-btn,
-    .preview-btn {
+    button {
       padding: 7px;
 
       .pin-icon,
       .detach-icon,
-      .preview-icon {
+      .preview-icon,
+      svg {
         width: 15px;
         height: 15px;
       }
     }
   }
 
-  .pin-btn,
-  .detach-btn,
-  .preview-btn {
+  button {
     padding: 6px;
     border-radius: 50%;
     background: var(--card-border);
@@ -195,22 +192,13 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
     .pin-icon,
     .detach-icon,
-    .preview-icon {
+    .preview-icon,
+    svg {
       width: 13px;
       height: 13px;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-  }
 
-  .pin-btn {
-    &:hover {
-      transform: scale(1.1) rotate(15deg);
-      background: var(--card-btn-hover-bg);
-      color: var(--card-btn-hover-color);
-    }
-  }
-
-  .preview-btn {
     &:hover {
       transform: scale(1.1);
       background: var(--card-btn-hover-bg);
@@ -218,11 +206,9 @@ const handleKeyDown = (e: KeyboardEvent) => {
     }
   }
 
-  .detach-btn {
+  .pin-btn {
     &:hover {
-      transform: scale(1.1) rotate(-8deg);
-      background: var(--card-btn-hover-bg);
-      color: var(--card-btn-hover-color);
+      transform: scale(1.1) rotate(15deg);
     }
   }
 }
