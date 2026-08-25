@@ -112,6 +112,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
   <button
     v-if="!isEditing && !note.isDeleted"
     class="edit-trigger-btn absolute-edit-btn"
+    :class="{ 'is-full-screen': isFullScreenMode }"
     data-tooltip="编辑便签"
     @click.stop="emit('enter-edit')"
   >
@@ -119,18 +120,24 @@ const handleKeyDown = (e: KeyboardEvent) => {
   </button>
 
   <!-- 卡片头部 (标题 / 编辑态) -->
-  <div v-if="isEditing || note.title" class="card-header">
+  <div
+    v-if="isEditing || note.title"
+    class="card-header"
+    :class="{ 'is-full-screen': isFullScreenMode }"
+  >
     <input
       v-if="isEditing"
       v-model="title"
       type="text"
       placeholder="标题 (可选)..."
       class="title-input"
+      :class="{ 'is-full-screen': isFullScreenMode }"
       @keydown="handleKeyDown"
     />
     <h3
       v-else-if="note.title"
       class="card-title"
+      :class="{ 'is-full-screen': isFullScreenMode }"
       :data-tooltip="note.title"
       data-tooltip-only-overflow
     >
@@ -226,6 +233,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
   justify-content: space-between;
   margin-top: 6px;
   min-height: 24px;
+
+  &.is-full-screen {
+    min-height: 32px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
 }
 
 .card-title {
@@ -237,6 +250,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
   text-overflow: ellipsis;
   flex: 1;
   padding-right: 24px;
+
+  &.is-full-screen {
+    font-size: 15px;
+  }
 }
 
 .title-input {
@@ -249,6 +266,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
   font-weight: 600;
   color: inherit;
   width: 100%;
+
+  &.is-full-screen {
+    padding: 6px 12px;
+    font-size: 15px;
+    min-height: 32px;
+  }
 
   &:focus {
     background: var(--input-bg);
@@ -287,6 +310,16 @@ const handleKeyDown = (e: KeyboardEvent) => {
     width: 13px;
     height: 13px;
   }
+
+  &.is-full-screen {
+    padding: 7px;
+    border-radius: 7px;
+
+    .edit-icon {
+      width: 15px;
+      height: 15px;
+    }
+  }
 }
 
 .absolute-edit-btn {
@@ -295,6 +328,11 @@ const handleKeyDown = (e: KeyboardEvent) => {
   right: 16px;
   margin-left: 0;
   z-index: 2;
+
+  &.is-full-screen {
+    top: 14px;
+    right: 20px;
+  }
 }
 
 @media (max-width: $screen-compact) {

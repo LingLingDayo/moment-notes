@@ -7,10 +7,16 @@ import { isUTools } from '@utils/storage';
 import { useNoteTagMeasure } from '@utils/useNoteTagMeasure';
 import MarkdownRenderer from './MarkdownRenderer.vue';
 
-const props = defineProps<{
-  note: Note;
-  isEditing: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    note: Note;
+    isEditing: boolean;
+    isFullScreen?: boolean;
+  }>(),
+  {
+    isFullScreen: false
+  }
+);
 
 const content = defineModel<string>('content', { default: '' });
 
@@ -92,13 +98,17 @@ watch(
 </script>
 
 <template>
-  <div class="card-body" :class="{ 'is-view-mode': !isEditing }">
+  <div
+    class="card-body"
+    :class="{ 'is-view-mode': !isEditing, 'is-full-screen': isFullScreen }"
+  >
     <textarea
       v-if="isEditing"
       ref="contentInputRef"
       v-model="content"
       :placeholder="note.type === 'markdown' ? '输入 Markdown 源码...' : '写点什么...'"
       class="content-textarea"
+      :class="{ 'is-full-screen': isFullScreen }"
       @keydown="handleKeyDown"
       @input="adjustTextareaHeight"
     ></textarea>
@@ -261,6 +271,12 @@ watch(
   line-height: 1.6;
   color: inherit;
   resize: none;
+
+  &.is-full-screen {
+    font-size: 15px;
+    line-height: 1.75;
+    padding: 10px 12px;
+  }
 
   &::-webkit-scrollbar {
     width: 6px;

@@ -138,6 +138,22 @@
       display: none;
     }
 
+    :deep(.card-header) {
+      min-height: 32px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    :deep(.card-title) {
+      font-size: 15px;
+    }
+
+    :deep(.title-input) {
+      padding: 6px 12px;
+      font-size: 15px;
+      min-height: 32px;
+    }
+
     :deep(.card-body) {
       font-size: 15px;
       line-height: 1.7;
@@ -151,6 +167,22 @@
     :deep(.card-content) {
       font-size: 15px;
       line-height: 1.75;
+    }
+
+    :deep(.content-textarea) {
+      font-size: 15px;
+      line-height: 1.75;
+      padding: 10px 12px;
+    }
+
+    :deep(.edit-trigger-btn) {
+      padding: 7px;
+      border-radius: 7px;
+
+      .edit-icon {
+        width: 15px;
+        height: 15px;
+      }
     }
 
     :deep(.card-footer) {

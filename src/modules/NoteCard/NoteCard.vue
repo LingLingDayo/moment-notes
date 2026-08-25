@@ -398,6 +398,7 @@ onMounted(() => {
       v-model:content="editContent"
       :note="note"
       :is-editing="isEditing"
+      :is-full-screen="isFullScreen"
       @cancel-edit="cancelEdit"
       @save-edit="saveEdit"
     />
