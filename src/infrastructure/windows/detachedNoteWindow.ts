@@ -76,7 +76,7 @@ export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptio
   frame: false,
   transparent: true,
   backgroundColor: '#00000000',
-  hasShadow: true,
+  hasShadow: false,
   roundedCorners: false,
   resizable: true,
   minimizable: false,

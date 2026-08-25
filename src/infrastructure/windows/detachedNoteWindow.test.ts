@@ -53,7 +53,7 @@ describe('detachedNoteWindow', () => {
       title: '测试便签',
       frame: false,
       transparent: true,
-      hasShadow: true,
+      hasShadow: false,
       roundedCorners: false,
       resizable: true,
       minimizable: false,

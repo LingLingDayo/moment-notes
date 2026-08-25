@@ -163,9 +163,8 @@ onUnmounted(() => {
 }
 
 .detached-note-shell {
-  width: calc(100% - 2px);
-  height: calc(100% - 2px);
-  margin: 1px;
+  width: 100%;
+  height: 100%;
   position: relative;
   overflow: hidden;
   border-radius: $radius-xl;
