@@ -96,7 +96,7 @@ export class CategoryRepository {
 export class BackupCodec {
   public static encode(categories: Category[], notes: Note[], settings?: AppSettings): BackupData {
     return {
-      version: '1.5.0',
+      version: '1.6.0',
       timestamp: Date.now(),
       categories,
       notes,
