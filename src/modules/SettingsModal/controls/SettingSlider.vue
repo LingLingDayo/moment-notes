@@ -112,14 +112,14 @@ onUnmounted(() => {
   margin: 0;
   padding: 0;
 
-  :global(.dark-theme) & {
+  .dark-theme & {
     background: rgba(255, 255, 255, 0.22);
   }
 
   &:hover {
     background: rgba(0, 0, 0, 0.08);
 
-    :global(.dark-theme) & {
+    .dark-theme & {
       background: rgba(255, 255, 255, 0.25);
     }
   }

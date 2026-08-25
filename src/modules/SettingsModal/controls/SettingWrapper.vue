@@ -301,8 +301,8 @@ const controlStyle = computed(() => {
     td {
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       color: var(--text-primary);
-      
-      :global(.light-theme) & {
+
+      .light-theme & {
         border-bottom: 1px solid rgba(0, 0, 0, 0.04);
       }
     }
