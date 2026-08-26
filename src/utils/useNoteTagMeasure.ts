@@ -1,13 +1,26 @@
-import { ref, nextTick, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, nextTick, onMounted, onBeforeUnmount, watch, isRef, Ref } from 'vue';
 import { Note } from '@type';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 
-export function useNoteTagMeasure(note: Note) {
+export function useNoteTagMeasure(noteOrGetter: Note | Ref<Note> | (() => Note)) {
   const store = useStickyNotesStore();
+
+  const getNote = (): Note | undefined => {
+    if (isRef(noteOrGetter)) {
+      return noteOrGetter.value;
+    }
+    if (typeof noteOrGetter === 'function') {
+      return noteOrGetter();
+    }
+    return noteOrGetter;
+  };
 
   const measureContainerRef = ref<HTMLDivElement | null>(null);
   const measureEllipsisRef = ref<HTMLSpanElement | null>(null);
-  const visibleTags = ref<string[]>([]);
+
+  // 初始化时兜底使用已有的 note.tags 全量数据，避免测量尚未完成或容器宽度为 0 导致标签呈现空白
+  const initialTags = getNote()?.tags;
+  const visibleTags = ref<string[]>(Array.isArray(initialTags) ? [...initialTags] : []);
   const hasMore = ref(false);
   const allTagsText = ref('');
   let resizeObserver: ResizeObserver | null = null;
@@ -15,7 +28,8 @@ export function useNoteTagMeasure(note: Note) {
 
   // 计算可见标签的核心逻辑
   const calculateVisibleTags = (force = false) => {
-    const tags = note.tags;
+    const currentNote = getNote();
+    const tags = currentNote?.tags;
     if (!tags || tags.length === 0) {
       if (visibleTags.value.length > 0) visibleTags.value = [];
       if (hasMore.value !== false) hasMore.value = false;
@@ -31,11 +45,23 @@ export function useNoteTagMeasure(note: Note) {
 
     nextTick(() => {
       const container = measureContainerRef.value;
-      if (!container) return;
+      if (!container) {
+        // DOM 容器尚未挂载时保持与 tags 同步兜底展示
+        visibleTags.value = [...tags];
+        return;
+      }
 
       const currentWidth = container.clientWidth;
-      // 如果宽度为 0 或者是没有变化且非强制重新计算，则跳过布局计算以避免 Layout Thrashing
-      if (currentWidth === 0 || (!force && currentWidth === lastWidth)) {
+      // 如果宽度为 0（例如处于动画进入阶段或隐藏状态），先保留 tags 兜底展示，等待尺寸恢复时 ResizeObserver 再触发精确截断
+      if (currentWidth === 0) {
+        if (visibleTags.value.length === 0 && tags.length > 0) {
+          visibleTags.value = [...tags];
+        }
+        return;
+      }
+
+      // 如果非强制且宽度未变且已有计算出的可见标签，则跳过布局计算以避免 Layout Thrashing
+      if (!force && currentWidth === lastWidth && visibleTags.value.length > 0) {
         return;
       }
       lastWidth = currentWidth;
@@ -133,7 +159,8 @@ export function useNoteTagMeasure(note: Note) {
         }
 
         if (cutoffIndex === -1) {
-          nextVisibleTags = [];
+          // 兜底：即使单项极宽导致无法容纳省略号，也至少展示首个标签，避免标签区完全空白
+          nextVisibleTags = tags.length > 0 ? [tags[0]] : [];
         } else {
           nextVisibleTags = tags.slice(0, cutoffIndex + 1);
         }
@@ -155,7 +182,7 @@ export function useNoteTagMeasure(note: Note) {
 
   // 监听标签及偏好设置的变化
   watch(
-    () => note.tags,
+    () => getNote()?.tags,
     () => {
       calculateVisibleTags(true);
     },
@@ -169,22 +196,36 @@ export function useNoteTagMeasure(note: Note) {
     }
   );
 
+  // 监听 measureContainerRef 挂载/卸载变化（如编辑模式切换时 DOM 重建），重新绑定 ResizeObserver
+  watch(measureContainerRef, (newContainer, oldContainer) => {
+    if (resizeObserver) {
+      if (oldContainer) {
+        resizeObserver.unobserve(oldContainer);
+      }
+      if (newContainer) {
+        resizeObserver.observe(newContainer);
+        calculateVisibleTags(true);
+      }
+    }
+  });
+
   onMounted(() => {
-    calculateVisibleTags();
-    const container = measureContainerRef.value;
-    if (container && window.ResizeObserver) {
+    if (window.ResizeObserver) {
       resizeObserver = new ResizeObserver(entries => {
         for (const entry of entries) {
-          // 直接在 ResizeObserver 回调中检测宽度是否发生实质变化，若无变化则直接过滤
           const currentWidth = entry.contentRect.width;
-          if (currentWidth === 0 || currentWidth === lastWidth) {
+          if (currentWidth === 0 || (currentWidth === lastWidth && visibleTags.value.length > 0)) {
             continue;
           }
           calculateVisibleTags();
         }
       });
-      resizeObserver.observe(container);
+      const container = measureContainerRef.value;
+      if (container) {
+        resizeObserver.observe(container);
+      }
     }
+    calculateVisibleTags(true);
   });
 
   onBeforeUnmount(() => {
@@ -203,3 +244,4 @@ export function useNoteTagMeasure(note: Note) {
     calculateVisibleTags
   };
 }
+

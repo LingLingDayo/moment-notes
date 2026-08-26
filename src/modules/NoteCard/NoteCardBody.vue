@@ -79,7 +79,7 @@ const {
   hasMore,
   allTagsText,
   calculateVisibleTags
-} = useNoteTagMeasure(props.note);
+} = useNoteTagMeasure(() => props.note);
 
 // 监听编辑状态
 watch(
