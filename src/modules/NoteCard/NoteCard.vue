@@ -14,9 +14,11 @@ const props = withDefaults(
   defineProps<{
     note: Note;
     isFullScreen?: boolean;
+    isImmersiveFullScreen?: boolean;
   }>(),
   {
-    isFullScreen: false
+    isFullScreen: false,
+    isImmersiveFullScreen: false
   }
 );
 
@@ -360,7 +362,8 @@ onMounted(() => {
       'is-in-trash': note.isDeleted,
       'has-active-popover': hasActivePopover,
       'enable-hover-anim': store.enableHoverAnimation && !isFullScreen,
-      'is-full-screen': isFullScreen
+      'is-full-screen': isFullScreen,
+      'is-immersive-full-screen': isFullScreen && isImmersiveFullScreen
     }"
     :style="[colorStyle, cardMaxHeightStyle]"
     :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && isDragTriggered"
@@ -387,6 +390,7 @@ onMounted(() => {
       :note="note"
       :is-editing="isEditing"
       :is-full-screen="isFullScreen"
+      :is-immersive-full-screen="isFullScreen && isImmersiveFullScreen"
       @toggle-pin="togglePin"
       @enter-edit="enterEditMode"
       @save-edit="saveEdit"

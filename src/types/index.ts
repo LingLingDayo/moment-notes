@@ -59,6 +59,7 @@ export interface AppSettings {
   defaultNoteColor?: string;
   defaultNoteType?: NoteType;
   defaultEditMode?: 'inline' | 'fullscreen';
+  enableImmersiveFullscreen?: boolean;
   doubleClickNoteAction?: DoubleClickNoteAction;
   superPanelDefaultCategory?: string;
   startPageMode?: 'last' | 'default';

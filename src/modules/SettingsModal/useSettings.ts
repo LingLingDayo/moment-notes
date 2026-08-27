@@ -64,6 +64,8 @@ export function useSettings() {
           store.setPrefixTagWithHash(val);
         } else if (key === 'skipDeleteConfirm') {
           store.setSkipDeleteConfirm(val);
+        } else if (key === 'enableImmersiveFullscreen') {
+          store.setEnableImmersiveFullscreen(val);
         } else if (key === 'categoryIndependentToolbar') {
           store.setCategoryIndependentToolbar(val);
         } else {

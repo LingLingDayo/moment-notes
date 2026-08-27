@@ -241,6 +241,13 @@ export const useUiStore = defineStore('uiStore', () => {
     storage.setItem('sticky_notes_skip_delete_confirm', val ? 'true' : 'false');
   };
 
+  const enableImmersiveFullscreen = ref(false);
+
+  const setEnableImmersiveFullscreen = (val: boolean) => {
+    enableImmersiveFullscreen.value = val;
+    storage.setItem('sticky_notes_enable_immersive_fullscreen', val ? 'true' : 'false');
+  };
+
   // 全屏便签预览状态
   const previewNoteId = ref<string | null>(null);
   const openedFullscreenForEditNoteId = ref<string | null>(null);
@@ -328,6 +335,8 @@ export const useUiStore = defineStore('uiStore', () => {
     setPrefixTagWithHash,
     skipDeleteConfirm,
     setSkipDeleteConfirm,
+    enableImmersiveFullscreen,
+    setEnableImmersiveFullscreen,
     categoryIndependentToolbar,
     setCategoryIndependentToolbar,
     categoryViewSettings,

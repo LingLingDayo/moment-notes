@@ -13,6 +13,7 @@ const props = defineProps<{
   note: Note;
   isEditing: boolean;
   isFullScreen?: boolean;
+  isImmersiveFullScreen?: boolean;
 }>();
 
 const title = defineModel<string>('title', { default: '' });
@@ -112,7 +113,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
   <button
     v-if="!isEditing && !note.isDeleted"
     class="edit-trigger-btn absolute-edit-btn"
-    :class="{ 'is-full-screen': isFullScreenMode }"
+    :class="{
+      'is-full-screen': isFullScreenMode,
+      'is-immersive-full-screen': isFullScreenMode && isImmersiveFullScreen
+    }"
     data-tooltip="编辑便签"
     @click.stop="emit('enter-edit')"
   >
@@ -318,6 +322,11 @@ const handleKeyDown = (e: KeyboardEvent) => {
   &.is-full-screen {
     top: 14px;
     right: 20px;
+
+    &.is-immersive-full-screen {
+      top: 24px;
+      right: 74px;
+    }
   }
 }
 

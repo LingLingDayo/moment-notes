@@ -27,6 +27,7 @@ export const getCurrentSettings = (
     showNoteCount: uiStore.showNoteCount,
     prefixTagWithHash: uiStore.prefixTagWithHash,
     skipDeleteConfirm: uiStore.skipDeleteConfirm,
+    enableImmersiveFullscreen: uiStore.enableImmersiveFullscreen,
     sortMode: noteStore.sortMode,
     sortOrder: noteStore.sortOrder,
     categoryIndependentToolbar: uiStore.categoryIndependentToolbar,
@@ -102,6 +103,9 @@ export const applySettings = (
   }
   if (typeof settings.skipDeleteConfirm === 'boolean') {
     uiStore.setSkipDeleteConfirm(settings.skipDeleteConfirm);
+  }
+  if (typeof settings.enableImmersiveFullscreen === 'boolean') {
+    uiStore.setEnableImmersiveFullscreen(settings.enableImmersiveFullscreen);
   }
   if (typeof settings.categoryIndependentToolbar === 'boolean') {
     uiStore.setCategoryIndependentToolbar(settings.categoryIndependentToolbar);

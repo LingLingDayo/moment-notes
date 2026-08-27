@@ -74,4 +74,17 @@ describe('uiStore 持久化与规范单测', () => {
     expect(uiStore.skipDeleteConfirm).toBe(false);
     expect(globalThis.localStorage.getItem('sticky_notes_skip_delete_confirm')).toBe('false');
   });
+
+  it('enableImmersiveFullscreen 默认应为 false 并支持变更持久化', () => {
+    const uiStore = useUiStore();
+    expect(uiStore.enableImmersiveFullscreen).toBe(false);
+
+    uiStore.setEnableImmersiveFullscreen(true);
+    expect(uiStore.enableImmersiveFullscreen).toBe(true);
+    expect(globalThis.localStorage.getItem('sticky_notes_enable_immersive_fullscreen')).toBe('true');
+
+    uiStore.setEnableImmersiveFullscreen(false);
+    expect(uiStore.enableImmersiveFullscreen).toBe(false);
+    expect(globalThis.localStorage.getItem('sticky_notes_enable_immersive_fullscreen')).toBe('false');
+  });
 });

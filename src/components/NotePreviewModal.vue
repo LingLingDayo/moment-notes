@@ -36,7 +36,12 @@ onUnmounted(() => {
 <template>
   <Teleport to="body">
     <Transition name="preview-modal-fade">
-      <div v-if="isVisible && note" class="note-preview-overlay" @click="close">
+      <div
+        v-if="isVisible && note"
+        class="note-preview-overlay"
+        :class="{ 'is-immersive': store.enableImmersiveFullscreen }"
+        @click="close"
+      >
         <!-- 页面右上角圆形的灰色背景关闭按钮 -->
         <button
           class="page-close-btn"
@@ -46,8 +51,16 @@ onUnmounted(() => {
           <X class="close-icon" />
         </button>
 
-        <div class="note-preview-content" @click.stop>
-          <NoteCard :note="note" :is-full-screen="true" />
+        <div
+          class="note-preview-content"
+          :class="{ 'is-immersive': store.enableImmersiveFullscreen }"
+          @click.stop
+        >
+          <NoteCard
+            :note="note"
+            :is-full-screen="true"
+            :is-immersive-full-screen="store.enableImmersiveFullscreen"
+          />
         </div>
       </div>
     </Transition>
@@ -64,6 +77,10 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   user-select: text;
+
+  &.is-immersive {
+    background: transparent;
+  }
 }
 
 .page-close-btn {
@@ -74,6 +91,11 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  &.is-immersive {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .preview-modal-fade-enter-active,

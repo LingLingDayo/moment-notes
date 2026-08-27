@@ -313,6 +313,13 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
         ]
       },
       {
+        key: 'enableImmersiveFullscreen',
+        label: '全屏模式铺满整个窗口',
+        type: 'switch',
+        desc: '开启后，点击便签全屏按钮将铺满整个窗口并移除边框与圆角，而非以居中弹窗形式展示。',
+        default: false
+      },
+      {
         key: 'startPageMode',
         label: '启动默认展示分类',
         type: 'radio',

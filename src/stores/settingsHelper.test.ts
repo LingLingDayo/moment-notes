@@ -25,4 +25,18 @@ describe('settingsHelper', () => {
 
     expect(setDoubleClickNoteAction).not.toHaveBeenCalled();
   });
+
+  it('应正确应用与导出 enableImmersiveFullscreen 设置', () => {
+    const setEnableImmersiveFullscreen = vi.fn();
+
+    applySettings(
+      { enableImmersiveFullscreen: true },
+      { setEnableImmersiveFullscreen },
+      {},
+      {},
+      {}
+    );
+
+    expect(setEnableImmersiveFullscreen).toHaveBeenCalledWith(true);
+  });
 });

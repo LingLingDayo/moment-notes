@@ -165,6 +165,11 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         uiStore.skipDeleteConfirm = storedSkipDeleteConfirm === 'true';
       }
 
+      const storedEnableImmersiveFullscreen = storage.getItem('sticky_notes_enable_immersive_fullscreen');
+      if (storedEnableImmersiveFullscreen !== null) {
+        uiStore.enableImmersiveFullscreen = storedEnableImmersiveFullscreen === 'true';
+      }
+
       const storedCategoryIndependentToolbar = storage.getItem('sticky_notes_category_independent_toolbar');
       if (storedCategoryIndependentToolbar !== null) {
         uiStore.categoryIndependentToolbar = storedCategoryIndependentToolbar === 'true';
@@ -489,6 +494,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     setPrefixTagWithHash: uiStore.setPrefixTagWithHash,
     skipDeleteConfirm: toRef(uiStore, 'skipDeleteConfirm'),
     setSkipDeleteConfirm: uiStore.setSkipDeleteConfirm,
+    enableImmersiveFullscreen: toRef(uiStore, 'enableImmersiveFullscreen'),
+    setEnableImmersiveFullscreen: uiStore.setEnableImmersiveFullscreen,
     previewNoteId: toRef(uiStore, 'previewNoteId'),
     openedFullscreenForEditNoteId: toRef(uiStore, 'openedFullscreenForEditNoteId'),
     openNotePreview: uiStore.openNotePreview,

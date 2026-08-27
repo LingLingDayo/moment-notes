@@ -134,6 +134,16 @@
     padding: 20px 24px 16px 24px;
     z-index: 100;
 
+    &.is-immersive-full-screen {
+      width: 100vw;
+      height: 100vh;
+      max-width: 100vw;
+      max-height: 100vh;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
     .note-drag-handle {
       display: none;
     }
