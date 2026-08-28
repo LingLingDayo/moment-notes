@@ -5,6 +5,8 @@ import { ipcRenderer } from 'electron';
 const DETACHED_NOTE_CHANGED_CHANNEL = 'moment-notes:detached-note-changed';
 const DETACHED_NOTE_REFRESH_CHANNEL = 'moment-notes:detached-note-refresh';
 const DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL = 'moment-notes:detached-note-always-on-top';
+const DETACHED_NOTE_TOGGLE_MAXIMIZE_CHANNEL = 'moment-notes:detached-note-toggle-maximize';
+const DETACHED_NOTE_MAXIMIZE_CHANGED_CHANNEL = 'moment-notes:detached-note-maximize-changed';
 
 function subscribeIpc(channel: string, callback: (payload: any) => void): () => void {
   const listener = (_event: any, payload: any) => callback(payload);
@@ -53,14 +55,23 @@ window.services = {
     requestAlwaysOnTop(noteId: string, alwaysOnTop: boolean): void {
       window.utools.sendToParent(DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL, { noteId, alwaysOnTop });
     },
+    requestToggleMaximize(noteId: string): void {
+      window.utools.sendToParent(DETACHED_NOTE_TOGGLE_MAXIMIZE_CHANNEL, { noteId });
+    },
     onChildChanged(callback: (noteId: string) => void): () => void {
       return subscribeIpc(DETACHED_NOTE_CHANGED_CHANNEL, callback);
     },
     onAlwaysOnTopRequested(callback: (payload: { noteId: string; alwaysOnTop: boolean }) => void): () => void {
       return subscribeIpc(DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL, callback);
     },
+    onToggleMaximizeRequested(callback: (payload: { noteId: string }) => void): () => void {
+      return subscribeIpc(DETACHED_NOTE_TOGGLE_MAXIMIZE_CHANNEL, callback);
+    },
     onRefreshRequested(callback: () => void): () => void {
       return subscribeIpc(DETACHED_NOTE_REFRESH_CHANNEL, callback);
+    },
+    onMaximizeChanged(callback: (isMaximized: boolean) => void): () => void {
+      return subscribeIpc(DETACHED_NOTE_MAXIMIZE_CHANGED_CHANNEL, callback);
     }
   }
 };

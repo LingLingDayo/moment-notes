@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { Pin, X } from '@lucide/vue';
+import { Copy, Pin, Square, X } from '@lucide/vue';
 import NoteCard from '@modules/NoteCard/NoteCard.vue';
 import Toast from '@components/Toast.vue';
 import ConfirmModal from '@components/ConfirmModal.vue';
@@ -15,6 +15,7 @@ const store = useStickyNotesStore();
 const noteId = getDetachedNoteId();
 const isReady = ref(false);
 const isAlwaysOnTop = ref(false);
+const isMaximized = ref(false);
 const unsubscribeCallbacks: Array<() => void> = [];
 
 const note = computed(() => {
@@ -48,6 +49,22 @@ const toggleAlwaysOnTop = () => {
   window.services.detachedNote.requestAlwaysOnTop(noteId, isAlwaysOnTop.value);
 };
 
+const toggleMaximize = () => {
+  if (isUTools() && window.services?.detachedNote && noteId) {
+    window.services.detachedNote.requestToggleMaximize(noteId);
+  } else {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {
+        isMaximized.value = !isMaximized.value;
+      });
+    } else {
+      document.exitFullscreen?.().catch(() => {
+        isMaximized.value = false;
+      });
+    }
+  }
+};
+
 const notifyParentChanged = () => {
   if (!noteId || !isUTools() || !window.services?.detachedNote) return;
   window.services.detachedNote.notifyParentChanged(noteId);
@@ -75,6 +92,9 @@ onMounted(() => {
     unsubscribeCallbacks.push(
       window.services.detachedNote.onRefreshRequested(() => {
         store.reloadNotes();
+      }),
+      window.services.detachedNote.onMaximizeChanged((maximized: boolean) => {
+        isMaximized.value = maximized;
       })
     );
   } else {
@@ -83,8 +103,15 @@ onMounted(() => {
         store.reloadNotes();
       }
     };
+    const handleFullscreenChange = () => {
+      isMaximized.value = !!document.fullscreenElement;
+    };
     window.addEventListener('storage', handleStorage);
-    unsubscribeCallbacks.push(() => window.removeEventListener('storage', handleStorage));
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    unsubscribeCallbacks.push(
+      () => window.removeEventListener('storage', handleStorage),
+      () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    );
   }
 
   unsubscribeCallbacks.push(
@@ -109,7 +136,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main class="detached-note-shell" :style="windowColorStyle">
+  <main
+    class="detached-note-shell"
+    :class="{ 'is-maximized': isMaximized }"
+    :style="windowColorStyle"
+  >
     <div class="window-drag-region" aria-hidden="true"></div>
 
     <div class="window-controls">
@@ -122,6 +153,16 @@ onUnmounted(() => {
         @click="toggleAlwaysOnTop"
       >
         <Pin class="window-control-icon pin-icon" />
+      </button>
+      <button
+        class="window-control maximize-btn"
+        :class="{ active: isMaximized }"
+        :aria-label="isMaximized ? '向下还原' : '最大化'"
+        :data-tooltip="isMaximized ? '向下还原' : '最大化'"
+        @click="toggleMaximize"
+      >
+        <Copy v-if="isMaximized" class="window-control-icon restore-icon" />
+        <Square v-else class="window-control-icon maximize-icon" />
       </button>
       <button
         class="window-control close-btn"
@@ -173,18 +214,28 @@ onUnmounted(() => {
   border: 1px solid var(--detached-note-border);
   color: var(--text-primary);
   box-shadow: none;
+  transition: border-radius 0.15s ease, border-color 0.15s ease;
+
+  &.is-maximized {
+    border-radius: 0;
+    border: none;
+  }
 
   .dark-theme &,
   &.dark-theme {
     background: var(--detached-note-bg-dark);
     border-color: var(--detached-note-border-dark);
     box-shadow: none;
+
+    &.is-maximized {
+      border: none;
+    }
   }
 }
 
 .window-drag-region {
   position: absolute;
-  inset: 0 84px auto 0;
+  inset: 0 124px auto 0;
   height: 42px;
   z-index: 120;
   -webkit-app-region: drag;
@@ -244,6 +295,19 @@ onUnmounted(() => {
       .pin-icon {
         transform: rotate(45deg);
         fill: currentColor;
+      }
+    }
+  }
+
+  &.maximize-btn {
+    &:hover {
+      transform: scale(1.1);
+      background: var(--detached-note-btn-hover-bg);
+      color: var(--detached-note-btn-hover-color);
+
+      .dark-theme & {
+        background: var(--detached-note-btn-hover-bg-dark);
+        color: var(--detached-note-btn-hover-color-dark);
       }
     }
   }

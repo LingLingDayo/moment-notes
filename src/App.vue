@@ -8,7 +8,8 @@ import NotePreviewModal from '@components/NotePreviewModal.vue';
 import { eventBus } from './domain/events/DomainEventBus';
 import {
   refreshDetachedNoteWindows,
-  setDetachedNoteWindowAlwaysOnTop
+  setDetachedNoteWindowAlwaysOnTop,
+  toggleDetachedNoteWindowMaximize
 } from './infrastructure/windows/detachedNoteWindow';
 
 const store = useStickyNotesStore();
@@ -43,6 +44,9 @@ onMounted(() => {
         }),
         detachedNoteService.onAlwaysOnTopRequested(({ noteId, alwaysOnTop }) => {
           setDetachedNoteWindowAlwaysOnTop(noteId, alwaysOnTop);
+        }),
+        detachedNoteService.onToggleMaximizeRequested(({ noteId }) => {
+          toggleDetachedNoteWindowMaximize(noteId);
         })
       );
     }

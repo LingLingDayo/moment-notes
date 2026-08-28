@@ -42,7 +42,7 @@ describe('detachedNoteWindow', () => {
     expect(devUrl).toBe('http://localhost:4021/?view=detached-note&noteId=note-1');
   });
 
-  it('应生成无边框且可缩放的独立便签窗口配置', () => {
+  it('应生成无边框且可缩放、支持最大化的独立便签窗口配置', () => {
     const options = createDetachedNoteWindowOptions({
       id: 'note-1',
       title: '测试便签',
@@ -57,7 +57,8 @@ describe('detachedNoteWindow', () => {
       roundedCorners: false,
       resizable: true,
       minimizable: false,
-      maximizable: false,
+      maximizable: true,
+      fullscreenable: true,
       closable: true,
       backgroundColor: '#00000000',
       webPreferences: {

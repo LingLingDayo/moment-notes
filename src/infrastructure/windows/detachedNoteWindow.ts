@@ -2,6 +2,7 @@ import { isUTools } from '@utils/storage';
 
 export const DETACHED_NOTE_VIEW = 'detached-note';
 export const DETACHED_NOTE_REFRESH_CHANNEL = 'moment-notes:detached-note-refresh';
+export const DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL = 'moment-notes:detached-note-maximize-changed';
 
 const DEFAULT_WINDOW_WIDTH = 520;
 const DEFAULT_WINDOW_HEIGHT = 640;
@@ -80,8 +81,8 @@ export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptio
   roundedCorners: false,
   resizable: true,
   minimizable: false,
-  maximizable: false,
-  fullscreenable: false,
+  maximizable: true,
+  fullscreenable: true,
   closable: true,
   autoHideMenuBar: true,
   webPreferences: {
@@ -135,6 +136,17 @@ export const openDetachedNoteWindow = (
         noteWindow.focus?.();
       }
     );
+
+    noteWindow.on('maximize', () => {
+      if (!noteWindow || noteWindow.isDestroyed()) return;
+      noteWindow.webContents.send(DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL, true);
+    });
+
+    noteWindow.on('unmaximize', () => {
+      if (!noteWindow || noteWindow.isDestroyed()) return;
+      noteWindow.webContents.send(DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL, false);
+    });
+
     detachedNoteWindows.set(options.id, noteWindow);
     return 'created';
   } catch (error) {
@@ -160,4 +172,25 @@ export const setDetachedNoteWindowAlwaysOnTop = (noteId: string, alwaysOnTop: bo
     return;
   }
   noteWindow.setAlwaysOnTop(alwaysOnTop);
+};
+
+export const isDetachedNoteWindowMaximized = (noteId: string): boolean => {
+  const noteWindow = detachedNoteWindows.get(noteId);
+  if (!noteWindow || noteWindow.isDestroyed()) return false;
+  return Boolean((noteWindow as any).isMaximized?.());
+};
+
+export const toggleDetachedNoteWindowMaximize = (noteId: string): boolean => {
+  const noteWindow = detachedNoteWindows.get(noteId);
+  if (!noteWindow || noteWindow.isDestroyed()) {
+    detachedNoteWindows.delete(noteId);
+    return false;
+  }
+  if ((noteWindow as any).isMaximized?.()) {
+    noteWindow.unmaximize();
+    return false;
+  } else {
+    noteWindow.maximize();
+    return true;
+  }
 };
