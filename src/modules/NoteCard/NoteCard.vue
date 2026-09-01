@@ -89,7 +89,7 @@ const saveEdit = () => {
     store.updateNote(props.note.id, {
       title: editTitle.value.trim(),
       content: editContent.value,
-      tags: editTags.value
+      tags: [...editTags.value]
     });
     isEditing.value = false;
   } else {

@@ -78,4 +78,24 @@ describe('useNoteTagMeasure 标签测量与截断 Hook 单测', () => {
 
     expect(visibleTags.value).toEqual(['Tag1', 'Tag2']);
   });
+
+  it('原已有旧标签，在添加新标签后退出编辑（容器宽度首帧为 0 时），应正确同步展示所有新标签', async () => {
+    const noteRef = ref(createMockNote(['旧标签']));
+    const { measureContainerRef, visibleTags, calculateVisibleTags } = useNoteTagMeasure(() => noteRef.value);
+
+    expect(visibleTags.value).toEqual(['旧标签']);
+
+    // 模拟容器已挂载但 width 暂时为 0
+    measureContainerRef.value = {
+      clientWidth: 0,
+      children: []
+    } as unknown as HTMLDivElement;
+
+    // 更新便签标签（例如自动保存新增了标签）
+    noteRef.value = createMockNote(['旧标签', '新标签']);
+    calculateVisibleTags(true);
+    await nextTick();
+
+    expect(visibleTags.value).toEqual(['旧标签', '新标签']);
+  });
 });

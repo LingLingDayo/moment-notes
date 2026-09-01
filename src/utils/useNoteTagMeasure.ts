@@ -54,7 +54,10 @@ export function useNoteTagMeasure(noteOrGetter: Note | Ref<Note> | (() => Note))
       const currentWidth = container.clientWidth;
       // 如果宽度为 0（例如处于动画进入阶段或隐藏状态），先保留 tags 兜底展示，等待尺寸恢复时 ResizeObserver 再触发精确截断
       if (currentWidth === 0) {
-        if (visibleTags.value.length === 0 && tags.length > 0) {
+        const isTagsEqual =
+          visibleTags.value.length === tags.length &&
+          visibleTags.value.every((val, index) => val === tags[index]);
+        if (!isTagsEqual) {
           visibleTags.value = [...tags];
         }
         return;
@@ -183,7 +186,19 @@ export function useNoteTagMeasure(noteOrGetter: Note | Ref<Note> | (() => Note))
   // 监听标签及偏好设置的变化
   watch(
     () => getNote()?.tags,
-    () => {
+    newTags => {
+      if (!newTags || newTags.length === 0) {
+        visibleTags.value = [];
+        hasMore.value = false;
+        allTagsText.value = '';
+      } else {
+        const isTagsEqual =
+          visibleTags.value.length === newTags.length &&
+          visibleTags.value.every((val, index) => val === newTags[index]);
+        if (!isTagsEqual) {
+          visibleTags.value = [...newTags];
+        }
+      }
       calculateVisibleTags(true);
     },
     { deep: true, immediate: true }
