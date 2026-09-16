@@ -1,3 +1,4 @@
+@use 'sass:math';
 @use 'variables' as *;
 
 // 半透明背景混入
@@ -41,7 +42,7 @@
       left: 0;
       right: 0;
       top: 100%;
-      height: if($translateY < 0, -$translateY, $translateY);
+      height: math.abs($translateY);
       pointer-events: auto;
     }
   }
