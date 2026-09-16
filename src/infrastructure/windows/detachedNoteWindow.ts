@@ -3,6 +3,7 @@ import { isUTools } from '@utils/storage';
 export const DETACHED_NOTE_VIEW = 'detached-note';
 export const DETACHED_NOTE_REFRESH_CHANNEL = 'moment-notes:detached-note-refresh';
 export const DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL = 'moment-notes:detached-note-maximize-changed';
+// 仅在剥掉 DWM 系统边框之后发送，渲染层据此才开始入场动画
 export const DETACHED_NOTE_WINDOW_SHOWN_CHANNEL = 'moment-notes:detached-note-window-shown';
 
 const DEFAULT_WINDOW_WIDTH = 520;
@@ -192,7 +193,7 @@ export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptio
   roundedCorners: false,
   resizable: true,
   minimizable: false,
-  // 原生最大化会让 Windows 给无边框窗画系统黑边；铺满改为 setBounds
+  // 禁止改回 true：Windows 无边框窗开启原生最大化后，DWM 会在主题边框外再画一层系统黑边
   maximizable: false,
   fullscreenable: false,
   closable: true,
@@ -218,7 +219,8 @@ const stripWindowsSystemBorderThen = (
     return;
   }
 
-  // 内容仍透明时瞬时置顶，强迫 DWM 在首帧合成时去掉系统默认边框
+  // 必须在便签内容仍透明时做：置顶切换会强迫 DWM 重算无边框分层窗并去掉系统黑边。
+  // 内容可见后再做会打断放大渐入并闪一下；等入场结束再做则黑边会残留。
   noteWindow.setAlwaysOnTop(true);
   window.setTimeout(() => {
     if (!noteWindow.isDestroyed()) {
@@ -230,6 +232,7 @@ const stripWindowsSystemBorderThen = (
 
 const revealDetachedNoteWindow = (noteWindow: DetachedWindowInstance) => {
   if (noteWindow.isDestroyed()) return;
+  // 顺序：show（内容 opacity:0）→ 剥系统边框 → 再通知渲染层入场。不要在 show 后立刻播动画。
   noteWindow.show();
   noteWindow.moveTop();
   noteWindow.focus?.();
@@ -343,7 +346,7 @@ export const toggleDetachedNoteWindowMaximize = (
     return false;
   }
 
-  // 无边框透明窗口在 Windows 上 native maximize() 是空操作，改为铺满当前显示器工作区
+  // native maximize() 在无边框透明窗上是空操作，且会引出系统黑边；铺满请用 setBounds
   const currentBounds = isFiniteWindowBounds(currentBoundsHint)
     ? cloneBounds(currentBoundsHint)
     : getWindowBounds(noteWindow);

@@ -82,6 +82,7 @@ window.services = {
     onMaximizeChanged(callback: (isMaximized: boolean) => void): () => void {
       return subscribeIpc(DETACHED_NOTE_MAXIMIZE_CHANGED_CHANNEL, callback);
     },
+    // 主进程已剥掉 DWM 系统边框后才会触发，此时才能播放大渐入
     onWindowShown(callback: () => void): () => void {
       return subscribeIpc(DETACHED_NOTE_WINDOW_SHOWN_CHANNEL, callback);
     }

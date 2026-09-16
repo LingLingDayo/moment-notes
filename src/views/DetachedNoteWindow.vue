@@ -29,6 +29,7 @@ const unsubscribeCallbacks: Array<() => void> = [];
 
 const playEnterAnimation = () => {
   if (isEntered.value) return;
+  // 双 rAF 先画出透明起始帧，再放大渐入；否则会直接整窗出现
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       isEntered.value = true;
@@ -107,6 +108,7 @@ onMounted(() => {
           rendererRestoreBounds.value = null;
         }
       }),
+      // 等主进程剥完 DWM 系统边框后再入场，不要在 focus 时抢先播放
       window.services.detachedNote.onWindowShown
         ? window.services.detachedNote.onWindowShown(() => {
             playEnterAnimation();
@@ -124,6 +126,7 @@ onMounted(() => {
     playEnterAnimation();
   }
 
+  // 漏收 shown 时避免窗口一直透明；正常路径会先剥边再入场，此定时器只是兜底
   const enterFallbackTimer = window.setTimeout(playEnterAnimation, 1200);
   unsubscribeCallbacks.push(() => window.clearTimeout(enterFallbackTimer));
 
@@ -227,6 +230,7 @@ onUnmounted(() => {
   border: 1px solid var(--detached-note-border);
   color: var(--text-primary);
   box-shadow: none;
+  // 先保持透明，给主进程留出剥 DWM 系统黑边的时间；is-entered 后再放大渐入
   opacity: 0;
   transform: scale(0.92);
   transform-origin: center center;
