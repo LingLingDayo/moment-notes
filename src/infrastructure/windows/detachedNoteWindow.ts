@@ -91,7 +91,23 @@ export const resolveRendererWorkAreaBounds = (): WindowBounds => {
   return resolveWorkAreaByBounds(getCurrentRendererWindowBounds());
 };
 
+export const resolveWindowBoundsApplyOrder = (
+  currentBounds: WindowBounds,
+  nextBounds: WindowBounds
+): 'size-first' | 'position-first' => {
+  const shrinking =
+    nextBounds.width < currentBounds.width || nextBounds.height < currentBounds.height;
+  return shrinking ? 'size-first' : 'position-first';
+};
+
 export const applyRendererWindowBounds = (bounds: WindowBounds) => {
+  const currentBounds = getCurrentRendererWindowBounds();
+  // 铺满时先 moveTo 会被系统夹回左上角；退出全屏必须先缩小再归位
+  if (resolveWindowBoundsApplyOrder(currentBounds, bounds) === 'size-first') {
+    window.resizeTo(bounds.width, bounds.height);
+    window.moveTo(bounds.x, bounds.y);
+    return;
+  }
   window.moveTo(bounds.x, bounds.y);
   window.resizeTo(bounds.width, bounds.height);
 };
@@ -122,6 +138,13 @@ const getWindowBounds = (noteWindow: DetachedWindowInstance): WindowBounds => {
 };
 
 const applyWindowBounds = (noteWindow: DetachedWindowInstance, bounds: WindowBounds) => {
+  const currentBounds = getWindowBounds(noteWindow);
+  if (resolveWindowBoundsApplyOrder(currentBounds, bounds) === 'size-first') {
+    noteWindow.setSize(bounds.width, bounds.height);
+    noteWindow.setPosition(bounds.x, bounds.y);
+    return;
+  }
+
   if (typeof noteWindow.setBounds === 'function') {
     noteWindow.setBounds(bounds);
     return;

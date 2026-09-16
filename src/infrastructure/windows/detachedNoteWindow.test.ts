@@ -7,7 +7,8 @@ import {
   createDetachedNoteWindowOptions,
   getDetachedNoteId,
   isDetachedNoteWindow,
-  isWindows10ClientEdgeClip
+  isWindows10ClientEdgeClip,
+  resolveWindowBoundsApplyOrder
 } from './detachedNoteWindow';
 
 describe('detachedNoteWindow', () => {
@@ -108,5 +109,23 @@ describe('detachedNoteWindow', () => {
       nextBounds: currentBounds,
       nextRestoreBounds: null
     });
+  });
+
+  it('退出全屏缩小窗口时应先改尺寸再改位置，避免被系统夹到左上角', () => {
+    expect(
+      resolveWindowBoundsApplyOrder(
+        { x: 0, y: 0, width: 1920, height: 1040 },
+        { x: 360, y: 180, width: 520, height: 640 }
+      )
+    ).toBe('size-first');
+  });
+
+  it('进入全屏放大窗口时应先改位置再改尺寸', () => {
+    expect(
+      resolveWindowBoundsApplyOrder(
+        { x: 360, y: 180, width: 520, height: 640 },
+        { x: 0, y: 0, width: 1920, height: 1040 }
+      )
+    ).toBe('position-first');
   });
 });
