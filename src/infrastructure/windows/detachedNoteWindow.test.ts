@@ -8,7 +8,8 @@ import {
   getDetachedNoteId,
   isDetachedNoteWindow,
   isWindows10ClientEdgeClip,
-  resolveWindowBoundsApplyOrder
+  resolveWindowBoundsApplyOrder,
+  subscribeDetachedNoteWindowEvents
 } from './detachedNoteWindow';
 
 describe('detachedNoteWindow', () => {
@@ -127,5 +128,39 @@ describe('detachedNoteWindow', () => {
         { x: 0, y: 0, width: 1920, height: 1040 }
       )
     ).toBe('position-first');
+  });
+
+  it('uTools 窗口缺少实例事件时不应把打开成功当成失败', () => {
+    expect(subscribeDetachedNoteWindowEvents({}, { closed: () => undefined })).toBe(false);
+    expect(
+      subscribeDetachedNoteWindowEvents(
+        {
+          on: () => {
+            throw new Error('uTools BrowserWindow 不含实例事件');
+          }
+        },
+        { closed: () => undefined }
+      )
+    ).toBe(false);
+  });
+
+  it('存在实例事件时应完成生命周期订阅', () => {
+    const events: string[] = [];
+    const subscribed = subscribeDetachedNoteWindowEvents(
+      {
+        on: (event: string, listener: (...args: unknown[]) => void) => {
+          events.push(event);
+          listener();
+        }
+      },
+      {
+        maximize: () => undefined,
+        unmaximize: () => undefined,
+        closed: () => undefined
+      }
+    );
+
+    expect(subscribed).toBe(true);
+    expect(events).toEqual(['maximize', 'unmaximize', 'closed']);
   });
 });

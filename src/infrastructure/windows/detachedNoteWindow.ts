@@ -292,6 +292,38 @@ const openBrowserFallback = (options: DetachedNoteWindowOptions): boolean => {
   return noteWindow !== null;
 };
 
+export const subscribeDetachedNoteWindowEvents = (
+  noteWindow: unknown,
+  listeners: {
+    maximize?: () => void;
+    unmaximize?: () => void;
+    closed?: () => void;
+  }
+): boolean => {
+  const emitter = noteWindow as {
+    on?: (event: string, listener: (...args: unknown[]) => void) => void;
+  };
+  // uTools 定制 BrowserWindow 不含实例事件，on() 会抛错
+  if (typeof emitter.on !== 'function') {
+    return false;
+  }
+
+  try {
+    if (listeners.maximize) {
+      emitter.on('maximize', listeners.maximize);
+    }
+    if (listeners.unmaximize) {
+      emitter.on('unmaximize', listeners.unmaximize);
+    }
+    if (listeners.closed) {
+      emitter.on('closed', listeners.closed);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const openDetachedNoteWindow = (
   options: DetachedNoteWindowOptions
 ): DetachedNoteWindowOpenResult => {
@@ -317,19 +349,23 @@ export const openDetachedNoteWindow = (
       }
     );
 
-    noteWindow.on('maximize', () => {
-      if (!noteWindow || noteWindow.isDestroyed()) return;
-      noteWindow.webContents.send(DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL, true);
-    });
+    if (!noteWindow) {
+      return 'failed';
+    }
 
-    noteWindow.on('unmaximize', () => {
-      if (!noteWindow || noteWindow.isDestroyed()) return;
-      restoreBoundsMap.delete(options.id);
-      noteWindow.webContents.send(DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL, false);
-    });
-
-    noteWindow.on('closed', () => {
-      forgetDetachedNoteWindow(options.id);
+    subscribeDetachedNoteWindowEvents(noteWindow, {
+      maximize: () => {
+        if (!noteWindow || noteWindow.isDestroyed()) return;
+        noteWindow.webContents.send(DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL, true);
+      },
+      unmaximize: () => {
+        if (!noteWindow || noteWindow.isDestroyed()) return;
+        restoreBoundsMap.delete(options.id);
+        noteWindow.webContents.send(DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL, false);
+      },
+      closed: () => {
+        forgetDetachedNoteWindow(options.id);
+      }
     });
 
     detachedNoteWindows.set(options.id, noteWindow);
