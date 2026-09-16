@@ -55,8 +55,11 @@ window.services = {
     requestAlwaysOnTop(noteId: string, alwaysOnTop: boolean): void {
       window.utools.sendToParent(DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL, { noteId, alwaysOnTop });
     },
-    requestToggleMaximize(noteId: string): void {
-      window.utools.sendToParent(DETACHED_NOTE_TOGGLE_MAXIMIZE_CHANNEL, { noteId });
+    requestToggleMaximize(
+      noteId: string,
+      currentBounds?: { x: number; y: number; width: number; height: number }
+    ): void {
+      window.utools.sendToParent(DETACHED_NOTE_TOGGLE_MAXIMIZE_CHANNEL, { noteId, currentBounds });
     },
     onChildChanged(callback: (noteId: string) => void): () => void {
       return subscribeIpc(DETACHED_NOTE_CHANGED_CHANNEL, callback);
@@ -64,7 +67,12 @@ window.services = {
     onAlwaysOnTopRequested(callback: (payload: { noteId: string; alwaysOnTop: boolean }) => void): () => void {
       return subscribeIpc(DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL, callback);
     },
-    onToggleMaximizeRequested(callback: (payload: { noteId: string }) => void): () => void {
+    onToggleMaximizeRequested(
+      callback: (payload: {
+        noteId: string;
+        currentBounds?: { x: number; y: number; width: number; height: number };
+      }) => void
+    ): () => void {
       return subscribeIpc(DETACHED_NOTE_TOGGLE_MAXIMIZE_CHANNEL, callback);
     },
     onRefreshRequested(callback: () => void): () => void {

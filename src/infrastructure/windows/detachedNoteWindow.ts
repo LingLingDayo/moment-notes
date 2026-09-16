@@ -13,11 +13,121 @@ export interface DetachedNoteWindowOptions {
   backgroundColor: string;
 }
 
+export interface WindowBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export type DetachedNoteWindowOpenResult = 'created' | 'focused' | 'browser' | 'failed';
 
 type DetachedWindowInstance = ReturnType<typeof utools.createBrowserWindow>;
 
 const detachedNoteWindows = new Map<string, DetachedWindowInstance>();
+const restoreBoundsMap = new Map<string, WindowBounds>();
+
+export const computeDetachedNoteMaximizeToggle = (input: {
+  currentBounds: WindowBounds;
+  workArea: WindowBounds;
+  restoreBounds: WindowBounds | null;
+}): {
+  maximized: boolean;
+  nextBounds: WindowBounds;
+  nextRestoreBounds: WindowBounds | null;
+} => {
+  if (input.restoreBounds) {
+    return {
+      maximized: false,
+      nextBounds: { ...input.restoreBounds },
+      nextRestoreBounds: null
+    };
+  }
+
+  return {
+    maximized: true,
+    nextBounds: { ...input.workArea },
+    nextRestoreBounds: { ...input.currentBounds }
+  };
+};
+
+const cloneBounds = (bounds: WindowBounds): WindowBounds => ({
+  x: bounds.x,
+  y: bounds.y,
+  width: bounds.width,
+  height: bounds.height
+});
+
+const resolveWorkAreaByBounds = (bounds: WindowBounds): WindowBounds => {
+  const matchingDisplay = window.utools?.getDisplayMatching?.(bounds);
+  if (matchingDisplay?.workArea) {
+    return cloneBounds(matchingDisplay.workArea);
+  }
+
+  const primaryDisplay = window.utools?.getPrimaryDisplay?.();
+  if (primaryDisplay?.workArea) {
+    return cloneBounds(primaryDisplay.workArea);
+  }
+
+  const screenObj = window.screen as Screen & { availLeft?: number; availTop?: number };
+  return {
+    x: screenObj.availLeft ?? 0,
+    y: screenObj.availTop ?? 0,
+    width: screenObj.availWidth,
+    height: screenObj.availHeight
+  };
+};
+
+export const getCurrentRendererWindowBounds = (): WindowBounds => ({
+  x: window.screenX,
+  y: window.screenY,
+  width: window.outerWidth,
+  height: window.outerHeight
+});
+
+export const resolveRendererWorkAreaBounds = (): WindowBounds => {
+  return resolveWorkAreaByBounds(getCurrentRendererWindowBounds());
+};
+
+export const applyRendererWindowBounds = (bounds: WindowBounds) => {
+  window.moveTo(bounds.x, bounds.y);
+  window.resizeTo(bounds.width, bounds.height);
+};
+
+const isFiniteWindowBounds = (bounds: WindowBounds | null | undefined): bounds is WindowBounds => {
+  if (!bounds) return false;
+  return [bounds.x, bounds.y, bounds.width, bounds.height].every(
+    value => typeof value === 'number' && Number.isFinite(value)
+  );
+};
+
+const getWindowBounds = (noteWindow: DetachedWindowInstance): WindowBounds => {
+  if (typeof noteWindow.getBounds === 'function') {
+    return cloneBounds(noteWindow.getBounds());
+  }
+  const [x, y] = noteWindow.getPosition();
+  const [width, height] = noteWindow.getSize();
+  return { x, y, width, height };
+};
+
+const applyWindowBounds = (noteWindow: DetachedWindowInstance, bounds: WindowBounds) => {
+  if (typeof noteWindow.setBounds === 'function') {
+    noteWindow.setBounds(bounds);
+    return;
+  }
+  noteWindow.setPosition(bounds.x, bounds.y);
+  noteWindow.setSize(bounds.width, bounds.height);
+};
+
+const notifyMaximizeChanged = (noteWindow: DetachedWindowInstance, maximized: boolean) => {
+  if (noteWindow.isDestroyed()) return;
+  noteWindow.webContents.send(DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL, maximized);
+};
+
+const forgetDetachedNoteWindow = (noteId: string) => {
+  detachedNoteWindows.delete(noteId);
+  restoreBoundsMap.delete(noteId);
+};
 
 export const getDetachedNoteId = (search = window.location.search): string | null => {
   const params = new URLSearchParams(search);
@@ -144,7 +254,12 @@ export const openDetachedNoteWindow = (
 
     noteWindow.on('unmaximize', () => {
       if (!noteWindow || noteWindow.isDestroyed()) return;
+      restoreBoundsMap.delete(options.id);
       noteWindow.webContents.send(DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL, false);
+    });
+
+    noteWindow.on('closed', () => {
+      forgetDetachedNoteWindow(options.id);
     });
 
     detachedNoteWindows.set(options.id, noteWindow);
@@ -158,7 +273,7 @@ export const openDetachedNoteWindow = (
 export const refreshDetachedNoteWindows = () => {
   detachedNoteWindows.forEach((noteWindow, noteId) => {
     if (noteWindow.isDestroyed()) {
-      detachedNoteWindows.delete(noteId);
+      forgetDetachedNoteWindow(noteId);
       return;
     }
     noteWindow.webContents.send(DETACHED_NOTE_REFRESH_CHANNEL);
@@ -168,7 +283,7 @@ export const refreshDetachedNoteWindows = () => {
 export const setDetachedNoteWindowAlwaysOnTop = (noteId: string, alwaysOnTop: boolean) => {
   const noteWindow = detachedNoteWindows.get(noteId);
   if (!noteWindow || noteWindow.isDestroyed()) {
-    detachedNoteWindows.delete(noteId);
+    forgetDetachedNoteWindow(noteId);
     return;
   }
   noteWindow.setAlwaysOnTop(alwaysOnTop);
@@ -176,21 +291,41 @@ export const setDetachedNoteWindowAlwaysOnTop = (noteId: string, alwaysOnTop: bo
 
 export const isDetachedNoteWindowMaximized = (noteId: string): boolean => {
   const noteWindow = detachedNoteWindows.get(noteId);
-  if (!noteWindow || noteWindow.isDestroyed()) return false;
-  return Boolean((noteWindow as any).isMaximized?.());
+  if (!noteWindow || noteWindow.isDestroyed()) {
+    forgetDetachedNoteWindow(noteId);
+    return false;
+  }
+  return restoreBoundsMap.has(noteId);
 };
 
-export const toggleDetachedNoteWindowMaximize = (noteId: string): boolean => {
+export const toggleDetachedNoteWindowMaximize = (
+  noteId: string,
+  currentBoundsHint?: WindowBounds | null
+): boolean => {
   const noteWindow = detachedNoteWindows.get(noteId);
   if (!noteWindow || noteWindow.isDestroyed()) {
-    detachedNoteWindows.delete(noteId);
+    forgetDetachedNoteWindow(noteId);
     return false;
   }
-  if ((noteWindow as any).isMaximized?.()) {
-    noteWindow.unmaximize();
-    return false;
+
+  // 无边框透明窗口在 Windows 上 native maximize() 是空操作，改为铺满当前显示器工作区
+  const currentBounds = isFiniteWindowBounds(currentBoundsHint)
+    ? cloneBounds(currentBoundsHint)
+    : getWindowBounds(noteWindow);
+  const plan = computeDetachedNoteMaximizeToggle({
+    currentBounds,
+    workArea: resolveWorkAreaByBounds(currentBounds),
+    restoreBounds: restoreBoundsMap.get(noteId) ?? null
+  });
+
+  applyWindowBounds(noteWindow, plan.nextBounds);
+
+  if (plan.nextRestoreBounds) {
+    restoreBoundsMap.set(noteId, plan.nextRestoreBounds);
   } else {
-    noteWindow.maximize();
-    return true;
+    restoreBoundsMap.delete(noteId);
   }
+
+  notifyMaximizeChanged(noteWindow, plan.maximized);
+  return plan.maximized;
 };

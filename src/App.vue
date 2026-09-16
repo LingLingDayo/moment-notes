@@ -45,8 +45,8 @@ onMounted(() => {
         detachedNoteService.onAlwaysOnTopRequested(({ noteId, alwaysOnTop }) => {
           setDetachedNoteWindowAlwaysOnTop(noteId, alwaysOnTop);
         }),
-        detachedNoteService.onToggleMaximizeRequested(({ noteId }) => {
-          toggleDetachedNoteWindowMaximize(noteId);
+        detachedNoteService.onToggleMaximizeRequested(({ noteId, currentBounds }) => {
+          toggleDetachedNoteWindowMaximize(noteId, currentBounds);
         })
       );
     }

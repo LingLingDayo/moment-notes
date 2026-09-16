@@ -8,7 +8,14 @@ import ImagePreviewModal from '@components/ImagePreviewModal.vue';
 import { COLOR_PRESETS, useStickyNotesStore } from '@stores/stickyNotes';
 import { isUTools } from '@utils/storage';
 import { eventBus } from '../domain/events/DomainEventBus';
-import { getDetachedNoteId } from '../infrastructure/windows/detachedNoteWindow';
+import {
+  applyRendererWindowBounds,
+  computeDetachedNoteMaximizeToggle,
+  getCurrentRendererWindowBounds,
+  getDetachedNoteId,
+  resolveRendererWorkAreaBounds,
+  type WindowBounds
+} from '../infrastructure/windows/detachedNoteWindow';
 import type { Note } from '@type';
 
 const store = useStickyNotesStore();
@@ -16,6 +23,7 @@ const noteId = getDetachedNoteId();
 const isReady = ref(false);
 const isAlwaysOnTop = ref(false);
 const isMaximized = ref(false);
+const rendererRestoreBounds = ref<WindowBounds | null>(null);
 const unsubscribeCallbacks: Array<() => void> = [];
 
 const note = computed(() => {
@@ -50,19 +58,19 @@ const toggleAlwaysOnTop = () => {
 };
 
 const toggleMaximize = () => {
+  const currentBounds = getCurrentRendererWindowBounds();
   if (isUTools() && window.services?.detachedNote && noteId) {
-    window.services.detachedNote.requestToggleMaximize(noteId);
-  } else {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {
-        isMaximized.value = !isMaximized.value;
-      });
-    } else {
-      document.exitFullscreen?.().catch(() => {
-        isMaximized.value = false;
-      });
-    }
+    window.services.detachedNote.requestToggleMaximize(noteId, currentBounds);
   }
+
+  const plan = computeDetachedNoteMaximizeToggle({
+    currentBounds,
+    workArea: resolveRendererWorkAreaBounds(),
+    restoreBounds: rendererRestoreBounds.value
+  });
+  applyRendererWindowBounds(plan.nextBounds);
+  rendererRestoreBounds.value = plan.nextRestoreBounds;
+  isMaximized.value = plan.maximized;
 };
 
 const notifyParentChanged = () => {
@@ -95,6 +103,9 @@ onMounted(() => {
       }),
       window.services.detachedNote.onMaximizeChanged((maximized: boolean) => {
         isMaximized.value = maximized;
+        if (!maximized) {
+          rendererRestoreBounds.value = null;
+        }
       })
     );
   } else {
@@ -103,15 +114,8 @@ onMounted(() => {
         store.reloadNotes();
       }
     };
-    const handleFullscreenChange = () => {
-      isMaximized.value = !!document.fullscreenElement;
-    };
     window.addEventListener('storage', handleStorage);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    unsubscribeCallbacks.push(
-      () => window.removeEventListener('storage', handleStorage),
-      () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-    );
+    unsubscribeCallbacks.push(() => window.removeEventListener('storage', handleStorage));
   }
 
   unsubscribeCallbacks.push(

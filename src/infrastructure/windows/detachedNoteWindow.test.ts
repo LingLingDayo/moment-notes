@@ -3,6 +3,7 @@ import {
   buildDetachedNoteWindowBrowserUrl,
   buildDetachedNoteWindowPath,
   buildDetachedNoteWindowUrl,
+  computeDetachedNoteMaximizeToggle,
   createDetachedNoteWindowOptions,
   getDetachedNoteId,
   isDetachedNoteWindow
@@ -64,6 +65,35 @@ describe('detachedNoteWindow', () => {
       webPreferences: {
         preload: 'preload/services.js'
       }
+    });
+  });
+
+  it('最大化切换应按显示器工作区铺满，并支持还原到原窗口尺寸', () => {
+    const currentBounds = { x: 120, y: 80, width: 520, height: 640 };
+    const workArea = { x: 0, y: 0, width: 1920, height: 1040 };
+
+    const maximized = computeDetachedNoteMaximizeToggle({
+      currentBounds,
+      workArea,
+      restoreBounds: null
+    });
+
+    expect(maximized).toEqual({
+      maximized: true,
+      nextBounds: workArea,
+      nextRestoreBounds: currentBounds
+    });
+
+    const restored = computeDetachedNoteMaximizeToggle({
+      currentBounds: workArea,
+      workArea,
+      restoreBounds: maximized.nextRestoreBounds
+    });
+
+    expect(restored).toEqual({
+      maximized: false,
+      nextBounds: currentBounds,
+      nextRestoreBounds: null
     });
   });
 });
