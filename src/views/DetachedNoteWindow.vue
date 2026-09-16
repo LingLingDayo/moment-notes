@@ -13,6 +13,7 @@ import {
   computeDetachedNoteMaximizeToggle,
   getCurrentRendererWindowBounds,
   getDetachedNoteId,
+  isWindows10ClientEdgeClip,
   resolveRendererWorkAreaBounds,
   type WindowBounds
 } from '../infrastructure/windows/detachedNoteWindow';
@@ -24,6 +25,10 @@ const isReady = ref(false);
 const isAlwaysOnTop = ref(false);
 const isMaximized = ref(false);
 const isEntered = ref(false);
+const isWin10ClientClip = isWindows10ClientEdgeClip(
+  window.services?.runtime?.platform ?? '',
+  window.services?.runtime?.osRelease ?? ''
+);
 const rendererRestoreBounds = ref<WindowBounds | null>(null);
 const unsubscribeCallbacks: Array<() => void> = [];
 
@@ -154,7 +159,11 @@ onUnmounted(() => {
 <template>
   <main
     class="detached-note-shell"
-    :class="{ 'is-maximized': isMaximized, 'is-entered': isEntered }"
+    :class="{
+      'is-maximized': isMaximized,
+      'is-entered': isEntered,
+      'is-win10-client-clip': isWin10ClientClip
+    }"
     :style="windowColorStyle"
   >
     <div class="window-drag-region" aria-hidden="true"></div>
@@ -243,6 +252,12 @@ onUnmounted(() => {
   &.is-entered {
     opacity: 1;
     transform: scale(1);
+  }
+
+  // Win10 DWM 会裁掉无边框分层窗客户区右/下 1px，边框让出该像素；最大化已无边框，保持铺满
+  &.is-win10-client-clip:not(.is-maximized) {
+    width: calc(100% - 1px);
+    height: calc(100% - 1px);
   }
 
   &.is-maximized {

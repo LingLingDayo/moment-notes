@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { ipcRenderer } from 'electron';
 
@@ -27,8 +28,19 @@ declare global {
   }
 }
 
+const electronProcess = process as NodeJS.Process & { getSystemVersion?: () => string };
+
+const runtime = {
+  platform: process.platform,
+  osRelease:
+    typeof electronProcess.getSystemVersion === 'function'
+      ? electronProcess.getSystemVersion()
+      : os.release()
+};
+
 // 通过 window 对象向渲染进程注入 nodejs 能力
 window.services = {
+  runtime,
   // 读文件
   readFile(file: string): string {
     return fs.readFileSync(file, { encoding: 'utf-8' });

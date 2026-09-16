@@ -6,7 +6,8 @@ import {
   computeDetachedNoteMaximizeToggle,
   createDetachedNoteWindowOptions,
   getDetachedNoteId,
-  isDetachedNoteWindow
+  isDetachedNoteWindow,
+  isWindows10ClientEdgeClip
 } from './detachedNoteWindow';
 
 describe('detachedNoteWindow', () => {
@@ -41,6 +42,18 @@ describe('detachedNoteWindow', () => {
 
     expect(prodUrl).toBe('index.html?view=detached-note&noteId=note-1');
     expect(devUrl).toBe('http://localhost:4021/?view=detached-note&noteId=note-1');
+  });
+
+  it('仅 Windows 10 无边框分层窗需要为右下客户区裁切预留 1px', () => {
+    expect(isWindows10ClientEdgeClip('win32', '10.0.19045')).toBe(true);
+    expect(isWindows10ClientEdgeClip('win32', '10.0.19041')).toBe(true);
+    expect(isWindows10ClientEdgeClip('win32', '10.0.21996')).toBe(true);
+    expect(isWindows10ClientEdgeClip('win32', '10.0.22000')).toBe(false);
+    expect(isWindows10ClientEdgeClip('win32', '10.0.22621')).toBe(false);
+    expect(isWindows10ClientEdgeClip('darwin', '10.0.19045')).toBe(false);
+    expect(isWindows10ClientEdgeClip('linux', '10.0.19045')).toBe(false);
+    expect(isWindows10ClientEdgeClip('win32', '10.0')).toBe(false);
+    expect(isWindows10ClientEdgeClip('win32', '')).toBe(false);
   });
 
   it('应生成无边框可缩放配置，且关闭原生最大化以免系统黑边', () => {

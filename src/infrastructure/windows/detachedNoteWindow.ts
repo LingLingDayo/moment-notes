@@ -96,6 +96,15 @@ export const applyRendererWindowBounds = (bounds: WindowBounds) => {
   window.resizeTo(bounds.width, bounds.height);
 };
 
+// Win11 起 build >= 22000。Win10 无边框分层窗会裁掉客户区右、下各 1px
+const WINDOWS_11_MIN_BUILD = 22000;
+
+export const isWindows10ClientEdgeClip = (platform: string, osRelease: string): boolean => {
+  if (platform !== 'win32') return false;
+  const build = Number.parseInt(osRelease.split('.')[2] ?? '', 10);
+  return Number.isFinite(build) && build < WINDOWS_11_MIN_BUILD;
+};
+
 const isFiniteWindowBounds = (bounds: WindowBounds | null | undefined): bounds is WindowBounds => {
   if (!bounds) return false;
   return [bounds.x, bounds.y, bounds.width, bounds.height].every(
