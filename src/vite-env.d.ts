@@ -30,6 +30,7 @@ interface Window {
       ): () => void;
       onRefreshRequested(callback: () => void): () => void;
       onMaximizeChanged(callback: (isMaximized: boolean) => void): () => void;
+      onWindowShown(callback: () => void): () => void;
     };
   };
 }

@@ -3,6 +3,7 @@ import { isUTools } from '@utils/storage';
 export const DETACHED_NOTE_VIEW = 'detached-note';
 export const DETACHED_NOTE_REFRESH_CHANNEL = 'moment-notes:detached-note-refresh';
 export const DETACHED_NOTE_MAXIMIZE_CHANGE_CHANNEL = 'moment-notes:detached-note-maximize-changed';
+export const DETACHED_NOTE_WINDOW_SHOWN_CHANNEL = 'moment-notes:detached-note-window-shown';
 
 const DEFAULT_WINDOW_WIDTH = 520;
 const DEFAULT_WINDOW_HEIGHT = 640;
@@ -202,25 +203,12 @@ export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptio
   }
 });
 
-const stripWindowsSystemBorder = (noteWindow: DetachedWindowInstance) => {
-  // 等窗口真正显示后再瞬时置顶，强迫 DWM 重算无边框分层窗口并去掉系统默认黑边
-  window.setTimeout(() => {
-    if (noteWindow.isDestroyed() || typeof noteWindow.setAlwaysOnTop !== 'function') return;
-    noteWindow.setAlwaysOnTop(true);
-    window.setTimeout(() => {
-      if (!noteWindow.isDestroyed()) {
-        noteWindow.setAlwaysOnTop(false);
-      }
-    }, 50);
-  }, 0);
-};
-
 const revealDetachedNoteWindow = (noteWindow: DetachedWindowInstance) => {
   if (noteWindow.isDestroyed()) return;
   noteWindow.show();
   noteWindow.moveTop();
   noteWindow.focus?.();
-  stripWindowsSystemBorder(noteWindow);
+  noteWindow.webContents.send(DETACHED_NOTE_WINDOW_SHOWN_CHANNEL);
 };
 
 const focusExistingWindow = (noteWindow: DetachedWindowInstance) => {

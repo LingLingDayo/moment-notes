@@ -7,6 +7,7 @@ const DETACHED_NOTE_REFRESH_CHANNEL = 'moment-notes:detached-note-refresh';
 const DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL = 'moment-notes:detached-note-always-on-top';
 const DETACHED_NOTE_TOGGLE_MAXIMIZE_CHANNEL = 'moment-notes:detached-note-toggle-maximize';
 const DETACHED_NOTE_MAXIMIZE_CHANGED_CHANNEL = 'moment-notes:detached-note-maximize-changed';
+const DETACHED_NOTE_WINDOW_SHOWN_CHANNEL = 'moment-notes:detached-note-window-shown';
 
 function subscribeIpc(channel: string, callback: (payload: any) => void): () => void {
   const listener = (_event: any, payload: any) => callback(payload);
@@ -80,6 +81,9 @@ window.services = {
     },
     onMaximizeChanged(callback: (isMaximized: boolean) => void): () => void {
       return subscribeIpc(DETACHED_NOTE_MAXIMIZE_CHANGED_CHANNEL, callback);
+    },
+    onWindowShown(callback: () => void): () => void {
+      return subscribeIpc(DETACHED_NOTE_WINDOW_SHOWN_CHANNEL, callback);
     }
   }
 };

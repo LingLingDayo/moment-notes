@@ -23,8 +23,29 @@ const noteId = getDetachedNoteId();
 const isReady = ref(false);
 const isAlwaysOnTop = ref(false);
 const isMaximized = ref(false);
+const isEntered = ref(false);
 const rendererRestoreBounds = ref<WindowBounds | null>(null);
 const unsubscribeCallbacks: Array<() => void> = [];
+
+const playEnterAnimation = () => {
+  if (isEntered.value) return;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      isEntered.value = true;
+      window.setTimeout(stripSystemBorderAfterEnter, 400);
+    });
+  });
+};
+
+const stripSystemBorderAfterEnter = () => {
+  if (!noteId || !isUTools() || !window.services?.detachedNote) return;
+  window.services.detachedNote.requestAlwaysOnTop(noteId, true);
+  window.setTimeout(() => {
+    if (!isAlwaysOnTop.value && window.services?.detachedNote && noteId) {
+      window.services.detachedNote.requestAlwaysOnTop(noteId, false);
+    }
+  }, 50);
+};
 
 const note = computed(() => {
   if (!noteId) return null;
@@ -86,17 +107,13 @@ onMounted(() => {
   store.initTheme(isUTools());
   isReady.value = true;
 
-  if (isUTools() && window.services?.detachedNote && noteId) {
-    // 挂载后触发一次瞬时置顶属性重置，强迫 Windows DWM 在页面加载后重算并剥离系统默认灰色边框
-    window.services.detachedNote.requestAlwaysOnTop(noteId, true);
-    window.setTimeout(() => {
-      if (!isAlwaysOnTop.value && window.services?.detachedNote && noteId) {
-        window.services.detachedNote.requestAlwaysOnTop(noteId, false);
-      }
-    }, 50);
-  }
-
   if (isUTools() && window.services?.detachedNote) {
+    const tryPlayEnter = () => {
+      if (document.hidden) return;
+      playEnterAnimation();
+    };
+    document.addEventListener('visibilitychange', tryPlayEnter);
+    window.addEventListener('focus', tryPlayEnter);
     unsubscribeCallbacks.push(
       window.services.detachedNote.onRefreshRequested(() => {
         store.reloadNotes();
@@ -106,8 +123,16 @@ onMounted(() => {
         if (!maximized) {
           rendererRestoreBounds.value = null;
         }
-      })
+      }),
+      window.services.detachedNote.onWindowShown
+        ? window.services.detachedNote.onWindowShown(() => {
+            playEnterAnimation();
+          })
+        : () => undefined,
+      () => document.removeEventListener('visibilitychange', tryPlayEnter),
+      () => window.removeEventListener('focus', tryPlayEnter)
     );
+    tryPlayEnter();
   } else {
     const handleStorage = (event: StorageEvent) => {
       if (event.key === 'sticky_notes_notes') {
@@ -116,7 +141,11 @@ onMounted(() => {
     };
     window.addEventListener('storage', handleStorage);
     unsubscribeCallbacks.push(() => window.removeEventListener('storage', handleStorage));
+    playEnterAnimation();
   }
+
+  const enterFallbackTimer = window.setTimeout(playEnterAnimation, 1200);
+  unsubscribeCallbacks.push(() => window.clearTimeout(enterFallbackTimer));
 
   unsubscribeCallbacks.push(
     eventBus.subscribe<Note>('NOTE_UPDATED', event => {
@@ -142,7 +171,7 @@ onUnmounted(() => {
 <template>
   <main
     class="detached-note-shell"
-    :class="{ 'is-maximized': isMaximized }"
+    :class="{ 'is-maximized': isMaximized, 'is-entered': isEntered }"
     :style="windowColorStyle"
   >
     <div class="window-drag-region" aria-hidden="true"></div>
@@ -218,11 +247,25 @@ onUnmounted(() => {
   border: 1px solid var(--detached-note-border);
   color: var(--text-primary);
   box-shadow: none;
-  transition: border-radius 0.15s ease, border-color 0.15s ease;
+  opacity: 0;
+  transform: scale(0.92);
+  transform-origin: center center;
+  transition:
+    border-radius 0.15s ease,
+    border-color 0.15s ease,
+    opacity $transition-slow,
+    transform $transition-bounce;
+
+  &.is-entered {
+    opacity: 1;
+    transform: scale(1);
+  }
 
   &.is-maximized {
     border-radius: 0;
     border: none;
+    opacity: 1;
+    transform: none;
   }
 
   .dark-theme &,
@@ -234,6 +277,14 @@ onUnmounted(() => {
     &.is-maximized {
       border: none;
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detached-note-shell {
+    opacity: 1;
+    transform: none;
+    transition: border-radius 0.15s ease, border-color 0.15s ease;
   }
 }
 
