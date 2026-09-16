@@ -191,8 +191,9 @@ export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptio
   roundedCorners: false,
   resizable: true,
   minimizable: false,
-  maximizable: true,
-  fullscreenable: true,
+  // 原生最大化会让 Windows 给无边框窗画系统黑边；铺满改为 setBounds
+  maximizable: false,
+  fullscreenable: false,
   closable: true,
   autoHideMenuBar: true,
   webPreferences: {
@@ -200,6 +201,27 @@ export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptio
     zoomFactor: 1
   }
 });
+
+const stripWindowsSystemBorder = (noteWindow: DetachedWindowInstance) => {
+  // 等窗口真正显示后再瞬时置顶，强迫 DWM 重算无边框分层窗口并去掉系统默认黑边
+  window.setTimeout(() => {
+    if (noteWindow.isDestroyed() || typeof noteWindow.setAlwaysOnTop !== 'function') return;
+    noteWindow.setAlwaysOnTop(true);
+    window.setTimeout(() => {
+      if (!noteWindow.isDestroyed()) {
+        noteWindow.setAlwaysOnTop(false);
+      }
+    }, 50);
+  }, 0);
+};
+
+const revealDetachedNoteWindow = (noteWindow: DetachedWindowInstance) => {
+  if (noteWindow.isDestroyed()) return;
+  noteWindow.show();
+  noteWindow.moveTop();
+  noteWindow.focus?.();
+  stripWindowsSystemBorder(noteWindow);
+};
 
 const focusExistingWindow = (noteWindow: DetachedWindowInstance) => {
   if (noteWindow.isMinimized()) {
@@ -241,9 +263,7 @@ export const openDetachedNoteWindow = (
       createDetachedNoteWindowOptions(options),
       () => {
         if (!noteWindow || noteWindow.isDestroyed()) return;
-        noteWindow.show();
-        noteWindow.moveTop();
-        noteWindow.focus?.();
+        revealDetachedNoteWindow(noteWindow);
       }
     );
 
