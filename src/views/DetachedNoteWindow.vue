@@ -32,19 +32,8 @@ const playEnterAnimation = () => {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       isEntered.value = true;
-      window.setTimeout(stripSystemBorderAfterEnter, 400);
     });
   });
-};
-
-const stripSystemBorderAfterEnter = () => {
-  if (!noteId || !isUTools() || !window.services?.detachedNote) return;
-  window.services.detachedNote.requestAlwaysOnTop(noteId, true);
-  window.setTimeout(() => {
-    if (!isAlwaysOnTop.value && window.services?.detachedNote && noteId) {
-      window.services.detachedNote.requestAlwaysOnTop(noteId, false);
-    }
-  }, 50);
 };
 
 const note = computed(() => {
@@ -108,12 +97,6 @@ onMounted(() => {
   isReady.value = true;
 
   if (isUTools() && window.services?.detachedNote) {
-    const tryPlayEnter = () => {
-      if (document.hidden) return;
-      playEnterAnimation();
-    };
-    document.addEventListener('visibilitychange', tryPlayEnter);
-    window.addEventListener('focus', tryPlayEnter);
     unsubscribeCallbacks.push(
       window.services.detachedNote.onRefreshRequested(() => {
         store.reloadNotes();
@@ -128,11 +111,8 @@ onMounted(() => {
         ? window.services.detachedNote.onWindowShown(() => {
             playEnterAnimation();
           })
-        : () => undefined,
-      () => document.removeEventListener('visibilitychange', tryPlayEnter),
-      () => window.removeEventListener('focus', tryPlayEnter)
+        : () => undefined
     );
-    tryPlayEnter();
   } else {
     const handleStorage = (event: StorageEvent) => {
       if (event.key === 'sticky_notes_notes') {

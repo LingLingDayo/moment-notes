@@ -203,12 +203,39 @@ export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptio
   }
 });
 
+const SYSTEM_BORDER_STRIP_MS = 50;
+
+const stripWindowsSystemBorderThen = (
+  noteWindow: DetachedWindowInstance,
+  next: () => void
+) => {
+  const runNext = () => {
+    if (!noteWindow.isDestroyed()) next();
+  };
+
+  if (typeof noteWindow.setAlwaysOnTop !== 'function') {
+    runNext();
+    return;
+  }
+
+  // 内容仍透明时瞬时置顶，强迫 DWM 在首帧合成时去掉系统默认边框
+  noteWindow.setAlwaysOnTop(true);
+  window.setTimeout(() => {
+    if (!noteWindow.isDestroyed()) {
+      noteWindow.setAlwaysOnTop(false);
+    }
+    runNext();
+  }, SYSTEM_BORDER_STRIP_MS);
+};
+
 const revealDetachedNoteWindow = (noteWindow: DetachedWindowInstance) => {
   if (noteWindow.isDestroyed()) return;
   noteWindow.show();
   noteWindow.moveTop();
   noteWindow.focus?.();
-  noteWindow.webContents.send(DETACHED_NOTE_WINDOW_SHOWN_CHANNEL);
+  stripWindowsSystemBorderThen(noteWindow, () => {
+    noteWindow.webContents.send(DETACHED_NOTE_WINDOW_SHOWN_CHANNEL);
+  });
 };
 
 const focusExistingWindow = (noteWindow: DetachedWindowInstance) => {
