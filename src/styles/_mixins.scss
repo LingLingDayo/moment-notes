@@ -23,7 +23,10 @@
 }
 
 // Hover 悬浮浮起动效
+// transform 不占布局，指针贴在底边时卡片上浮会让 hover 落空并反复触发。
+// 上浮后用伪元素补回原底部命中区，避免抖动。
 @mixin hover-lift($translateY: -4px, $shadow: var(--shadow-md)) {
+  position: relative;
   transition:
     transform $transition-slow,
     box-shadow $transition-slow;
@@ -31,6 +34,16 @@
   &:hover {
     transform: translate3d(0, $translateY, 0);
     box-shadow: $shadow;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      height: if($translateY < 0, -$translateY, $translateY);
+      pointer-events: auto;
+    }
   }
 }
 
