@@ -52,7 +52,7 @@ onMounted(() => {
     }
 
     // 监听 uTools 插件进入事件
-    window.utools.onPluginEnter(action => {
+    window.utools.onPluginEnter((action: any) => {
       // 触发数据加载以保证是最新的
       store.loadData();
 
