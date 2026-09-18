@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { ipcRenderer } from 'electron';
 
+// uTools Preload Service Entry
 const DETACHED_NOTE_CHANGED_CHANNEL = 'moment-notes:detached-note-changed';
 const DETACHED_NOTE_REFRESH_CHANNEL = 'moment-notes:detached-note-refresh';
 const DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL = 'moment-notes:detached-note-always-on-top';

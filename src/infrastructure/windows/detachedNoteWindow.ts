@@ -341,7 +341,7 @@ export const openDetachedNoteWindow = (
   try {
     let noteWindow: DetachedWindowInstance | null = null;
     noteWindow = window.utools.createBrowserWindow(
-      buildDetachedNoteWindowPath(options.id),
+      buildDetachedNoteWindowUrl(options.id),
       createDetachedNoteWindowOptions(options),
       () => {
         if (!noteWindow || noteWindow.isDestroyed()) return;

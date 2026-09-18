@@ -3,12 +3,13 @@ import { fileURLToPath, URL } from 'node:url'
 import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
+import { utoolsPlugin } from './scripts/vitePluginUtools'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'))
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), utoolsPlugin()],
   base: './',
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version)
