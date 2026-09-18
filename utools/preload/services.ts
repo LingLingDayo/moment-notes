@@ -14,7 +14,7 @@ const DETACHED_NOTE_WINDOW_SHOWN_CHANNEL = 'moment-notes:detached-note-window-sh
 function subscribeIpc(channel: string, callback: (payload: any) => void): () => void {
   const listener = (_event: any, payload: any) => callback(payload);
   ipcRenderer.on(channel, listener);
-  return () => ipcRenderer.removeListener(channel, listener);
+  return () => ipcRenderer.off(channel, listener);
 }
 
 function formatDateTime(date: Date): string {

@@ -7,6 +7,7 @@ declare module '*.vue' {
 }
 
 interface Window {
+  utools: UToolsApi;
   services: {
     runtime?: {
       platform: string;
