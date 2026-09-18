@@ -15,7 +15,9 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(pkg.version)
   },
   server: {
-    port: 4021
+    port: 4021,
+    host: '127.0.0.1',
+    strictPort: true
   },
   resolve: {
     alias: {

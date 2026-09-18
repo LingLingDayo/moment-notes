@@ -12,41 +12,10 @@ export interface UtoolsPluginOptions {
    * 输出目录，默认 'dist'
    */
   outDir?: string;
-}
-
-/**
- * 生成开发模式下的独立窗口/主窗口重定向兜底 index.html
- */
-function createDevRedirectHtml(devUrl: string): string {
-  return `<!DOCTYPE html>
-<html lang="zh-CN" class="detached-note-window">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>拾光便签</title>
-    <style>
-      html,
-      body {
-        background: transparent !important;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-      }
-    </style>
-  </head>
-  <body class="detached-note-window">
-    <script>
-      (function () {
-        if (window.location.protocol === 'file:') {
-          const devServer = '${devUrl}';
-          const search = window.location.search || '';
-          const hash = window.location.hash || '';
-          window.location.replace(devServer + '/' + search + hash);
-        }
-      })();
-    </script>
-  </body>
-</html>`;
+  /**
+   * 本地开发端口，默认 4021
+   */
+  port?: number;
 }
 
 /**
@@ -83,20 +52,15 @@ function syncUtoolsAssets(srcDir: string, destDir: string, isDev: boolean, devUr
   if (fs.existsSync(pluginJsonSrc)) {
     const pluginConfig = JSON.parse(fs.readFileSync(pluginJsonSrc, 'utf-8'));
     if (isDev && devUrl) {
+      // 开发模式下将 main 与 development.main 均指向 Vite 开发服务器，确保 uTools 100% 走热更新服务
+      pluginConfig.main = devUrl;
       pluginConfig.development = { main: devUrl };
     } else {
+      pluginConfig.main = 'index.html';
       delete pluginConfig.development;
     }
     const pluginJsonDest = path.join(destDir, 'plugin.json');
     fs.writeFileSync(pluginJsonDest, JSON.stringify(pluginConfig, null, 2), 'utf-8');
-  }
-
-  // 4. 开发模式下如果尚未生成 dist/index.html，生成重定向兜底文件
-  if (isDev && devUrl) {
-    const distIndexPath = path.join(destDir, 'index.html');
-    if (!fs.existsSync(distIndexPath)) {
-      fs.writeFileSync(distIndexPath, createDevRedirectHtml(devUrl), 'utf-8');
-    }
   }
 }
 
@@ -173,6 +137,7 @@ async function buildPreload(
 export function utoolsPlugin(options: UtoolsPluginOptions = {}): Plugin {
   const srcDir = path.resolve(options.srcDir || 'utools');
   const outDir = path.resolve(options.outDir || 'dist');
+  const defaultPort = options.port || 4021;
   let watchCtx: esbuild.BuildContext | null = null;
   let isUtoolsBuild = false;
 
@@ -183,33 +148,24 @@ export function utoolsPlugin(options: UtoolsPluginOptions = {}): Plugin {
     },
 
     async configureServer(server: ViteDevServer) {
-      server.httpServer?.once('listening', async () => {
-        const address = server.httpServer?.address();
-        let port = 4021;
-        if (address && typeof address === 'object') {
-          port = address.port;
-        }
+      const devUrl = `http://127.0.0.1:${defaultPort}`;
 
-        const devUrl = `http://127.0.0.1:${port}`;
+      // 1. 在 Dev Server 启动时立即同步资源与生成开发版 plugin.json
+      syncUtoolsAssets(srcDir, outDir, true, devUrl);
 
-        // 1. 同步静态文件与开发版 plugin.json
-        syncUtoolsAssets(srcDir, outDir, true, devUrl);
+      // 2. 立即编译 Preload 并开启 watch 监听
+      try {
+        watchCtx = await buildPreload(srcDir, outDir, true, true);
+      } catch (err) {
+        console.error('\x1b[31m[uTools Preload] 初始化构建失败:\x1b[0m', err);
+      }
 
-        // 2. 开启 preload 监听与实时构建
-        try {
-          watchCtx = await buildPreload(srcDir, outDir, true, true);
-        } catch (err) {
-          console.error('\x1b[31m[uTools Preload] 初始化构建失败:\x1b[0m', err);
-        }
-
-        // 3. 终端友好提示
-        console.log(
-          `\x1b[36m[uTools]\x1b[0m 开发模式已就绪，可在 uTools 开发者工具中导入: \x1b[33m${path.join(outDir, 'plugin.json')}\x1b[0m`
-        );
-        console.log(
-          `\x1b[36m[uTools]\x1b[0m 本地开发服务地址: \x1b[32m${devUrl}\x1b[0m (支持 Vite HMR 热更新 & Preload 实时编译)`
-        );
-      });
+      console.log(
+        `\x1b[36m[uTools]\x1b[0m 开发模式已就绪，可在 uTools 开发者工具中导入: \x1b[33m${path.join(outDir, 'plugin.json')}\x1b[0m`
+      );
+      console.log(
+        `\x1b[36m[uTools]\x1b[0m 本地开发服务地址: \x1b[32m${devUrl}\x1b[0m (支持 Vite HMR 热更新 & Preload 实时编译)`
+      );
 
       server.httpServer?.on('close', async () => {
         if (watchCtx) {
