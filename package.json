@@ -9,7 +9,7 @@
     "dev:utools": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "build:web": "vue-tsc --noEmit && vite build",
-    "build:utools": "vue-tsc --noEmit && vite build",
+    "build:utools": "vue-tsc --noEmit && vite build --mode utools",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint src --fix",

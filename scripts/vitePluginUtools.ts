@@ -174,9 +174,14 @@ export function utoolsPlugin(options: UtoolsPluginOptions = {}): Plugin {
   const srcDir = path.resolve(options.srcDir || 'utools');
   const outDir = path.resolve(options.outDir || 'dist');
   let watchCtx: esbuild.BuildContext | null = null;
+  let isUtoolsBuild = false;
 
   return {
     name: 'vite-plugin-utools',
+    configResolved(config) {
+      isUtoolsBuild = config.mode === 'utools';
+    },
+
     async configureServer(server: ViteDevServer) {
       server.httpServer?.once('listening', async () => {
         const address = server.httpServer?.address();
@@ -215,10 +220,15 @@ export function utoolsPlugin(options: UtoolsPluginOptions = {}): Plugin {
     },
 
     async closeBundle() {
-      // 生产环境打包后处理
+      // 仅在 uTools 专属构建模式（--mode utools）下打包 uTools 相关资产
+      if (!isUtoolsBuild) {
+        return;
+      }
+
       syncUtoolsAssets(srcDir, outDir, false);
       try {
         await buildPreload(srcDir, outDir, false, false);
+        console.log('\x1b[32m[uTools] 插件专属产物构建完成（plugin.json, preload, logo）\x1b[0m');
       } catch (err) {
         console.error('\x1b[31m[uTools Preload] 生产构建失败:\x1b[0m', err);
       }
