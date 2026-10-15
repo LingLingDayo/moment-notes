@@ -91,7 +91,7 @@ export function useVirtualGrid<T extends { id?: string | number }>(options: UseV
   });
 
   // 默认单行预估高度（未测量时使用）
-  const defaultRowHeight = computed(() => estimatedItemHeight?.value || 200);
+  const defaultRowHeight = computed(() => estimatedItemHeight?.value || 210);
 
   // 实测行高缓存表：rowIndex -> actualHeight
   const measuredHeights = ref(new Map<number, number>());
@@ -99,6 +99,15 @@ export function useVirtualGrid<T extends { id?: string | number }>(options: UseV
   // 观察行元素高度变动的 ResizeObserver
   let rowResizeObserver: ResizeObserver | null = null;
   const registeredRowElements = new Map<number, HTMLElement>();
+  let heightUpdateRaf: number | null = null;
+
+  const scheduleHeightUpdate = () => {
+    if (heightUpdateRaf !== null) return;
+    heightUpdateRaf = requestAnimationFrame(() => {
+      heightUpdateRaf = null;
+      triggerRef(measuredHeights);
+    });
+  };
 
   const initRowResizeObserver = () => {
     if (typeof ResizeObserver === 'undefined') return;
@@ -110,14 +119,19 @@ export function useVirtualGrid<T extends { id?: string | number }>(options: UseV
         if (rowIndexAttr !== null) {
           const rowIndex = parseInt(rowIndexAttr, 10);
           const height = Math.round(entry.borderBoxSize?.[0]?.blockSize || target.offsetHeight);
-          if (height > 0 && measuredHeights.value.get(rowIndex) !== height) {
+          if (height > 0) {
+            const prev = measuredHeights.value.get(rowIndex);
+            // 关键容差过滤：已有高度缓存时，高度变动 <= 25px 视为悬停阴影、浮动动效或微小重排，坚决忽略更新，杜绝视觉闪烁与振荡循环
+            if (prev !== undefined && Math.abs(prev - height) <= 25) {
+              continue;
+            }
             measuredHeights.value.set(rowIndex, height);
             changed = true;
           }
         }
       }
       if (changed) {
-        triggerRef(measuredHeights);
+        scheduleHeightUpdate();
       }
     });
   };
@@ -129,8 +143,12 @@ export function useVirtualGrid<T extends { id?: string | number }>(options: UseV
       registeredRowElements.set(rowIndex, el);
       rowResizeObserver?.observe(el);
       const initialHeight = Math.round(el.offsetHeight);
-      if (initialHeight > 0 && measuredHeights.value.get(rowIndex) !== initialHeight) {
-        measuredHeights.value.set(rowIndex, initialHeight);
+      if (initialHeight > 0) {
+        const prev = measuredHeights.value.get(rowIndex);
+        if (prev === undefined || Math.abs(prev - initialHeight) > 25) {
+          measuredHeights.value.set(rowIndex, initialHeight);
+          triggerRef(measuredHeights);
+        }
       }
     } else {
       const prevEl = registeredRowElements.get(rowIndex);
@@ -240,17 +258,12 @@ export function useVirtualGrid<T extends { id?: string | number }>(options: UseV
     return rowLayout.value.offsets[visibleRange.value.startRow] || 0;
   });
 
-  // 滚动事件节流与同步
-  let scrollRafId: number | null = null;
+  // 滚动事件同步（直接即时更新，避免 requestAnimationFrame 延迟造成的 1 帧位置脱节）
   const handleScroll = () => {
-    if (scrollRafId !== null) return;
-    scrollRafId = requestAnimationFrame(() => {
-      scrollRafId = null;
-      if (containerRef.value) {
-        scrollTop.value = containerRef.value.scrollTop;
-        containerHeight.value = containerRef.value.clientHeight;
-      }
-    });
+    if (containerRef.value) {
+      scrollTop.value = containerRef.value.scrollTop;
+      containerHeight.value = containerRef.value.clientHeight;
+    }
   };
 
   // 容器尺寸观察器
@@ -281,9 +294,9 @@ export function useVirtualGrid<T extends { id?: string | number }>(options: UseV
     });
 
     onBeforeUnmount(() => {
-      if (scrollRafId !== null) {
-        cancelAnimationFrame(scrollRafId);
-        scrollRafId = null;
+      if (heightUpdateRaf !== null) {
+        cancelAnimationFrame(heightUpdateRaf);
+        heightUpdateRaf = null;
       }
       if (containerRef.value) {
         containerRef.value.removeEventListener('scroll', handleScroll);

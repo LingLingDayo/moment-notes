@@ -357,6 +357,10 @@ const deleteSelf = async () => {
   justify-content: space-between;
   border-top: 1px dashed var(--popover-border);
   padding-top: 8px;
+  min-height: 30px;
+  max-height: 30px;
+  overflow: hidden;
+  box-sizing: border-box;
   font-size: 10px;
   color: inherit;
   opacity: 0.8;

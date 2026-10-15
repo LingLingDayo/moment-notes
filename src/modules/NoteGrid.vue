@@ -63,6 +63,7 @@ const handleAddNote = () => {
 // 虚拟网格调度逻辑（大数据量时激活，保证首屏秒开与滚动条精准性）
 const {
   isVirtualGrid,
+  rows,
   visibleRows,
   totalVirtualHeight,
   startOffsetY,
@@ -74,9 +75,9 @@ const {
   gridColumns: computed(() => store.gridColumns),
   minItemWidth: computed(() => store.minNoteWidth || 260),
   estimatedItemHeight: computed(() => {
-    const maxH = store.noteMaxHeight || 300;
-    return Math.max(120, Math.round(maxH * 0.65));
+    return 230;
   }),
+  bufferRows: 3,
   threshold: 15
 });
 
@@ -152,7 +153,10 @@ watch(
           :key="row.key"
           :ref="el => registerRowElement(row.rowIndex, el as HTMLElement | null)"
           class="notes-grid-row"
-          :style="rowGridStyle"
+          :style="[
+            rowGridStyle,
+            row.rowIndex === rows.length - 1 ? { marginBottom: '0px' } : {}
+          ]"
         >
           <NoteCard
             v-for="note in row.items"
@@ -170,6 +174,7 @@ watch(
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+  overflow-anchor: none;
   height: calc(100% - 71px); // 减去头部工具栏的高度
 }
 
@@ -182,6 +187,7 @@ watch(
   width: 100%;
   box-sizing: border-box;
   position: relative;
+  overflow-anchor: none;
 
   // 允许网格项收缩，避免内容 min-content 把个别列撑宽
   > * {
@@ -194,6 +200,7 @@ watch(
   position: relative;
   width: 100%;
   box-sizing: border-box;
+  overflow-anchor: none;
 }
 
 .virtual-grid-content {
@@ -203,6 +210,7 @@ watch(
   right: 0;
   width: 100%;
   will-change: transform;
+  overflow-anchor: none;
 }
 
 .notes-grid-row {
@@ -210,10 +218,7 @@ watch(
   align-content: start;
   width: 100%;
   box-sizing: border-box;
-
-  &:last-child {
-    margin-bottom: 0 !important;
-  }
+  overflow-anchor: none;
 
   > * {
     min-width: 0;

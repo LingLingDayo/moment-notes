@@ -27,9 +27,17 @@ onMounted(() => {
     (window as any).resetNotes = store.devResetNotes;
     (window as any).resetAllData = store.devResetAllData;
     (window as any).removeTestNotes = () => {
-      store.allNotes = store.allNotes.filter((n: any) => !String(n.id).startsWith('test-note-'));
-      store.saveNotes();
-      store.loadNotesForCurrentCategory(true);
+      const raw = localStorage.getItem('sticky_notes_notes');
+      if (raw) {
+        try {
+          const list = JSON.parse(raw);
+          const filtered = list.filter((n: any) => !String(n.id).startsWith('test-note-'));
+          localStorage.setItem('sticky_notes_notes', JSON.stringify(filtered));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      store.reloadNotes();
       store.showToast('已清除所有测试便签', 'success');
     };
     console.log('%c[Dev Helper] 已挂载开发重置控制台指令: ', 'color: #3b82f6; font-weight: bold;');
