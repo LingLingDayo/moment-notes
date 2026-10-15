@@ -43,20 +43,9 @@ export const useNoteStore = defineStore('noteStore', () => {
     notes.value = result;
   };
 
-  const loadNotesForCurrentCategory = (immediate = false) => {
-    if (immediate) {
-      syncCurrentCategoryNotes();
-      isLoadingNotes.value = false;
-      return;
-    }
-
-    isLoadingNotes.value = true;
-    notes.value = [];
-
-    setTimeout(() => {
-      syncCurrentCategoryNotes();
-      isLoadingNotes.value = false;
-    }, 0);
+  const loadNotesForCurrentCategory = (_immediate = false) => {
+    syncCurrentCategoryNotes();
+    isLoadingNotes.value = false;
   };
 
   const applyCategoryViewSettings = (categoryId: string) => {
