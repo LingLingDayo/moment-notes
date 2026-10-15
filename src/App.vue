@@ -26,9 +26,16 @@ onMounted(() => {
     (window as any).resetTags = store.devResetTags;
     (window as any).resetNotes = store.devResetNotes;
     (window as any).resetAllData = store.devResetAllData;
+    (window as any).removeTestNotes = () => {
+      store.allNotes = store.allNotes.filter((n: any) => !String(n.id).startsWith('test-note-'));
+      store.saveNotes();
+      store.loadNotesForCurrentCategory(true);
+      store.showToast('已清除所有测试便签', 'success');
+    };
     console.log('%c[Dev Helper] 已挂载开发重置控制台指令: ', 'color: #3b82f6; font-weight: bold;');
     console.log('- resetTags(): 清空所有便签的标签(tags)');
     console.log('- resetNotes(): 重置所有便签内容为默认欢迎便签');
+    console.log('- removeTestNotes(): 一键清除所有自动生成的测试便签');
     console.log('- resetAllData(): 清空缓存，完全重置分类与便签数据');
   }
 
