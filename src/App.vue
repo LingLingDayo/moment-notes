@@ -8,6 +8,7 @@ import NotePreviewModal from '@components/NotePreviewModal.vue';
 import { eventBus } from './domain/events/DomainEventBus';
 import {
   handleDetachedNoteReady,
+  minimizeDetachedNoteWindow,
   refreshDetachedNoteWindows,
   setDetachedNoteWindowAlwaysOnTop,
   toggleDetachedNoteWindowMaximize
@@ -66,7 +67,10 @@ onMounted(() => {
         }),
         detachedNoteService.onToggleMaximizeRequested(({ noteId, currentBounds }) => {
           toggleDetachedNoteWindowMaximize(noteId, currentBounds);
-        })
+        }),
+        detachedNoteService.onMinimizeRequested?.((noteId: string) => {
+          minimizeDetachedNoteWindow(noteId);
+        }) ?? (() => {})
       );
     }
 

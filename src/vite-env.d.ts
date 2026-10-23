@@ -38,6 +38,8 @@ interface Window {
       onWindowShown(callback: () => void): () => void;
       notifyReady?(noteId: string): void;
       onReady?(callback: (noteId: string) => void): () => void;
+      requestMinimize?(noteId: string): void;
+      onMinimizeRequested?(callback: (noteId: string) => void): () => void;
     };
   };
 }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { Copy, Pin, Square, X } from '@lucide/vue';
+import { Copy, Minus, Pin, Square, X } from '@lucide/vue';
 import NoteCard from '@modules/NoteCard/NoteCard.vue';
 import Toast from '@components/Toast.vue';
 import ConfirmModal from '@components/ConfirmModal.vue';
@@ -71,6 +71,11 @@ const toggleAlwaysOnTop = () => {
   if (!noteId || !isUTools() || !window.services?.detachedNote) return;
   isAlwaysOnTop.value = !isAlwaysOnTop.value;
   window.services.detachedNote.requestAlwaysOnTop(noteId, isAlwaysOnTop.value);
+};
+
+const minimizeWindow = () => {
+  if (!noteId || !isUTools() || !window.services?.detachedNote) return;
+  window.services.detachedNote.requestMinimize?.(noteId);
 };
 
 const toggleMaximize = () => {
@@ -184,6 +189,15 @@ onUnmounted(() => {
         <Pin class="window-control-icon pin-icon" />
       </button>
       <button
+        v-if="isUTools()"
+        class="window-control minimize-btn"
+        aria-label="最小化到任务栏"
+        data-tooltip="最小化到任务栏"
+        @click="minimizeWindow"
+      >
+        <Minus class="window-control-icon minimize-icon" />
+      </button>
+      <button
         class="window-control maximize-btn"
         :class="{ active: isMaximized }"
         :aria-label="isMaximized ? '向下还原' : '最大化'"
@@ -293,7 +307,7 @@ onUnmounted(() => {
 
 .window-drag-region {
   position: absolute;
-  inset: 0 124px auto 0;
+  inset: 0 160px auto 0;
   height: 42px;
   z-index: 120;
   -webkit-app-region: drag;
@@ -357,6 +371,7 @@ onUnmounted(() => {
     }
   }
 
+  &.minimize-btn,
   &.maximize-btn {
     &:hover {
       transform: scale(1.1);

@@ -9,6 +9,7 @@ import {
   handleDetachedNoteReady,
   isDetachedNoteWindow,
   isWindows10ClientEdgeClip,
+  minimizeDetachedNoteWindow,
   resolveWindowBoundsApplyOrder,
   subscribeDetachedNoteWindowEvents
 } from './detachedNoteWindow';
@@ -73,7 +74,7 @@ describe('detachedNoteWindow', () => {
       hasShadow: false,
       roundedCorners: false,
       resizable: true,
-      minimizable: false,
+      minimizable: true,
       maximizable: false,
       fullscreenable: false,
       closable: true,
@@ -168,4 +169,19 @@ describe('detachedNoteWindow', () => {
   it('handleDetachedNoteReady 当窗口不存在或已销毁时不应抛出异常', () => {
     expect(() => handleDetachedNoteReady('non-existent-id')).not.toThrow();
   });
+
+  it('createDetachedNoteWindowOptions 应允许窗口最小化到任务栏', () => {
+    const options = createDetachedNoteWindowOptions({
+      id: 'note-1',
+      title: '测试便签',
+      backgroundColor: '#ffffff'
+    });
+    expect(options.minimizable).toBe(true);
+    expect(options.maximizable).toBe(false);
+  });
+
+  it('minimizeDetachedNoteWindow 当窗口不存在时应返回 false 且不抛出异常', () => {
+    expect(minimizeDetachedNoteWindow('non-existent-id')).toBe(false);
+  });
 });
+

@@ -11,6 +11,7 @@ const DETACHED_NOTE_TOGGLE_MAXIMIZE_CHANNEL = 'moment-notes:detached-note-toggle
 const DETACHED_NOTE_MAXIMIZE_CHANGED_CHANNEL = 'moment-notes:detached-note-maximize-changed';
 const DETACHED_NOTE_WINDOW_SHOWN_CHANNEL = 'moment-notes:detached-note-window-shown';
 const DETACHED_NOTE_READY_CHANNEL = 'moment-notes:detached-note-ready';
+const DETACHED_NOTE_MINIMIZE_CHANNEL = 'moment-notes:detached-note-minimize';
 
 function subscribeIpc(channel: string, callback: (payload: any) => void): () => void {
   const listener = (_event: any, payload: any) => callback(payload);
@@ -100,6 +101,12 @@ window.services = {
     },
     onReady(callback: (noteId: string) => void): () => void {
       return subscribeIpc(DETACHED_NOTE_READY_CHANNEL, callback);
+    },
+    requestMinimize(noteId: string): void {
+      window.utools.sendToParent(DETACHED_NOTE_MINIMIZE_CHANNEL, noteId);
+    },
+    onMinimizeRequested(callback: (noteId: string) => void): () => void {
+      return subscribeIpc(DETACHED_NOTE_MINIMIZE_CHANNEL, callback);
     }
   }
 };

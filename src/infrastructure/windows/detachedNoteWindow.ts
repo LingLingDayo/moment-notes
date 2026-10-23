@@ -224,7 +224,7 @@ export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptio
   hasShadow: false,
   roundedCorners: false,
   resizable: true,
-  minimizable: false,
+  minimizable: true,
   // 禁止改回 true：Windows 无边框窗开启原生最大化后，DWM 会在主题边框外再画一层系统黑边
   maximizable: false,
   fullscreenable: false,
@@ -443,3 +443,14 @@ export const handleDetachedNoteReady = (noteId: string) => {
     noteWindow.webContents.send(DETACHED_NOTE_WINDOW_SHOWN_CHANNEL);
   });
 };
+
+export const minimizeDetachedNoteWindow = (noteId: string): boolean => {
+  const noteWindow = detachedNoteWindows.get(noteId);
+  if (!noteWindow || noteWindow.isDestroyed()) {
+    forgetDetachedNoteWindow(noteId);
+    return false;
+  }
+  noteWindow.minimize();
+  return true;
+};
+
