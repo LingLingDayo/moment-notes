@@ -7,6 +7,7 @@ import ImagePreviewModal from '@components/ImagePreviewModal.vue';
 import NotePreviewModal from '@components/NotePreviewModal.vue';
 import { eventBus } from './domain/events/DomainEventBus';
 import {
+  handleDetachedNoteReady,
   refreshDetachedNoteWindows,
   setDetachedNoteWindowAlwaysOnTop,
   toggleDetachedNoteWindowMaximize
@@ -53,6 +54,9 @@ onMounted(() => {
     const detachedNoteService = window.services?.detachedNote;
     if (detachedNoteService) {
       unsubscribeCallbacks.push(
+        detachedNoteService.onReady?.((noteId: string) => {
+          handleDetachedNoteReady(noteId);
+        }) ?? (() => {}),
         detachedNoteService.onChildChanged(() => {
           store.reloadNotes();
           refreshDetachedNoteWindows();

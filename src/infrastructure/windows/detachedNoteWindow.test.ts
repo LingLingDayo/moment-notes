@@ -6,6 +6,7 @@ import {
   computeDetachedNoteMaximizeToggle,
   createDetachedNoteWindowOptions,
   getDetachedNoteId,
+  handleDetachedNoteReady,
   isDetachedNoteWindow,
   isWindows10ClientEdgeClip,
   resolveWindowBoundsApplyOrder,
@@ -38,12 +39,12 @@ describe('detachedNoteWindow', () => {
     expect(url).toBe('http://localhost:4021/current?view=detached-note&noteId=note-2');
   });
 
-  it('buildDetachedNoteWindowUrl 应在非开发环境生成相对路径，在开发环境生成完整 URL', () => {
+  it('buildDetachedNoteWindowUrl 应统一生成符合 uTools createBrowserWindow 规范的相对 HTML 路径', () => {
     const prodUrl = buildDetachedNoteWindowUrl('note-1', 'http://localhost:4021/', false);
     const devUrl = buildDetachedNoteWindowUrl('note-1', 'http://localhost:4021/', true);
 
     expect(prodUrl).toBe('index.html?view=detached-note&noteId=note-1');
-    expect(devUrl).toBe('http://localhost:4021/?view=detached-note&noteId=note-1');
+    expect(devUrl).toBe('index.html?view=detached-note&noteId=note-1');
   });
 
   it('仅 Windows 10 无边框分层窗需要为右下客户区裁切预留 1px', () => {
@@ -162,5 +163,9 @@ describe('detachedNoteWindow', () => {
 
     expect(subscribed).toBe(true);
     expect(events).toEqual(['maximize', 'unmaximize', 'closed']);
+  });
+
+  it('handleDetachedNoteReady 当窗口不存在或已销毁时不应抛出异常', () => {
+    expect(() => handleDetachedNoteReady('non-existent-id')).not.toThrow();
   });
 });

@@ -120,6 +120,10 @@ onMounted(() => {
           })
         : () => undefined
     );
+    // 通知父窗口子窗口已挂载并就绪，可剥除边框并触发入场
+    if (noteId) {
+      window.services.detachedNote.notifyReady?.(noteId);
+    }
   } else {
     const handleStorage = (event: StorageEvent) => {
       if (event.key === 'sticky_notes_notes') {
@@ -132,7 +136,7 @@ onMounted(() => {
   }
 
   // 漏收 shown 时避免窗口一直透明；正常路径会先剥边再入场，此定时器只是兜底
-  const enterFallbackTimer = window.setTimeout(playEnterAnimation, 1200);
+  const enterFallbackTimer = window.setTimeout(playEnterAnimation, 500);
   unsubscribeCallbacks.push(() => window.clearTimeout(enterFallbackTimer));
 
   unsubscribeCallbacks.push(

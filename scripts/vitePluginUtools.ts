@@ -62,6 +62,36 @@ function syncUtoolsAssets(srcDir: string, destDir: string, isDev: boolean, devUr
     const pluginJsonDest = path.join(destDir, 'plugin.json');
     fs.writeFileSync(pluginJsonDest, JSON.stringify(pluginConfig, null, 2), 'utf-8');
   }
+
+  // 4. 开发模式下生成开发引导版 index.html，供 utools.createBrowserWindow('index.html?...') 加载并无缝重定向到 Vite 开发服务器
+  if (isDev && devUrl) {
+    const devIndexHtml = `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>拾光便签 (Dev)</title>
+    <style>
+      html, body {
+        background: transparent !important;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script>
+      (function() {
+        var target = new URL('${devUrl}/');
+        target.search = window.location.search;
+        target.hash = window.location.hash;
+        window.location.replace(target.toString());
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
+`;
+    fs.writeFileSync(path.join(destDir, 'index.html'), devIndexHtml, 'utf-8');
+  }
 }
 
 /**

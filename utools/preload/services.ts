@@ -10,6 +10,7 @@ const DETACHED_NOTE_ALWAYS_ON_TOP_CHANNEL = 'moment-notes:detached-note-always-o
 const DETACHED_NOTE_TOGGLE_MAXIMIZE_CHANNEL = 'moment-notes:detached-note-toggle-maximize';
 const DETACHED_NOTE_MAXIMIZE_CHANGED_CHANNEL = 'moment-notes:detached-note-maximize-changed';
 const DETACHED_NOTE_WINDOW_SHOWN_CHANNEL = 'moment-notes:detached-note-window-shown';
+const DETACHED_NOTE_READY_CHANNEL = 'moment-notes:detached-note-ready';
 
 function subscribeIpc(channel: string, callback: (payload: any) => void): () => void {
   const listener = (_event: any, payload: any) => callback(payload);
@@ -92,6 +93,13 @@ window.services = {
     // 主进程已剥掉 DWM 系统边框后才会触发，此时才能播放大渐入
     onWindowShown(callback: () => void): () => void {
       return subscribeIpc(DETACHED_NOTE_WINDOW_SHOWN_CHANNEL, callback);
+    },
+    // 子窗口 DOM 与 Vue 挂载完毕后通知父窗口
+    notifyReady(noteId: string): void {
+      window.utools.sendToParent(DETACHED_NOTE_READY_CHANNEL, noteId);
+    },
+    onReady(callback: (noteId: string) => void): () => void {
+      return subscribeIpc(DETACHED_NOTE_READY_CHANNEL, callback);
     }
   }
 };

@@ -201,13 +201,13 @@ export const buildDetachedNoteWindowBrowserUrl = (
 
 export const buildDetachedNoteWindowUrl = (
   noteId: string,
-  currentUrl = window.location.href,
-  isDevelopment = import.meta.env.DEV
+  _currentUrl = window.location.href,
+  _isDevelopment = import.meta.env.DEV
 ): string => {
-  if (!isDevelopment) {
-    return buildDetachedNoteWindowPath(noteId);
-  }
-  return buildDetachedNoteWindowBrowserUrl(noteId, currentUrl);
+  // uTools createBrowserWindow 强制要求相对 HTML 文件路径（底层基于 loadFile 实现）。
+  // 若传入完整 http(s) URL 会导致 uTools 抛出 "加载的不是 html 文件" 或 "html 文件不存在"。
+  // 开发模式下由 dist/index.html 引导页将独立窗口透明重定向至 Vite 开发服务器。
+  return buildDetachedNoteWindowPath(noteId);
 };
 
 export const createDetachedNoteWindowOptions = (options: DetachedNoteWindowOptions) => ({
@@ -434,4 +434,12 @@ export const toggleDetachedNoteWindowMaximize = (
 
   notifyMaximizeChanged(noteWindow, plan.maximized);
   return plan.maximized;
+};
+
+export const handleDetachedNoteReady = (noteId: string) => {
+  const noteWindow = detachedNoteWindows.get(noteId);
+  if (!noteWindow || noteWindow.isDestroyed()) return;
+  stripWindowsSystemBorderThen(noteWindow, () => {
+    noteWindow.webContents.send(DETACHED_NOTE_WINDOW_SHOWN_CHANNEL);
+  });
 };
