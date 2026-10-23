@@ -74,8 +74,12 @@ const toggleAlwaysOnTop = () => {
 };
 
 const minimizeWindow = () => {
-  if (!noteId || !isUTools() || !window.services?.detachedNote) return;
-  window.services.detachedNote.requestMinimize?.(noteId);
+  if (!noteId || !isUTools()) return;
+  if (window.services?.detachedNote?.requestMinimize) {
+    window.services.detachedNote.requestMinimize(noteId);
+  } else if (window.utools?.sendToParent) {
+    window.utools.sendToParent('moment-notes:detached-note-minimize', noteId);
+  }
 };
 
 const toggleMaximize = () => {

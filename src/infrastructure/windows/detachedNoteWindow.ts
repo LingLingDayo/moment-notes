@@ -450,6 +450,10 @@ export const minimizeDetachedNoteWindow = (noteId: string): boolean => {
     forgetDetachedNoteWindow(noteId);
     return false;
   }
+  // 动态确保窗口具备最小化权限，兼容热更新前已打开的旧窗口实例
+  if (typeof noteWindow.setMinimizable === 'function') {
+    noteWindow.setMinimizable(true);
+  }
   noteWindow.minimize();
   return true;
 };

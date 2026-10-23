@@ -101,7 +101,8 @@ async function buildPreload(
   srcDir: string,
   destDir: string,
   isDev: boolean,
-  watch = false
+  watch = false,
+  onUpdate?: () => void
 ): Promise<esbuild.BuildContext | null> {
   const preloadEntry = fs.existsSync(path.join(srcDir, 'preload/services.ts'))
     ? path.join(srcDir, 'preload/services.ts')
@@ -145,7 +146,8 @@ async function buildPreload(
               } else {
                 count++;
                 if (count > 1) {
-                  console.log('\x1b[32m[uTools Preload] 检测到代码更新，已重新编译\x1b[0m');
+                  console.log('\x1b[32m[uTools Preload] 检测到代码更新，已重新编译并广播客户端刷新\x1b[0m');
+                  onUpdate?.();
                 }
               }
             });
@@ -183,9 +185,11 @@ export function utoolsPlugin(options: UtoolsPluginOptions = {}): Plugin {
       // 1. 在 Dev Server 启动时立即同步资源与生成开发版 plugin.json
       syncUtoolsAssets(srcDir, outDir, true, devUrl);
 
-      // 2. 立即编译 Preload 并开启 watch 监听
+      // 2. 立即编译 Preload 并开启 watch 监听，Preload 重新构建后自动通知客户端重载
       try {
-        watchCtx = await buildPreload(srcDir, outDir, true, true);
+        watchCtx = await buildPreload(srcDir, outDir, true, true, () => {
+          server.ws.send({ type: 'full-reload' });
+        });
       } catch (err) {
         console.error('\x1b[31m[uTools Preload] 初始化构建失败:\x1b[0m', err);
       }
