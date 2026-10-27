@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, computed } from 'vue';
 import { Note } from '@type';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { useShortcutStore } from '@stores/shortcutStore';
 import { isUTools } from '@utils/storage';
 import { useNoteTagMeasure } from '@utils/useNoteTagMeasure';
+import { useNoteImageUpload } from '@utils/useNoteImageUpload';
 import MarkdownRenderer from './MarkdownRenderer.vue';
 
 const props = withDefaults(
@@ -71,6 +72,22 @@ const adjustTextareaHeight = () => {
   el.style.height = `${el.scrollHeight}px`;
 };
 
+// 图片粘贴与拖拽上传 Hook
+const {
+  isDraggingOver,
+  handlePaste,
+  handleDragOver,
+  handleDragLeave,
+  handleDrop
+} = useNoteImageUpload({
+  content,
+  textareaRef: contentInputRef,
+  note: computed(() => props.note),
+  showToast: (msg, type) => store.showToast(msg, type),
+  setNoteType: (type) => store.updateNote(props.note.id, { type }),
+  onContentChange: () => adjustTextareaHeight()
+});
+
 // 提取的标签溢出测量 Hook
 const {
   measureContainerRef,
@@ -106,11 +123,15 @@ watch(
       v-if="isEditing"
       ref="contentInputRef"
       v-model="content"
-      :placeholder="note.type === 'markdown' ? '输入 Markdown 源码...' : '写点什么...'"
+      :placeholder="note.type === 'markdown' ? '输入 Markdown 源码，支持粘贴/拖放图片...' : '写点什么...'"
       class="content-textarea"
-      :class="{ 'is-full-screen': isFullScreen }"
+      :class="{ 'is-full-screen': isFullScreen, 'is-dragging-over': isDraggingOver }"
       @keydown="handleKeyDown"
       @input="adjustTextareaHeight"
+      @paste="handlePaste"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+      @drop="handleDrop"
     ></textarea>
     <template v-else>
       <div class="card-body-content">
@@ -299,6 +320,12 @@ watch(
     .dark-theme & {
       border-color: var(--card-border-dark);
     }
+  }
+
+  &.is-dragging-over {
+    border-color: var(--accent-color) !important;
+    border-style: dashed !important;
+    background: rgba(99, 102, 241, 0.08) !important;
   }
 }
 

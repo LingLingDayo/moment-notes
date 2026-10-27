@@ -50,19 +50,42 @@ export function closeImagePreview() {
 }
 
 /**
- * 从粘贴/拖拽事件中获取图片 File 对象
+ * 从粘贴/拖拽事件中获取所有图片 File 对象列表
  */
-export function getImageFileFromEvent(e: ClipboardEvent | DragEvent): File | null {
-  const items = 'clipboardData' in e ? e.clipboardData?.items : e.dataTransfer?.items;
-  if (!items) return null;
+export function getImageFilesFromEvent(e: ClipboardEvent | DragEvent): File[] {
+  const files: File[] = [];
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    if (item.kind === 'file' && item.type.startsWith('image/')) {
-      return item.getAsFile();
+  // 1. 优先通过 items 获取（支持剪贴板和拖拽）
+  const items = 'clipboardData' in e ? e.clipboardData?.items : e.dataTransfer?.items;
+  if (items && items.length > 0) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) files.push(file);
+      }
     }
   }
-  return null;
+
+  // 2. 拖拽降级通过 dataTransfer.files 获取
+  if (files.length === 0 && 'dataTransfer' in e && e.dataTransfer?.files) {
+    for (let i = 0; i < e.dataTransfer.files.length; i++) {
+      const file = e.dataTransfer.files[i];
+      if (file.type.startsWith('image/')) {
+        files.push(file);
+      }
+    }
+  }
+
+  return files;
+}
+
+/**
+ * 从粘贴/拖拽事件中获取第一张图片 File 对象
+ */
+export function getImageFileFromEvent(e: ClipboardEvent | DragEvent): File | null {
+  const files = getImageFilesFromEvent(e);
+  return files.length > 0 ? files[0] : null;
 }
 
 /**

@@ -1,29 +1,60 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, ref, watch, nextTick, onMounted } from 'vue';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { openImagePreview } from '@utils/imageHandler';
+import { isAssetUrl, extractAssetId } from '@utils/imageProcessing';
+import { resolveAssetImagesInContainer } from '@utils/useAssetImages';
 
 const props = defineProps<{
   content: string;
 }>();
 
-// 配置 marked
+const containerRef = ref<HTMLElement | null>(null);
+
+// 1. 配置 marked 与自定义 image renderer
 marked.setOptions({
   gfm: true,
   breaks: true
 });
 
-// 解析并过滤 html
+marked.use({
+  renderer: {
+    image({ href, title, text }) {
+      if (href && isAssetUrl(href)) {
+        const assetId = extractAssetId(href) || '';
+        const titleAttr = title ? ` title="${title}"` : '';
+        // 采用占位透明 SVG，避免渲染原生破损图片图标
+        const placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24"%3E%3C/svg%3E';
+        return `<img data-asset-id="${assetId}" src="${placeholder}" alt="${text || '图片'}" class="markdown-asset-img"${titleAttr} />`;
+      }
+      const titleAttr = title ? ` title="${title}"` : '';
+      return `<img src="${href || ''}" alt="${text || ''}"${titleAttr} />`;
+    }
+  }
+});
+
+// 2. 解析并过滤 html
 const renderedHtml = computed(() => {
   if (!props.content) return '';
   const rawHtml = marked.parse(props.content) as string;
   return DOMPurify.sanitize(rawHtml, {
-    ADD_ATTR: ['target', 'class']
+    ADD_ATTR: ['target', 'class', 'data-asset-id']
   });
 });
 
-// 处理容器点击（捕获图片点击进行放大预览，链接安全跳转等）
+// 3. 异步解析容器内的本地图片
+const resolveImages = async () => {
+  await nextTick();
+  if (containerRef.value) {
+    await resolveAssetImagesInContainer(containerRef.value);
+  }
+};
+
+onMounted(resolveImages);
+watch(renderedHtml, resolveImages);
+
+// 4. 处理容器点击（捕获图片点击进行放大预览，链接安全跳转等）
 const handleContainerClick = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
   if (!target) return;
@@ -31,14 +62,18 @@ const handleContainerClick = (e: MouseEvent) => {
   // 图片点击唤起大图预览
   if (target.tagName === 'IMG') {
     e.stopPropagation();
-    const src = (target as HTMLImageElement).src;
-    if (src) {
-      const container = e.currentTarget as HTMLElement | null;
-      const imgElements = container ? Array.from(container.querySelectorAll('img')) : [];
-      const imageList = imgElements.map(img => img.src).filter(Boolean);
-      const index = imageList.indexOf(src);
-      openImagePreview(src, imageList, index !== -1 ? index : 0);
-    }
+    const imgEl = target as HTMLImageElement;
+    const src = imgEl.src;
+    // 如果还在加载占位阶段则不唤起大图
+    if (!src || src.startsWith('data:image/svg')) return;
+
+    const container = containerRef.value;
+    const imgElements = container ? Array.from(container.querySelectorAll('img')) : [];
+    const imageList = imgElements
+      .map(img => img.src)
+      .filter(s => s && !s.startsWith('data:image/svg'));
+    const index = imageList.indexOf(src);
+    openImagePreview(src, imageList, index !== -1 ? index : 0);
   } else if (target.tagName === 'A') {
     // 外部链接在新窗口/浏览器中打开
     const href = (target as HTMLAnchorElement).getAttribute('href');
@@ -56,12 +91,14 @@ const handleContainerClick = (e: MouseEvent) => {
 </script>
 
 <template>
-  <!-- eslint-disable-next-line vue/no-v-html -->
+  <!-- eslint-disable vue/no-v-html -->
   <div
+    ref="containerRef"
     class="markdown-body"
     @click="handleContainerClick"
     v-html="renderedHtml"
   ></div>
+  <!-- eslint-enable vue/no-v-html -->
 </template>
 
 <style lang="scss">
@@ -173,10 +210,28 @@ const handleContainerClick = (e: MouseEvent) => {
     border-radius: 8px;
     margin: 6px 0;
     cursor: zoom-in;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 
     &:hover {
       transform: scale(1.01);
+    }
+
+    &.markdown-asset-img:not(.asset-img-loaded) {
+      min-height: 48px;
+      background: rgba(0, 0, 0, 0.04);
+      opacity: 0.6;
+      border: 1px dashed var(--popover-border);
+
+      .dark-theme & {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    &.asset-img-failed {
+      min-height: 36px;
+      border: 1px dashed var(--popover-border);
+      opacity: 0.5;
+      padding: 6px 10px;
     }
   }
 
