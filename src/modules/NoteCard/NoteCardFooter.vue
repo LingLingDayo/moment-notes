@@ -33,7 +33,11 @@ const closePopovers = () => {
   showFormatPicker.value = false;
 };
 
-watch(() => showColorPicker.value || showFolderPicker.value || showFormatPicker.value, (isOpen) => {
+const hasActivePopover = computed(() => {
+  return showColorPicker.value || showFolderPicker.value || showFormatPicker.value;
+});
+
+watch(hasActivePopover, (isOpen) => {
   emit('popover-state-change', isOpen);
 });
 
@@ -142,7 +146,12 @@ const deleteSelf = async () => {
   </div>
 
   <!-- 卡片底部信息及悬浮工具栏 (非编辑态) -->
-  <div v-else class="card-footer" @click.stop>
+  <div
+    v-else
+    class="card-footer"
+    :class="{ 'has-active-popover': hasActivePopover }"
+    @click.stop
+  >
     <div class="card-meta-info" :data-tooltip="`更新时间: ${formattedTime} · 总字数: ${note.content.length} 字`">
       {{ formattedTime }} · {{ note.content.length }} 字
     </div>
@@ -171,7 +180,7 @@ const deleteSelf = async () => {
     </div>
 
     <!-- 正常卡片操作栏 -->
-    <div v-else class="card-actions" :class="{ 'has-active-popover': showColorPicker || showFolderPicker || showFormatPicker }">
+    <div v-else class="card-actions" :class="{ 'has-active-popover': hasActivePopover }">
       <!-- 分组 -->
       <button
         v-if="['all', 'recent'].includes(store.currentCategoryId)"
@@ -352,6 +361,7 @@ const deleteSelf = async () => {
 }
 
 .card-footer {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -366,6 +376,12 @@ const deleteSelf = async () => {
   opacity: 0.8;
   transition: opacity 0.25s ease;
   min-width: 0;
+
+  &.has-active-popover {
+    opacity: 1;
+    overflow: visible;
+    z-index: 20;
+  }
 }
 
 .card-meta-info {
@@ -384,6 +400,7 @@ const deleteSelf = async () => {
 
 
 .card-actions {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -411,6 +428,7 @@ const deleteSelf = async () => {
     max-width: 160px;
     pointer-events: auto;
     overflow: visible;
+    z-index: 21;
   }
 }
 

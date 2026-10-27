@@ -41,6 +41,11 @@
     :deep(.card-footer) {
       opacity: 1;
 
+      &.has-active-popover {
+        overflow: visible;
+        z-index: 20;
+      }
+
       .card-actions {
         opacity: 1;
         max-width: 160px;
@@ -49,6 +54,7 @@
 
         &.has-active-popover {
           overflow: visible;
+          z-index: 21;
         }
       }
     }
@@ -73,7 +79,21 @@
   }
 
   &.has-active-popover {
-    z-index: 10;
+    z-index: 30;
+
+    :deep(.card-footer) {
+      opacity: 1;
+      overflow: visible;
+      z-index: 20;
+
+      .card-actions {
+        opacity: 1;
+        max-width: 160px;
+        pointer-events: auto;
+        overflow: visible;
+        z-index: 21;
+      }
+    }
   }
 
   &.dragging {
@@ -200,6 +220,11 @@
     :deep(.card-footer) {
       opacity: 1;
       padding-top: 12px;
+
+      &.has-active-popover {
+        overflow: visible !important;
+        z-index: 20 !important;
+      }
     }
 
     :deep(.card-meta-info) {
