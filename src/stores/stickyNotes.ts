@@ -13,6 +13,7 @@ import { getCurrentSettings, applySettings } from './settingsHelper';
 import { getFilteredAndSortedNotes, normalizeCategoryOrder } from './stickyNotesAlgorithms';
 import { commandRegistry } from '../domain/commands/CommandRegistry';
 import { categoryRepository, noteRepository } from '../infrastructure/storage/Repository';
+import { imageAssetService } from '../domain/assets/ImageAssetService';
 
 export { COLOR_PRESETS };
 
@@ -282,16 +283,16 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   });
 
   // 备份与粘贴代理方法
-  const exportBackup = () => {
+  const exportBackup = async () => {
     const shortcutStore = useShortcutStore();
     const settings = getCurrentSettings(uiStore, noteStore, shortcutStore, categoryStore);
-    helpers.exportBackup(categoryStore.categories, noteStore.allNotes, settings, uiStore.showToast);
+    await helpers.exportBackup(categoryStore.categories, noteStore.allNotes, settings, uiStore.showToast);
   };
 
-  const exportSelectedBackup = (options: ExportOptions) => {
+  const exportSelectedBackup = async (options: ExportOptions) => {
     const shortcutStore = useShortcutStore();
     const settings = getCurrentSettings(uiStore, noteStore, shortcutStore, categoryStore);
-    helpers.exportSelectedBackup(
+    await helpers.exportSelectedBackup(
       categoryStore.categories,
       noteStore.allNotes,
       settings,
@@ -300,9 +301,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     );
   };
 
-  const importBackup = (jsonStr: string): boolean => {
+  const importBackup = async (jsonStr: string): Promise<boolean> => {
     const shortcutStore = useShortcutStore();
-    const ok = helpers.importBackup(
+    const ok = await helpers.importBackup(
       jsonStr,
       categoriesRef,
       toRef(noteStore, 'allNotes'),
@@ -319,13 +320,13 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     return ok;
   };
 
-  const importSelectedBackup = (options: ImportOptions): boolean => {
+  const importSelectedBackup = async (options: ImportOptions): Promise<boolean> => {
     if (!uiStore.pendingImportData) {
       uiStore.showToast('导入失败：找不到解析的备份数据', 'error');
       return false;
     }
     const shortcutStore = useShortcutStore();
-    const ok = helpers.importSelectedBackup(
+    const ok = await helpers.importSelectedBackup(
       uiStore.pendingImportData,
       options,
       categoriesRef,
@@ -342,6 +343,29 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       uiStore.closeImportModal();
     }
     return ok;
+  };
+
+  const cleanOrphanImages = async (): Promise<number> => {
+    try {
+      const res = await imageAssetService.cleanOrphanAssets(noteStore.allNotes);
+      if (res.cleanedCount > 0) {
+        uiStore.showToast(`已成功清理 ${res.cleanedCount} 张未使用的便签图片`, 'success');
+      } else {
+        uiStore.showToast('没有发现未使用的便签图片', 'info');
+      }
+      return res.cleanedCount;
+    } catch (err) {
+      console.error('Clean orphan images failed:', err);
+      uiStore.showToast('清理图片失败', 'error');
+      return 0;
+    }
+  };
+
+  const clearTrash = () => {
+    noteStore.clearTrash();
+    imageAssetService.cleanOrphanAssets(noteStore.allNotes).catch((e) => {
+      console.warn('Auto clean orphan assets after clearTrash failed:', e);
+    });
   };
 
   const prepareImportFile = (file: File) => {
@@ -439,7 +463,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     addNote,
     deleteNote: noteStore.deleteNote,
     restoreNote: noteStore.restoreNote,
-    clearTrash: noteStore.clearTrash,
+    clearTrash,
+    cleanOrphanImages,
     updateNote: noteStore.updateNote,
     clearNotes,
     setSortMode: noteStore.setSortMode,

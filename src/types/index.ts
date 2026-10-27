@@ -82,6 +82,7 @@ export interface BackupData {
   categories: Category[];
   notes: Note[];
   settings?: AppSettings;
+  assets?: Record<string, { mime: string; data: string }>;
 }
 
 export interface ExportOptions {

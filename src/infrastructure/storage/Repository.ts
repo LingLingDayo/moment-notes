@@ -94,13 +94,19 @@ export class CategoryRepository {
 }
 
 export class BackupCodec {
-  public static encode(categories: Category[], notes: Note[], settings?: AppSettings): BackupData {
+  public static encode(
+    categories: Category[],
+    notes: Note[],
+    settings?: AppSettings,
+    assets?: Record<string, { mime: string; data: string }>
+  ): BackupData {
     return {
       version: '1.6.0',
       timestamp: Date.now(),
       categories,
       notes,
-      settings
+      settings,
+      ...(assets && Object.keys(assets).length > 0 ? { assets } : {})
     };
   }
 

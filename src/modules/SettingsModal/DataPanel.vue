@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useSettings } from './useSettings';
-import { Download, Upload } from '@lucide/vue';
+import { Download, Upload, Sparkles } from '@lucide/vue';
 import SettingWrapper from './controls/SettingWrapper.vue';
 import { SettingItem } from './settingsConfig';
 
@@ -8,7 +8,7 @@ defineProps<{
   item: SettingItem;
 }>();
 
-const { fileInputRef, triggerFileInput, handleFileImport, exportBackup } = useSettings();
+const { fileInputRef, triggerFileInput, handleFileImport, exportBackup, cleanOrphanImages } = useSettings();
 </script>
 
 <template>
@@ -28,6 +28,10 @@ const { fileInputRef, triggerFileInput, handleFileImport, exportBackup } = useSe
       <button class="action-btn" @click="triggerFileInput">
         <Upload class="control-icon" />
         <span>导入数据恢复</span>
+      </button>
+      <button class="action-btn" @click="cleanOrphanImages">
+        <Sparkles class="control-icon" />
+        <span>清理未使用图片</span>
       </button>
     </div>
   </SettingWrapper>

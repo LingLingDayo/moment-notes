@@ -1,5 +1,6 @@
 import { Category, Note, AppSettings, BackupData, ExportOptions, ImportOptions } from '@type';
 import { storage, downloadOrWriteFile, isUTools } from '@utils/storage';
+import { imageAssetService } from '../domain/assets/ImageAssetService';
 import { getDefaultNotes } from './defaultData';
 
 export { getDefaultNotes };
@@ -11,14 +12,16 @@ export const createBackupData = (
   categories: Category[],
   notes: Note[],
   settings?: AppSettings,
-  versionOverride?: string
+  versionOverride?: string,
+  assets?: Record<string, { mime: string; data: string }>
 ): BackupData => {
   return {
     version: versionOverride || __APP_VERSION__,
     timestamp: Date.now(),
     categories,
     notes,
-    ...(settings ? { settings } : {})
+    ...(settings ? { settings } : {}),
+    ...(assets && Object.keys(assets).length > 0 ? { assets } : {})
   };
 };
 
@@ -45,13 +48,14 @@ export const checkAndAutoBackupPreUpdate = (
   storage.setItem('sticky_notes_app_version', currentVersion);
 };
 
-export const exportBackup = (
+export const exportBackup = async (
   categories: Category[],
   notes: Note[],
   settings: AppSettings,
   showToast: (msg: string, type?: any) => void
 ) => {
-  const backupData = createBackupData(categories, notes, settings);
+  const assets = await imageAssetService.exportAssetsForNotes(notes);
+  const backupData = createBackupData(categories, notes, settings, undefined, assets);
 
   const jsonStr = JSON.stringify(backupData, null, 2);
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -69,7 +73,7 @@ export const exportBackup = (
   }
 };
 
-export const exportSelectedBackup = (
+export const exportSelectedBackup = async (
   categories: Category[],
   notes: Note[],
   settings: AppSettings,
@@ -88,10 +92,13 @@ export const exportSelectedBackup = (
     return selectedCatSet.has('all') || selectedCatSet.has('uncategorized');
   });
 
+  const assets = await imageAssetService.exportAssetsForNotes(filteredNotes);
   const backupData = createBackupData(
     filteredCategories,
     filteredNotes,
-    options.includeSettings ? settings : undefined
+    options.includeSettings ? settings : undefined,
+    undefined,
+    assets
   );
 
   const jsonStr = JSON.stringify(backupData, null, 2);
@@ -110,7 +117,7 @@ export const exportSelectedBackup = (
   }
 };
 
-export const importBackup = (
+export const importBackup = async (
   jsonStr: string,
   categories: { value: Category[] },
   notes: { value: Note[] },
@@ -120,7 +127,7 @@ export const importBackup = (
   saveCategoryOrder: () => void,
   showToast: (msg: string, type?: any) => void,
   applySettings?: (settings: AppSettings) => void
-): boolean => {
+): Promise<boolean> => {
   try {
     const data = JSON.parse(jsonStr);
 
@@ -211,6 +218,14 @@ export const importBackup = (
       saveCategoryOrder();
     }
 
+    if (data.assets && typeof data.assets === 'object') {
+      try {
+        await imageAssetService.importAssets(data.assets);
+      } catch (err) {
+        console.warn('Import image assets error:', err);
+      }
+    }
+
     if (hasSettings && applySettings) {
       applySettings(data.settings);
     }
@@ -229,7 +244,7 @@ export const importBackup = (
   }
 };
 
-export const importSelectedBackup = (
+export const importSelectedBackup = async (
   data: BackupData,
   options: ImportOptions,
   categoriesRef: { value: Category[] },
@@ -240,7 +255,7 @@ export const importSelectedBackup = (
   saveCategoryOrder: () => void,
   showToast: (msg: string, type?: any) => void,
   applySettings?: (settings: AppSettings) => void
-): boolean => {
+): Promise<boolean> => {
   try {
     if (!data || typeof data !== 'object') return false;
 
@@ -359,6 +374,14 @@ export const importSelectedBackup = (
     }
     categoryOrderRef.value = newOrder;
     saveCategoryOrder();
+
+    if (data.assets && typeof data.assets === 'object') {
+      try {
+        await imageAssetService.importAssets(data.assets);
+      } catch (err) {
+        console.warn('Import image assets error:', err);
+      }
+    }
 
     if (hasSettings && applySettings && data.settings) {
       applySettings(data.settings);

@@ -93,6 +93,16 @@ export function useSettings() {
     store.openExportModal();
   };
 
+  const cleanOrphanImages = async () => {
+    const ok = await store.askConfirm(
+      '清理未使用的图片？',
+      '系统将扫描所有便签（包括最近删除），彻底删除没有任何便签引用的本地图片附件以释放存储空间。'
+    );
+    if (ok) {
+      await store.cleanOrphanImages();
+    }
+  };
+
   // 快捷操作逻辑
   const handleClear = async () => {
     if (store.currentCategoryId === 'trash') {
@@ -148,6 +158,7 @@ export function useSettings() {
     triggerFileInput,
     handleFileImport,
     exportBackup,
+    cleanOrphanImages,
     handleClear,
     handleAddNote,
     close

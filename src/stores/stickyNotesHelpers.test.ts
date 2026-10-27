@@ -46,9 +46,9 @@ describe('stickyNotesHelpers Data Export & Import', () => {
     gridColumns: 3
   };
 
-  it('exportSelectedBackup 应仅筛选选中的分类与便签', () => {
+  it('exportSelectedBackup 应仅筛选选中的分类与便签', async () => {
     const showToast = vi.fn();
-    exportSelectedBackup(
+    await exportSelectedBackup(
       mockCategories,
       mockNotes,
       mockSettings,
@@ -63,7 +63,7 @@ describe('stickyNotesHelpers Data Export & Import', () => {
     expect(showToast).toHaveBeenCalled();
   });
 
-  it('importSelectedBackup 增量合并模式 (merge)', () => {
+  it('importSelectedBackup 增量合并模式 (merge)', async () => {
     const categoriesRef = { value: [...mockCategories] };
     const notesRef = { value: [mockNotes[0]] };
     const categoryOrderRef = { value: ['all', 'cat-1', 'cat-2'] };
@@ -87,7 +87,7 @@ describe('stickyNotesHelpers Data Export & Import', () => {
       ]
     };
 
-    const success = importSelectedBackup(
+    const success = await importSelectedBackup(
       backup,
       {
         mode: 'merge',
@@ -109,7 +109,7 @@ describe('stickyNotesHelpers Data Export & Import', () => {
     expect(notesRef.value.length).toBe(2); // note-1, note-4
   });
 
-  it('importSelectedBackup 覆盖已有模式 (overwrite)', () => {
+  it('importSelectedBackup 覆盖已有模式 (overwrite) 并处理 assets', async () => {
     const categoriesRef = { value: [...mockCategories] };
     const notesRef = { value: [...mockNotes] };
     const categoryOrderRef = { value: ['all', 'cat-1', 'cat-2'] };
@@ -124,16 +124,22 @@ describe('stickyNotesHelpers Data Export & Import', () => {
           id: 'note-new',
           categoryId: 'cat-new',
           title: '全新便签',
-          content: '替换后的内容',
+          content: '替换后的内容: ![图](asset://test_asset_id.png)',
           color: '#ffffff',
           isPinned: false,
           createdAt: 5000,
           updatedAt: 5000
         }
-      ]
+      ],
+      assets: {
+        test_asset_id: {
+          mime: 'image/png',
+          data: 'iVBORw0KGgo='
+        }
+      }
     };
 
-    const success = importSelectedBackup(
+    const success = await importSelectedBackup(
       backup,
       {
         mode: 'overwrite',
