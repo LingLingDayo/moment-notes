@@ -368,6 +368,17 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     });
   };
 
+  const deleteNote = (id: string) => {
+    const note = noteStore.allNotes.find(n => n.id === id);
+    const isPermanent = !!note?.isDeleted;
+    noteStore.deleteNote(id);
+    if (isPermanent) {
+      imageAssetService.cleanOrphanAssets(noteStore.allNotes).catch((e) => {
+        console.warn('Auto clean orphan assets after permanent deleteNote failed:', e);
+      });
+    }
+  };
+
   const prepareImportFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = e => {
@@ -461,7 +472,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     }),
     trashNotesCount: computed(() => noteStore.trashNotesCount),
     addNote,
-    deleteNote: noteStore.deleteNote,
+    deleteNote,
     restoreNote: noteStore.restoreNote,
     clearTrash,
     cleanOrphanImages,
