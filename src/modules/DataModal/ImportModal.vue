@@ -123,7 +123,11 @@ const pendingNotesCount = computed(() => {
   }).length;
 });
 
+const isImporting = ref(false);
+
 const handleConfirmImport = async () => {
+  if (isImporting.value) return;
+
   if (importMode.value === 'overwrite') {
     const ok = await store.askConfirm(
       '确认覆盖数据？',
@@ -132,14 +136,18 @@ const handleConfirmImport = async () => {
     if (!ok) return;
   }
 
-  const options: ImportOptions = {
-    mode: importMode.value,
-    categoryIds: selectedCategoryIds.value,
-    importUncategorized: importUncategorized.value,
-    importSettings: importSettings.value
-  };
-
-  store.importSelectedBackup(options);
+  isImporting.value = true;
+  try {
+    const options: ImportOptions = {
+      mode: importMode.value,
+      categoryIds: selectedCategoryIds.value,
+      importUncategorized: importUncategorized.value,
+      importSettings: importSettings.value
+    };
+    await store.importSelectedBackup(options);
+  } finally {
+    isImporting.value = false;
+  }
 };
 
 const handleKeyDown = (e: KeyboardEvent) => {
@@ -226,12 +234,12 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
               <button
                 class="btn"
                 :class="importMode === 'overwrite' ? 'btn-danger' : 'btn-primary'"
-                :disabled="selectedCategoryIds.length === 0 && !importUncategorized && !importSettings"
+                :disabled="(selectedCategoryIds.length === 0 && !importUncategorized && !importSettings) || isImporting"
                 @click="handleConfirmImport"
               >
                 <AlertTriangle v-if="importMode === 'overwrite'" class="btn-icon" />
                 <Upload v-else class="btn-icon" />
-                <span>{{ importMode === 'overwrite' ? '确认覆盖导入' : '确认增量导入' }}</span>
+                <span>{{ isImporting ? '正在导入中...' : (importMode === 'overwrite' ? '确认覆盖导入' : '确认增量导入') }}</span>
               </button>
             </div>
           </div>

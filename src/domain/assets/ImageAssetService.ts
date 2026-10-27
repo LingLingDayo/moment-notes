@@ -6,7 +6,7 @@ import {
   createAssetUrl,
   extractAssetIdsFromMarkdown,
   uint8ArrayToBase64,
-  base64ToUint8Array,
+  fastBase64ToUint8Array,
   getExtFromMime
 } from '../../utils/imageProcessing';
 
@@ -101,25 +101,41 @@ export class ImageAssetService {
   }
 
   /**
-   * 导入图片数据到存储中
+   * 导入图片数据到存储中（支持分批并发与时间片让出，防止海量图片阻塞主线程）
    */
-  public async importAssets(assets: Record<string, ImageAssetExportItem>): Promise<number> {
+  public async importAssets(
+    assets: Record<string, ImageAssetExportItem>,
+    onProgress?: (completed: number, total: number) => void
+  ): Promise<number> {
     if (!assets || typeof assets !== 'object') return 0;
 
-    let importedCount = 0;
     const entries = Object.entries(assets);
+    const total = entries.length;
+    if (total === 0) return 0;
 
-    for (const [id, item] of entries) {
-      if (!item || !item.data) continue;
-      const exists = await this.repo.has(id);
-      if (!exists) {
-        const bytes = base64ToUint8Array(item.data);
-        const mime = item.mime || 'image/png';
-        const ok = await this.repo.put(id, bytes, mime);
-        if (ok) {
-          importedCount++;
-        }
-      }
+    let importedCount = 0;
+    const BATCH_SIZE = 6;
+
+    for (let i = 0; i < total; i += BATCH_SIZE) {
+      const batch = entries.slice(i, i + BATCH_SIZE);
+      await Promise.all(
+        batch.map(async ([id, item]) => {
+          if (!item || !item.data) return;
+          const exists = await this.repo.has(id);
+          if (!exists) {
+            const bytes = await fastBase64ToUint8Array(item.data);
+            const mime = item.mime || 'image/png';
+            const ok = await this.repo.put(id, bytes, mime);
+            if (ok) {
+              importedCount++;
+            }
+          }
+        })
+      );
+
+      onProgress?.(Math.min(i + BATCH_SIZE, total), total);
+      // 让出事件循环，确保 UI 能够渲染帧并响应用户交互
+      await new Promise(resolve => setTimeout(resolve, 0));
     }
 
     return importedCount;

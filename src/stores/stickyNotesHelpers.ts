@@ -1,5 +1,6 @@
 import { Category, Note, AppSettings, BackupData, ExportOptions, ImportOptions } from '@type';
 import { storage, downloadOrWriteFile, isUTools } from '@utils/storage';
+import { extractAssetIdsFromMarkdown } from '@utils/imageProcessing';
 import { imageAssetService } from '../domain/assets/ImageAssetService';
 import { getDefaultNotes } from './defaultData';
 
@@ -377,7 +378,23 @@ export const importSelectedBackup = async (
 
     if (data.assets && typeof data.assets === 'object') {
       try {
-        await imageAssetService.importAssets(data.assets);
+        const activeAssetIds = new Set<string>();
+        notesToImport.forEach((n: any) => {
+          if (n.content) {
+            extractAssetIdsFromMarkdown(n.content).forEach(id => activeAssetIds.add(id));
+          }
+        });
+
+        const assetsToImport: Record<string, any> = {};
+        for (const [id, item] of Object.entries(data.assets)) {
+          if (activeAssetIds.has(id)) {
+            assetsToImport[id] = item;
+          }
+        }
+
+        if (Object.keys(assetsToImport).length > 0) {
+          await imageAssetService.importAssets(assetsToImport);
+        }
       } catch (err) {
         console.warn('Import image assets error:', err);
       }

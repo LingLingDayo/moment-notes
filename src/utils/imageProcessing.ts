@@ -243,3 +243,20 @@ export function base64ToUint8Array(base64: string): Uint8Array {
   const globalBuf = (globalThis as any).Buffer;
   return globalBuf ? new Uint8Array(globalBuf.from(base64, 'base64')) : new Uint8Array();
 }
+
+/**
+ * 高性能异步 Base64 转二进制
+ * 优先使用浏览器底层的 fetch DataURL 解码（在 C++ 线程执行，不阻塞 JS 主线程）
+ */
+export async function fastBase64ToUint8Array(base64: string): Promise<Uint8Array> {
+  if (typeof fetch !== 'undefined') {
+    try {
+      const res = await fetch(`data:application/octet-stream;base64,${base64}`);
+      const buf = await res.arrayBuffer();
+      return new Uint8Array(buf);
+    } catch {
+      // 降级使用同步算法
+    }
+  }
+  return base64ToUint8Array(base64);
+}
