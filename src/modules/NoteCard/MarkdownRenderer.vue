@@ -210,10 +210,11 @@ const handleContainerClick = (e: MouseEvent) => {
     border-radius: 8px;
     margin: 6px 0;
     cursor: zoom-in;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: opacity 0.2s ease, filter 0.2s ease;
 
     &:hover {
-      transform: scale(1.01);
+      opacity: 0.92;
+      filter: brightness(1.03);
     }
 
     &.markdown-asset-img:not(.asset-img-loaded) {
