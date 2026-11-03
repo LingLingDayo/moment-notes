@@ -374,7 +374,7 @@ const deleteSelf = async () => {
   font-size: 10px;
   color: inherit;
   opacity: 0.8;
-  transition: opacity 0.25s ease;
+  transition: opacity $transition-fast;
   min-width: 0;
 
   &.has-active-popover {
@@ -406,17 +406,23 @@ const deleteSelf = async () => {
   gap: 4px;
   opacity: 0;
   max-width: 0;
+  transform: translateY(2px);
   pointer-events: none;
   overflow: hidden;
-  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity $transition-fast,
+    transform $transition-fast,
+    max-width 0s linear 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
 
   &.is-deleted-actions {
     opacity: 0.75;
     max-width: 140px;
+    transform: none;
     pointer-events: auto;
     overflow: hidden;
+    transition: opacity $transition-fast;
 
     &:hover {
       opacity: 1;
@@ -426,9 +432,14 @@ const deleteSelf = async () => {
   &.has-active-popover {
     opacity: 1;
     max-width: 160px;
+    transform: none;
     pointer-events: auto;
     overflow: visible;
     z-index: 21;
+    transition:
+      opacity $transition-fast,
+      transform $transition-fast,
+      max-width 0s;
   }
 }
 
@@ -448,6 +459,10 @@ const deleteSelf = async () => {
   border: none;
   cursor: pointer;
   flex-shrink: 0;
+  transition:
+    background-color $transition-fast,
+    color $transition-fast,
+    transform $transition-fast;
 
   &:hover {
     background: var(--card-btn-hover-bg);

@@ -49,8 +49,13 @@
       .card-actions {
         opacity: 1;
         max-width: 160px;
+        transform: none;
         pointer-events: auto;
         overflow: hidden;
+        transition:
+          opacity $transition-fast,
+          transform $transition-fast,
+          max-width 0s;
 
         &.has-active-popover {
           overflow: visible;
@@ -89,9 +94,14 @@
       .card-actions {
         opacity: 1;
         max-width: 160px;
+        transform: none;
         pointer-events: auto;
         overflow: visible;
         z-index: 21;
+        transition:
+          opacity $transition-fast,
+          transform $transition-fast,
+          max-width 0s;
       }
     }
   }
@@ -239,6 +249,7 @@
     :deep(.card-actions) {
       opacity: 1 !important;
       max-width: 200px !important;
+      transform: none !important;
       pointer-events: auto !important;
       overflow: hidden !important;
       gap: 6px !important;

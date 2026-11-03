@@ -101,7 +101,9 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .base-popover-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .base-popover-panel {

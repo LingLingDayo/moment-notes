@@ -284,8 +284,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
   justify-content: center;
   background: var(--card-bg);
   transition:
-    opacity 0.2s,
-    background 0.2s;
+    opacity $transition-fast,
+    background-color $transition-fast,
+    color $transition-fast,
+    transform $transition-fast;
 
   .dark-theme & {
     background: var(--card-bg-dark);
