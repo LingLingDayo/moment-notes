@@ -163,6 +163,60 @@ async function buildPreload(
   }
 }
 
+let isEnsuringAssets = false;
+
+/**
+ * 校验并自愈开发模式下的引导资产与 Preload 脚本
+ */
+async function ensureDevAssets(srcDir: string, destDir: string, devUrl: string) {
+  if (isEnsuringAssets) return;
+  const preloadDest = path.join(destDir, 'preload/services.js');
+  const preloadPkgDest = path.join(destDir, 'preload/package.json');
+  const pluginJsonDest = path.join(destDir, 'plugin.json');
+  const indexHtmlDest = path.join(destDir, 'index.html');
+  const logoDest = path.join(destDir, 'logo.png');
+
+  let needsSync = false;
+  let needsPreloadBuild = false;
+
+  if (!fs.existsSync(pluginJsonDest)) {
+    needsSync = true;
+  } else {
+    try {
+      const currentConfig = JSON.parse(fs.readFileSync(pluginJsonDest, 'utf-8'));
+      if (currentConfig.main !== devUrl || currentConfig.development?.main !== devUrl) {
+        needsSync = true;
+      }
+    } catch {
+      needsSync = true;
+    }
+  }
+
+  if (!fs.existsSync(indexHtmlDest) || !fs.existsSync(preloadPkgDest) || !fs.existsSync(logoDest)) {
+    needsSync = true;
+  }
+
+  if (!fs.existsSync(preloadDest)) {
+    needsPreloadBuild = true;
+  }
+
+  if (!needsSync && !needsPreloadBuild) {
+    return;
+  }
+
+  isEnsuringAssets = true;
+  try {
+    if (needsSync) {
+      syncUtoolsAssets(srcDir, destDir, true, devUrl);
+    }
+    if (needsPreloadBuild) {
+      await buildPreload(srcDir, destDir, true, false);
+    }
+  } finally {
+    isEnsuringAssets = false;
+  }
+}
+
 /**
  * uTools Vite 插件
  */
@@ -176,16 +230,21 @@ export function utoolsPlugin(options: UtoolsPluginOptions = {}): Plugin {
   return {
     name: 'vite-plugin-utools',
     configResolved(config) {
-      isUtoolsBuild = config.mode === 'utools';
+      // 只要不是专门针对纯网页环境（如 GitHub Pages）的 web 模式，默认均视为 uTools 插件构建
+      isUtoolsBuild = config.mode !== 'web';
     },
 
     async configureServer(server: ViteDevServer) {
+      if (process.env.VITEST) {
+        return;
+      }
+
       const devUrl = `http://127.0.0.1:${defaultPort}`;
 
       // 1. 在 Dev Server 启动时立即同步资源与生成开发版 plugin.json
-      syncUtoolsAssets(srcDir, outDir, true, devUrl);
+      await ensureDevAssets(srcDir, outDir, devUrl);
 
-      // 2. 立即编译 Preload 并开启 watch 监听，Preload 重新构建后自动通知客户端重载
+      // 2. 开启 preload 源码 watch 监听，Preload 重新构建后自动通知客户端重载
       try {
         watchCtx = await buildPreload(srcDir, outDir, true, true, () => {
           server.ws.send({ type: 'full-reload' });
@@ -193,6 +252,15 @@ export function utoolsPlugin(options: UtoolsPluginOptions = {}): Plugin {
       } catch (err) {
         console.error('\x1b[31m[uTools Preload] 初始化构建失败:\x1b[0m', err);
       }
+
+      // 3. 监听 utools 源码目录（修改 plugin.json 或 preload 自动感知）
+      server.watcher.add(srcDir);
+
+      // 4. 开发服务请求级自愈守护中间件：一旦检测到 dist 产物被意外清理或覆盖，无缝恢复
+      server.middlewares.use((_req, _res, next) => {
+        void ensureDevAssets(srcDir, outDir, devUrl);
+        next();
+      });
 
       console.log(
         `\x1b[36m[uTools]\x1b[0m 开发模式已就绪，可在 uTools 开发者工具中导入: \x1b[33m${path.join(outDir, 'plugin.json')}\x1b[0m`
@@ -209,9 +277,28 @@ export function utoolsPlugin(options: UtoolsPluginOptions = {}): Plugin {
       });
     },
 
+    async handleHotUpdate(ctx) {
+      if (process.env.VITEST) {
+        return;
+      }
+
+      const devUrl = `http://127.0.0.1:${defaultPort}`;
+
+      // 无论前端业务代码任何变动触发热更新，首先主动保障 dist/preload 与 plugin.json 始终健全
+      await ensureDevAssets(srcDir, outDir, devUrl);
+
+      // 若改动的是 utools 源码目录中的文件，则强制全量重新同步与重新编译
+      const normalizedFile = path.normalize(ctx.file);
+      if (normalizedFile.startsWith(path.normalize(srcDir))) {
+        syncUtoolsAssets(srcDir, outDir, true, devUrl);
+        await buildPreload(srcDir, outDir, true, false);
+        ctx.server.ws.send({ type: 'full-reload' });
+      }
+    },
+
     async closeBundle() {
-      // 仅在 uTools 专属构建模式（--mode utools）下打包 uTools 相关资产
-      if (!isUtoolsBuild) {
+      // 仅在非 web 模式（即 uTools 专属构建或默认生产构建）下打包 uTools 相关资产
+      if (!isUtoolsBuild || process.env.VITEST) {
         return;
       }
 

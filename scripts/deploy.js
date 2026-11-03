@@ -28,7 +28,7 @@ console.log('部署目标: GitHub Pages');
 
 try {
   console.log('正在为 GitHub Pages 执行打包...');
-  run('npm run build');
+  run('npm run build:web');
 
   if (!existsSync(distDir)) {
     throw new Error('未找到打包生成的 dist 目录！');
