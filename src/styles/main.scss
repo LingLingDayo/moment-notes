@@ -254,10 +254,25 @@
   --toast-error-text: hsl(340, 80%, 15%);
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 全局消除原生焦点轮廓（杜绝在 Windows/Chromium/uTools 下按 Shift 或点击触发的金橙色外边框） */
+:focus,
+:focus-visible,
+:focus-within {
+  outline: none !important;
+}
+
+::-moz-focus-inner {
+  border: 0 !important;
+  padding: 0 !important;
 }
 
 body,
@@ -389,22 +404,33 @@ html.is-utools,
   }
 }
 
-/* 按钮基础动效 */
-button {
+/* 按钮基础动效与交互重置 */
+button,
+[role='button'] {
   cursor: pointer;
   border: none;
   background: none;
   font-family: inherit;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:active {
     transform: scale(0.95);
   }
+
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+  }
 }
 
 /* 输入框基础样式 */
 input,
-textarea {
+textarea,
+select {
   font-family: inherit;
   outline: none;
   border: 1px solid transparent;
@@ -413,6 +439,11 @@ textarea {
     background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+  }
 }
 
 /* 提示通知动画 */
