@@ -101,6 +101,7 @@ const handleButtonAction = (actionKey: string) => {
   background: var(--popover-bg);
   border: 1px solid var(--popover-border);
   box-shadow: var(--shadow-lg);
+  transform-origin: center center;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -250,7 +251,7 @@ const handleButtonAction = (actionKey: string) => {
   will-change: opacity;
 
   .modal-container {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
     will-change: transform, opacity;
   }
 }
@@ -260,7 +261,7 @@ const handleButtonAction = (actionKey: string) => {
   opacity: 0;
 
   .modal-container {
-    transform: scale(0.92) translate3d(0, 12px, 0);
+    transform: scale(0.9) translate3d(0, 14px, 0);
     opacity: 0;
   }
 }
