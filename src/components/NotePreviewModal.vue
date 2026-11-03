@@ -91,6 +91,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  transform-origin: center center;
 
   &.is-immersive {
     width: 100%;
@@ -104,7 +105,7 @@ onUnmounted(() => {
   will-change: opacity;
 
   .note-preview-content {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
     will-change: transform, opacity;
   }
 }
@@ -114,7 +115,7 @@ onUnmounted(() => {
   opacity: 0;
 
   .note-preview-content {
-    transform: scale(0.92) translate3d(0, 12px, 0);
+    transform: scale(0.9) translate3d(0, 14px, 0);
     opacity: 0;
   }
 }
