@@ -262,7 +262,7 @@ defineExpose({
         ref="inputRef"
         v-model="newTagInput"
         type="text"
-        placeholder="+ 添加标签"
+        placeholder="＋添加标签"
         class="tag-input"
         @keydown="handleKeydown"
         @blur="handleBlur"
