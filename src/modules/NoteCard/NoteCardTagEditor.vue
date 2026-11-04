@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
-import { X, ChevronDown, Check, Plus } from '@lucide/vue';
+import { X, ChevronDown, Check } from '@lucide/vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { reorderTagList } from '@stores/stickyNotesAlgorithms';
 import { hideTooltip } from '@utils/tooltip';
@@ -217,12 +217,11 @@ defineExpose({
       @dragover.stop.prevent="handleInputDragOver"
       @drop.stop.prevent="handleTagDragEnd"
     >
-      <Plus class="input-plus-icon" />
       <input
         ref="inputRef"
         v-model="newTagInput"
         type="text"
-        placeholder="添加标签 (回车或逗号)"
+        placeholder="+ 添加标签 (回车或逗号)"
         class="tag-input"
         @keydown.enter.prevent="addTag"
         @keydown="handleKeydown"
@@ -278,15 +277,14 @@ defineExpose({
 .edit-tag-badge {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  height: 23px;
-  padding: 0 4px 0 8px;
+  gap: 2px;
+  height: 22px;
+  padding: 0 3px 0 7px;
   border-radius: 6px;
   font-size: 11px;
   font-weight: 500;
-  line-height: 1;
-  background: color-mix(in srgb, currentColor 7%, transparent);
-  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  background: var(--card-btn-hover-bg);
+  border: 1px solid var(--card-border);
   color: inherit;
   user-select: none;
   cursor: grab;
@@ -298,9 +296,16 @@ defineExpose({
     opacity $transition-fast,
     transform $transition-fast;
 
+  .dark-theme & {
+    border-color: var(--card-border-dark);
+  }
+
   &:hover {
-    background: color-mix(in srgb, currentColor 11%, transparent);
-    border-color: color-mix(in srgb, currentColor 20%, transparent);
+    background: var(--card-border);
+
+    .dark-theme & {
+      background: var(--card-border-dark);
+    }
   }
 
   &:active {
@@ -308,30 +313,31 @@ defineExpose({
   }
 
   &.is-dragging {
-    opacity: 0.35;
+    opacity: 0.4;
     border-style: dashed;
     transform: scale(0.96);
   }
 
   .tag-label {
     @include text-ellipsis;
-    line-height: 1.2;
+    line-height: 14px;
+    display: block;
   }
 
   .delete-tag-btn {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
     border-radius: 4px;
     border: none;
     background: transparent;
     color: inherit;
     padding: 0;
-    margin-left: 1px;
+    margin: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    opacity: 0.5;
+    opacity: 0.6;
     flex-shrink: 0;
     transition:
       opacity $transition-fast,
@@ -340,10 +346,11 @@ defineExpose({
       transform $transition-fast;
 
     .delete-tag-icon {
-      width: 11px;
-      height: 11px;
-      stroke-width: 2.25;
+      width: 12px;
+      height: 12px;
+      stroke-width: 2.2;
       display: block;
+      flex-shrink: 0;
     }
 
     &:hover {
@@ -380,40 +387,24 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   flex: 1;
-  min-width: 120px;
-
-  &:focus-within {
-    .input-plus-icon {
-      opacity: 0.85;
-    }
-  }
-}
-
-.input-plus-icon {
-  position: absolute;
-  left: 7px;
-  width: 11px;
-  height: 11px;
-  opacity: 0.45;
-  pointer-events: none;
-  transition: opacity $transition-fast;
+  min-width: 110px;
+  height: 22px;
 }
 
 .tag-input {
-  height: 23px;
-  background: color-mix(in srgb, currentColor 4%, transparent);
-  border: 1px dashed color-mix(in srgb, currentColor 18%, transparent);
+  height: 22px;
+  background: var(--input-bg);
+  border: 1px dashed var(--card-border);
   border-radius: 6px;
-  padding: 0 22px 0 21px;
+  padding: 0 22px 0 8px;
   font-size: 11px;
-  line-height: 1;
+  line-height: 14px;
   color: inherit;
   width: 100%;
   box-sizing: border-box;
 
-  &:hover {
-    background: color-mix(in srgb, currentColor 6%, transparent);
-    border-color: color-mix(in srgb, currentColor 26%, transparent);
+  .dark-theme & {
+    border-color: var(--card-border-dark);
   }
 
   &:focus {
@@ -429,7 +420,7 @@ defineExpose({
 
   &::placeholder {
     color: inherit;
-    opacity: 0.45;
+    opacity: 0.5;
   }
 }
 
@@ -438,14 +429,15 @@ defineExpose({
   right: 3px;
   top: 50%;
   transform: translateY(-50%);
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
   border-radius: 4px;
   border: none;
   background: transparent;
   color: inherit;
-  opacity: 0.55;
+  opacity: 0.6;
   padding: 0;
+  margin: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -457,7 +449,7 @@ defineExpose({
   &:hover,
   &.active {
     opacity: 1;
-    background: color-mix(in srgb, currentColor 10%, transparent);
+    background: var(--card-btn-hover-bg);
   }
 
   &:active {
@@ -467,6 +459,8 @@ defineExpose({
   .arrow-icon {
     width: 12px;
     height: 12px;
+    display: block;
+    flex-shrink: 0;
     transition: transform 0.2s ease;
 
     &.open {

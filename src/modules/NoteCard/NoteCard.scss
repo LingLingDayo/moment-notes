@@ -218,28 +218,32 @@
     }
 
     :deep(.note-tags-list) {
-      margin-top: 10px;
-      max-height: 58px;
+      margin-top: 8px;
+      max-height: 54px;
     }
 
     :deep(.note-tag-badge) {
       height: 24px;
       padding: 0 9px;
       font-size: 12px;
-      border-radius: 7px;
+      border-radius: 6px;
     }
 
     :deep(.edit-tag-badge) {
-      height: 26px;
-      padding: 0 5px 0 9px;
+      height: 24px;
+      padding: 0 4px 0 8px;
       font-size: 12px;
-      border-radius: 7px;
+      border-radius: 6px;
+    }
+
+    :deep(.tag-input-wrapper) {
+      height: 24px;
     }
 
     :deep(.tag-input) {
-      height: 26px;
+      height: 24px;
       font-size: 12px;
-      border-radius: 7px;
+      border-radius: 6px;
     }
 
     :deep(.edit-trigger-btn) {

@@ -336,10 +336,9 @@ watch(
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  margin-top: 8px;
-  padding-bottom: 2px;
+  margin-top: 6px;
   flex-shrink: 0;
-  max-height: 52px;
+  max-height: 46px;
   overflow: hidden;
 }
 
@@ -362,16 +361,14 @@ watch(
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  height: 22px;
-  padding: 0 8px;
+  height: 20px;
+  padding: 0 7px;
   border-radius: 6px;
   font-size: 11px;
-  line-height: 1;
   font-weight: 500;
-  background: color-mix(in srgb, currentColor 7%, transparent);
-  border: 1px solid color-mix(in srgb, currentColor 11%, transparent);
+  background: var(--card-btn-hover-bg);
+  border: 1px solid var(--card-border);
   color: inherit;
-  opacity: 0.85;
   cursor: pointer;
   user-select: none;
   max-width: 100%;
@@ -380,25 +377,32 @@ watch(
     background-color $transition-fast,
     border-color $transition-fast,
     color $transition-fast,
-    opacity $transition-fast,
     transform $transition-fast;
 
+  .dark-theme & {
+    border-color: var(--card-border-dark);
+  }
+
   .tag-prefix {
-    opacity: 0.5;
+    opacity: 0.55;
     font-weight: 600;
+    line-height: 14px;
     flex-shrink: 0;
   }
 
   .tag-text {
     @include text-ellipsis;
-    line-height: 1.2;
+    line-height: 14px;
+    display: block;
   }
 
   &:hover {
-    opacity: 1;
-    background: var(--card-btn-hover-bg);
-    border-color: color-mix(in srgb, currentColor 18%, transparent);
+    background: var(--card-border);
     color: var(--card-btn-hover-color);
+
+    .dark-theme & {
+      background: var(--card-border-dark);
+    }
   }
 
   &:active {
@@ -410,13 +414,7 @@ watch(
     padding: 0 6px;
     letter-spacing: 1px;
     font-weight: 700;
-
-    &:hover {
-      opacity: 1;
-      background: color-mix(in srgb, currentColor 12%, transparent);
-      border-color: color-mix(in srgb, currentColor 18%, transparent);
-      color: inherit;
-    }
+    line-height: 14px;
 
     &:active {
       transform: none;
