@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { Note } from '@type';
 import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
+import { useShortcutStore } from '@stores/shortcutStore';
 import NoteCardHeader from './NoteCardHeader.vue';
 import NoteCardBody from './NoteCardBody.vue';
 import NoteCardTagEditor from './NoteCardTagEditor.vue';
@@ -23,6 +24,7 @@ const props = withDefaults(
 );
 
 const store = useStickyNotesStore();
+const shortcutStore = useShortcutStore();
 
 // 是否处于编辑模式
 const isEditing = ref(false);
@@ -309,15 +311,39 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 };
 
+const handleEditingKeydown = (e: KeyboardEvent) => {
+  if (!isEditing.value || shortcutStore.isRecording) return;
+
+  const keyString = shortcutStore.getEventKeyString(e);
+  if (!keyString) return;
+
+  const matched = shortcutStore.shortcuts.find(s => s.currentKey === keyString);
+  if (!matched) return;
+
+  if (matched.id === 'saveEdit') {
+    e.preventDefault();
+    e.stopPropagation();
+    saveEdit();
+  } else if (matched.id === 'cancelEdit') {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!tagEditorRef.value?.closeDropdownIfOpen()) {
+      cancelEdit();
+    }
+  }
+};
+
 watch(isEditing, editing => {
   if (editing) {
     nextTick(() => {
       document.addEventListener('mousedown', handleMousedown, true);
       document.addEventListener('click', handleClickOutside, true);
+      document.addEventListener('keydown', handleEditingKeydown);
     });
   } else {
     document.removeEventListener('mousedown', handleMousedown, true);
     document.removeEventListener('click', handleClickOutside, true);
+    document.removeEventListener('keydown', handleEditingKeydown);
     mousedownTarget = null;
   }
 });
@@ -332,6 +358,7 @@ onBeforeUnmount(() => {
   }
   document.removeEventListener('mousedown', handleMousedown, true);
   document.removeEventListener('click', handleClickOutside, true);
+  document.removeEventListener('keydown', handleEditingKeydown);
   window.removeEventListener('mouseup', handleGlobalMouseUp);
   document.removeEventListener('selectionchange', handleSelectionChange);
 });
@@ -407,7 +434,13 @@ onMounted(() => {
       @save-edit="saveEdit"
     />
 
-    <NoteCardTagEditor v-if="isEditing" ref="tagEditorRef" v-model:tags="editTags" />
+    <NoteCardTagEditor
+      v-if="isEditing"
+      ref="tagEditorRef"
+      v-model:tags="editTags"
+      @save-edit="saveEdit"
+      @cancel-edit="cancelEdit"
+    />
 
     <NoteCardFooter
       ref="footerRef"

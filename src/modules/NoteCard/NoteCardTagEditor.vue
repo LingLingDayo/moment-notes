@@ -2,10 +2,16 @@
 import { ref, computed } from 'vue';
 import { X, ChevronDown, Check } from '@lucide/vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
+import { useShortcutStore } from '@stores/shortcutStore';
 import { reorderTagList } from '@stores/stickyNotesAlgorithms';
 import { hideTooltip } from '@utils/tooltip';
 
 const tags = defineModel<string[]>('tags', { default: () => [] });
+
+const emit = defineEmits<{
+  (e: 'save-edit'): void;
+  (e: 'cancel-edit'): void;
+}>();
 
 const newTagInput = ref('');
 const showDropdown = ref(false);
@@ -14,6 +20,7 @@ const editorRef = ref<HTMLElement | null>(null);
 const draggedTag = ref<string | null>(null);
 
 const store = useStickyNotesStore();
+const shortcutStore = useShortcutStore();
 
 // 获取所有已存在的标签
 const allExistingTags = computed(() => {
@@ -76,7 +83,32 @@ const selectTag = (tag: string) => {
 };
 
 const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === ',' || e.key === '，') {
+  const keyString = shortcutStore.getEventKeyString(e);
+  if (keyString) {
+    const matched = shortcutStore.shortcuts.find(s => s.currentKey === keyString);
+    if (matched) {
+      if (matched.id === 'saveEdit') {
+        e.preventDefault();
+        e.stopPropagation();
+        emit('save-edit');
+        return;
+      } else if (matched.id === 'cancelEdit') {
+        e.preventDefault();
+        e.stopPropagation();
+        if (showDropdown.value) {
+          showDropdown.value = false;
+        } else {
+          emit('cancel-edit');
+        }
+        return;
+      }
+    }
+  }
+
+  if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    e.preventDefault();
+    addTag();
+  } else if (e.key === ',' || e.key === '，') {
     e.preventDefault();
     addTag();
   } else if (e.key === 'Escape' && showDropdown.value) {
@@ -169,9 +201,18 @@ const handleTagDragEnd = () => {
   draggedTag.value = null;
 };
 
-// 暴露 addTag 方法供父组件在保存时调用，以便在点击保存前将未按回车的文本也作为标签录入
+const closeDropdownIfOpen = (): boolean => {
+  if (showDropdown.value) {
+    showDropdown.value = false;
+    return true;
+  }
+  return false;
+};
+
+// 暴露方法供父组件在保存或响应快捷键时调用
 defineExpose({
-  addTag
+  addTag,
+  closeDropdownIfOpen
 });
 </script>
 
@@ -223,7 +264,6 @@ defineExpose({
         type="text"
         placeholder="+ 添加标签 (回车或逗号)"
         class="tag-input"
-        @keydown.enter.prevent="addTag"
         @keydown="handleKeydown"
         @blur="handleBlur"
       />
@@ -287,7 +327,7 @@ defineExpose({
   border: 1px solid var(--card-border);
   color: inherit;
   user-select: none;
-  cursor: grab;
+  cursor: default;
   max-width: 180px;
   box-sizing: border-box;
   transition:
@@ -300,16 +340,8 @@ defineExpose({
     border-color: var(--card-border-dark);
   }
 
-  &:hover {
-    background: var(--card-border);
-
-    .dark-theme & {
-      background: var(--card-border-dark);
-    }
-  }
-
   &:active {
-    cursor: grabbing;
+    cursor: default;
   }
 
   &.is-dragging {
@@ -336,13 +368,11 @@ defineExpose({
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    opacity: 0.6;
+    cursor: default;
+    opacity: 0.55;
     flex-shrink: 0;
     transition:
       opacity $transition-fast,
-      background-color $transition-fast,
-      color $transition-fast,
       transform $transition-fast;
 
     .delete-tag-icon {
@@ -355,8 +385,7 @@ defineExpose({
 
     &:hover {
       opacity: 1;
-      background: var(--danger-hover-bg);
-      color: var(--danger-color);
+      background: transparent;
     }
 
     &:active {
