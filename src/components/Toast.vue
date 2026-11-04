@@ -33,7 +33,9 @@ const iconComponent = computed(() => {
       class="toast-container"
       :class="[`toast-${type}`, `position-${position}`]"
     >
-      <component :is="iconComponent" class="toast-icon" />
+      <div class="toast-icon-wrapper">
+        <component :is="iconComponent" class="toast-icon" :size="14" :stroke-width="2.2" />
+      </div>
       <span class="toast-text">{{ message }}</span>
     </div>
   </Transition>
@@ -44,22 +46,23 @@ const iconComponent = computed(() => {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  box-shadow: var(--popover-shadow);
+  gap: 7px;
+  padding: 6px 14px 6px 12px;
+  border-radius: 9999px;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: var(--toast-shadow, var(--shadow-md));
   z-index: $z-index-toast;
   border: 1px solid transparent;
-  max-width: 90%;
+  max-width: min(90vw, 420px);
   pointer-events: none;
-  transition:
-    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  line-height: 1.4;
 
   &.position-top {
-    top: 64px;
+    top: 58px;
   }
 
   &.position-bottom {
@@ -67,16 +70,26 @@ const iconComponent = computed(() => {
   }
 }
 
-.toast-icon {
-  width: 18px;
-  height: 18px;
+.toast-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
+.toast-icon {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
 .toast-text {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 // 各种类型的样式定义
@@ -85,7 +98,7 @@ const iconComponent = computed(() => {
   border-color: var(--toast-success-border);
   color: var(--toast-success-text);
   .toast-icon {
-    color: var(--toast-success-text);
+    color: var(--toast-success-icon, var(--toast-success-text));
   }
 }
 
@@ -94,7 +107,7 @@ const iconComponent = computed(() => {
   border-color: var(--toast-info-border);
   color: var(--toast-info-text);
   .toast-icon {
-    color: var(--toast-info-text);
+    color: var(--toast-info-icon, var(--toast-info-text));
   }
 }
 
@@ -103,7 +116,7 @@ const iconComponent = computed(() => {
   border-color: var(--toast-warning-border);
   color: var(--toast-warning-text);
   .toast-icon {
-    color: var(--toast-warning-text);
+    color: var(--toast-warning-icon, var(--toast-warning-text));
   }
 }
 
@@ -112,39 +125,55 @@ const iconComponent = computed(() => {
   border-color: var(--toast-error-border);
   color: var(--toast-error-text);
   .toast-icon {
-    color: var(--toast-error-text);
+    color: var(--toast-error-icon, var(--toast-error-text));
   }
 }
 
 // 顶部 Toast 过渡动效
-.toast-container.toast-top-enter-active,
+.toast-container.toast-top-enter-active {
+  transition:
+    opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .toast-container.toast-top-leave-active {
   transition:
-    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.18s cubic-bezier(0.4, 0, 1, 1),
+    transform 0.18s cubic-bezier(0.4, 0, 1, 1),
+    filter 0.18s cubic-bezier(0.4, 0, 1, 1);
 }
 .toast-container.toast-top-enter-from {
-  transform: translate(-50%, -30px) scale(0.9);
+  transform: translate(-50%, -10px) scale(0.96);
   opacity: 0;
+  filter: blur(2px);
 }
 .toast-container.toast-top-leave-to {
-  transform: translate(-50%, -20px) scale(0.95);
+  transform: translate(-50%, -6px) scale(0.98);
   opacity: 0;
+  filter: blur(2px);
 }
 
 // 底部 Toast 过渡动效
-.toast-container.toast-bottom-enter-active,
+.toast-container.toast-bottom-enter-active {
+  transition:
+    opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .toast-container.toast-bottom-leave-active {
   transition:
-    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.18s cubic-bezier(0.4, 0, 1, 1),
+    transform 0.18s cubic-bezier(0.4, 0, 1, 1),
+    filter 0.18s cubic-bezier(0.4, 0, 1, 1);
 }
 .toast-container.toast-bottom-enter-from {
-  transform: translate(-50%, 30px) scale(0.9);
+  transform: translate(-50%, 10px) scale(0.96);
   opacity: 0;
+  filter: blur(2px);
 }
 .toast-container.toast-bottom-leave-to {
-  transform: translate(-50%, 20px) scale(0.95);
+  transform: translate(-50%, 6px) scale(0.98);
   opacity: 0;
+  filter: blur(2px);
 }
 </style>
