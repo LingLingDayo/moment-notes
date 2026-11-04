@@ -235,9 +235,7 @@ onUnmounted(() => {
   position: fixed;
   inset: 0;
   z-index: $z-index-media-preview;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.82);
   display: flex;
   flex-direction: column;
   align-items: center;

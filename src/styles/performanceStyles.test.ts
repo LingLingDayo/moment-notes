@@ -47,4 +47,17 @@ describe('前端 SCSS 与 Vue 样式性能审计测试', () => {
 
     expect(violations).toEqual([]);
   });
+
+  it('图片预览器全屏蒙层不使用大面积高斯模糊以规避渲染性能缺陷', async () => {
+    const modalPath = path.join(SOURCE_ROOT, 'components', 'ImagePreviewModal.vue');
+    const source = await readFile(modalPath, 'utf8');
+
+    // 匹配 .image-preview-overlay 内部样式块
+    const overlayMatch = source.match(/\.image-preview-overlay\s*\{([^}]+)\}/u);
+    expect(overlayMatch).toBeTruthy();
+    const overlayRules = overlayMatch ? overlayMatch[1] : '';
+
+    expect(overlayRules).not.toContain('backdrop-filter');
+    expect(overlayRules).not.toContain('-webkit-backdrop-filter');
+  });
 });

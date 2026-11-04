@@ -8,3 +8,4 @@ export function cleanMarkdownHtml(rawHtml: string): string {
     .replace(/(<img\b[^>]*>)\s*<br\s*\/?>/gi, '$1')
     .replace(/<br\s*\/?>\s*(<img\b[^>]*>)/gi, '$1');
 }
+
