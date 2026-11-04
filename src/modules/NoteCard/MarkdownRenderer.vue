@@ -5,6 +5,7 @@ import DOMPurify from 'dompurify';
 import { openImagePreview } from '@utils/imageHandler';
 import { isAssetUrl, extractAssetId } from '@utils/imageProcessing';
 import { resolveAssetImagesInContainer } from '@utils/useAssetImages';
+import { cleanMarkdownHtml } from './markdownHelper';
 
 const props = defineProps<{
   content: string;
@@ -24,8 +25,8 @@ marked.use({
       if (href && isAssetUrl(href)) {
         const assetId = extractAssetId(href) || '';
         const titleAttr = title ? ` title="${title}"` : '';
-        // 采用占位透明 SVG，避免渲染原生破损图片图标
-        const placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24"%3E%3C/svg%3E';
+        // 采用占位透明 SVG，避免渲染原生破损图片图标 (保持 64x64 正方形规格)
+        const placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3C/svg%3E';
         return `<img data-asset-id="${assetId}" src="${placeholder}" alt="${text || '图片'}" class="markdown-asset-img"${titleAttr} />`;
       }
       const titleAttr = title ? ` title="${title}"` : '';
@@ -38,7 +39,8 @@ marked.use({
 const renderedHtml = computed(() => {
   if (!props.content) return '';
   const rawHtml = marked.parse(props.content) as string;
-  return DOMPurify.sanitize(rawHtml, {
+  const cleanedHtml = cleanMarkdownHtml(rawHtml);
+  return DOMPurify.sanitize(cleanedHtml, {
     ADD_ATTR: ['target', 'class', 'data-asset-id']
   });
 });
@@ -203,8 +205,10 @@ const handleContainerClick = (e: MouseEvent) => {
   }
 
   img {
-    max-width: 100% !important;
-    height: auto !important;
+    width: 64px;
+    height: 64px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
     box-sizing: border-box;
     display: block;
     border-radius: 8px;
@@ -218,7 +222,9 @@ const handleContainerClick = (e: MouseEvent) => {
     }
 
     &.markdown-asset-img:not(.asset-img-loaded) {
-      min-height: 48px;
+      width: 64px;
+      height: 64px;
+      aspect-ratio: 1 / 1;
       background: rgba(0, 0, 0, 0.04);
       opacity: 0.6;
       border: 1px dashed var(--popover-border);
@@ -229,7 +235,9 @@ const handleContainerClick = (e: MouseEvent) => {
     }
 
     &.asset-img-failed {
-      min-height: 36px;
+      width: 64px;
+      height: 64px;
+      aspect-ratio: 1 / 1;
       border: 1px dashed var(--popover-border);
       opacity: 0.5;
       padding: 6px 10px;

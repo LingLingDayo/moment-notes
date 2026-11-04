@@ -204,6 +204,12 @@
     :deep(.markdown-body) {
       font-size: 15px;
       line-height: 1.75;
+
+      img {
+        width: 96px;
+        height: 96px;
+        border-radius: 10px;
+      }
     }
 
     :deep(.card-content) {
