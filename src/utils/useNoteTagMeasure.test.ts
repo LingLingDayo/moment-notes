@@ -49,6 +49,13 @@ describe('useNoteTagMeasure 标签测量与截断 Hook 单测', () => {
     expect(allTagsText.value).toBe('');
   });
 
+  it('有标签时 allTagsText 应使用顿号分隔', () => {
+    const note = createMockNote(['快捷键', '效率', 'Markdown']);
+    const { allTagsText } = useNoteTagMeasure(note);
+
+    expect(allTagsText.value).toBe('#快捷键、#效率、#Markdown');
+  });
+
   it('支持传入响应式 ref 或 getter 函数，并动态感知标签变化', async () => {
     const noteRef = ref(createMockNote(['TagA']));
     const { visibleTags, calculateVisibleTags } = useNoteTagMeasure(() => noteRef.value);

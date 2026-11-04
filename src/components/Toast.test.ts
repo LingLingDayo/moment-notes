@@ -20,12 +20,12 @@ describe('Toast 组件与样式规范单测', () => {
     } as any;
   });
 
-  it('Toast.vue 应采用精致轻巧的药丸胶囊形态和毛玻璃质感', async () => {
+  it('Toast.vue 应采用精致轻巧的接近矩形微圆角形态和毛玻璃质感', async () => {
     const toastVuePath = path.resolve('src/components/Toast.vue');
     const source = await readFile(toastVuePath, 'utf8');
 
-    // 胶囊药丸圆角
-    expect(source).toContain('border-radius: 9999px');
+    // 接近矩形的微圆角
+    expect(source).toContain('border-radius: 8px');
     // 毛玻璃 Glassmorphism
     expect(source).toContain('backdrop-filter: blur(16px)');
     expect(source).toContain('-webkit-backdrop-filter: blur(16px)');

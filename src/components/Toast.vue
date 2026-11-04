@@ -50,7 +50,7 @@ const iconComponent = computed(() => {
   align-items: center;
   gap: 7px;
   padding: 6px 14px 6px 12px;
-  border-radius: 9999px;
+  border-radius: 8px;
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   box-shadow: var(--toast-shadow, var(--shadow-md));

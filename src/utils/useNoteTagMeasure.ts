@@ -38,7 +38,7 @@ export function useNoteTagMeasure(noteOrGetter: Note | Ref<Note> | (() => Note))
       return;
     }
 
-    const newAllTagsText = tags.map(t => store.prefixTagWithHash ? `#${t}` : t).join(' ');
+    const newAllTagsText = tags.map(t => store.prefixTagWithHash ? `#${t}` : t).join('、');
     if (allTagsText.value !== newAllTagsText) {
       allTagsText.value = newAllTagsText;
     }
