@@ -217,6 +217,31 @@
       padding: 10px 12px;
     }
 
+    :deep(.note-tags-list) {
+      margin-top: 10px;
+      max-height: 58px;
+    }
+
+    :deep(.note-tag-badge) {
+      height: 24px;
+      padding: 0 9px;
+      font-size: 12px;
+      border-radius: 7px;
+    }
+
+    :deep(.edit-tag-badge) {
+      height: 26px;
+      padding: 0 5px 0 9px;
+      font-size: 12px;
+      border-radius: 7px;
+    }
+
+    :deep(.tag-input) {
+      height: 26px;
+      font-size: 12px;
+      border-radius: 7px;
+    }
+
     :deep(.edit-trigger-btn) {
       padding: 7px;
       border-radius: 7px;

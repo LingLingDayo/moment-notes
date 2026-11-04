@@ -154,9 +154,10 @@ watch(
           :data-tooltip="tag"
           @click.stop="copyTag(tag)"
         >
-          {{ store.prefixTagWithHash ? '# ' : '' }}{{ tag }}
+          <span v-if="store.prefixTagWithHash" class="tag-prefix">#</span>
+          <span class="tag-text">{{ tag }}</span>
         </span>
-        <span v-if="hasMore" class="note-tag-badge more" :data-tooltip="allTagsText"> ... </span>
+        <span v-if="hasMore" class="note-tag-badge more" :data-tooltip="allTagsText">···</span>
       </div>
       <!-- 隐藏的便签标签测量区域 -->
       <div
@@ -165,9 +166,10 @@ watch(
         class="note-tags-list-measure"
       >
         <span v-for="tag in note.tags" :key="'measure-' + tag" class="note-tag-badge">
-          {{ store.prefixTagWithHash ? '# ' : '' }}{{ tag }}
+          <span v-if="store.prefixTagWithHash" class="tag-prefix">#</span>
+          <span class="tag-text">{{ tag }}</span>
         </span>
-        <span ref="measureEllipsisRef" class="note-tag-badge more">...</span>
+        <span ref="measureEllipsisRef" class="note-tag-badge more">···</span>
       </div>
     </template>
   </div>
@@ -332,10 +334,12 @@ watch(
 .note-tags-list {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 8px;
+  padding-bottom: 2px;
   flex-shrink: 0;
-  max-height: 48px;
+  max-height: 52px;
   overflow: hidden;
 }
 
@@ -348,45 +352,74 @@ watch(
   top: 0;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
   z-index: -9999;
   opacity: 0;
 }
 
 .note-tag-badge {
-  font-size: 10px;
-  line-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 22px;
   padding: 0 8px;
-  border-radius: 99px;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1;
   font-weight: 500;
-  background: var(--badge-bg);
-  border: 1px solid var(--popover-border);
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 11%, transparent);
   color: inherit;
   opacity: 0.85;
   cursor: pointer;
-  transition: background-color 0.15s, opacity 0.15s;
-
+  user-select: none;
   max-width: 100%;
-  display: -webkit-inline-box;
-  -webkit-box-orient: vertical;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  word-break: break-all;
-  white-space: normal;
+  box-sizing: border-box;
+  transition:
+    background-color $transition-fast,
+    border-color $transition-fast,
+    color $transition-fast,
+    opacity $transition-fast,
+    transform $transition-fast;
+
+  .tag-prefix {
+    opacity: 0.5;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .tag-text {
+    @include text-ellipsis;
+    line-height: 1.2;
+  }
 
   &:hover {
     opacity: 1;
     background: var(--card-btn-hover-bg);
+    border-color: color-mix(in srgb, currentColor 18%, transparent);
     color: var(--card-btn-hover-color);
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 
   &.more {
     cursor: help;
+    padding: 0 6px;
+    letter-spacing: 1px;
+    font-weight: 700;
+
     &:hover {
-      background: var(--badge-bg);
+      opacity: 1;
+      background: color-mix(in srgb, currentColor 12%, transparent);
+      border-color: color-mix(in srgb, currentColor 18%, transparent);
       color: inherit;
-      opacity: 0.85;
+    }
+
+    &:active {
+      transform: none;
     }
   }
 }

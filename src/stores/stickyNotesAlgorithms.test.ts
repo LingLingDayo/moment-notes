@@ -3,7 +3,8 @@ import {
   filterNotes,
   sortNotes,
   getFilteredAndSortedNotes,
-  normalizeCategoryOrder
+  normalizeCategoryOrder,
+  reorderTagList
 } from './stickyNotesAlgorithms';
 import type { Note, Category } from '@type';
 
@@ -163,6 +164,27 @@ describe('stickyNotesAlgorithms 纯算法单测套件', () => {
       const loadedOrder2 = ['all', 'deleted-cat', 'cat-2'];
       const order2 = normalizeCategoryOrder(loadedOrder2, categories);
       expect(order2).toEqual(['all', 'cat-2', 'cat-1']);
+    });
+  });
+
+  describe('reorderTagList 标签拖拽重排算法', () => {
+    it('支持将标签向后拖动调整位置', () => {
+      const tags = ['Vue3', 'TypeScript', 'Pinia', 'uTools'];
+      expect(reorderTagList(tags, 'Vue3', 'Pinia')).toEqual(['TypeScript', 'Pinia', 'Vue3', 'uTools']);
+    });
+
+    it('支持将标签向前拖动调整位置', () => {
+      const tags = ['Vue3', 'TypeScript', 'Pinia', 'uTools'];
+      expect(reorderTagList(tags, 'uTools', 'TypeScript')).toEqual(['Vue3', 'uTools', 'TypeScript', 'Pinia']);
+    });
+
+    it('相同标签或不存在的标签应返回原顺序副本且不修改原数组', () => {
+      const tags = ['Vue3', 'TypeScript'];
+      const res1 = reorderTagList(tags, 'Vue3', 'Vue3');
+      const res2 = reorderTagList(tags, 'React', 'Vue3');
+      expect(res1).toEqual(['Vue3', 'TypeScript']);
+      expect(res2).toEqual(['Vue3', 'TypeScript']);
+      expect(res1).not.toBe(tags);
     });
   });
 });

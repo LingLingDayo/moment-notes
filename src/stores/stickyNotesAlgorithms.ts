@@ -245,3 +245,21 @@ export function normalizeCategoryOrder(
 
   return finalOrder;
 }
+
+/**
+ * 调整标签列表中指定标签的顺序（从 fromTag 移动到 toTag 所在位置）
+ */
+export function reorderTagList(tags: string[], fromTag: string, toTag: string): string[] {
+  if (!Array.isArray(tags) || tags.length <= 1 || fromTag === toTag) {
+    return [...(tags || [])];
+  }
+  const fromIndex = tags.indexOf(fromTag);
+  const toIndex = tags.indexOf(toTag);
+  if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+    return [...tags];
+  }
+  const next = [...tags];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  return next;
+}
