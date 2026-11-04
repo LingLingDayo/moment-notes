@@ -17,7 +17,7 @@ interface DoubleClickNoteActionDefinition {
 export const DOUBLE_CLICK_NOTE_ACTIONS = [
   {
     id: 'copyAndPaste',
-    label: '双击复制并粘贴到光标处',
+    label: '复制内容并粘贴到光标处',
     execute: (context: DoubleClickNoteActionContext) => context.copyAndPaste()
   },
   {
