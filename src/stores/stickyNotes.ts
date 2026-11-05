@@ -390,6 +390,13 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     }
   };
 
+  const discardNewNote = (id: string) => {
+    noteStore.discardNewNote(id);
+    imageAssetService.cleanOrphanAssets(noteStore.allNotes).catch((e) => {
+      console.warn('Auto clean orphan assets after discardNewNote failed:', e);
+    });
+  };
+
   const prepareImportFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = e => {
@@ -485,6 +492,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     trashNotesCount: computed(() => noteStore.trashNotesCount),
     addNote,
     deleteNote,
+    discardNewNote,
+    isNewlyCreatedNote: noteStore.isNewlyCreatedNote,
+    markNoteAsSaved: noteStore.markNoteAsSaved,
     restoreNote: noteStore.restoreNote,
     clearTrash,
     cleanOrphanImages,

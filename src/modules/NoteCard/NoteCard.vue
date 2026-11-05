@@ -78,6 +78,11 @@ const enterEditMode = () => {
 
 // 保存编辑
 const saveEdit = () => {
+  if (!store.allNotes.some(n => n.id === props.note.id)) {
+    isEditing.value = false;
+    return;
+  }
+
   tagEditorRef.value?.addTag();
 
   const titleChanged = editTitle.value.trim() !== (props.note.title || '').trim();
@@ -93,11 +98,11 @@ const saveEdit = () => {
       content: editContent.value,
       tags: [...editTags.value]
     });
-    isEditing.value = false;
   } else {
-    cancelEdit();
-    return;
+    store.markNoteAsSaved?.(props.note.id);
   }
+
+  isEditing.value = false;
 
   if (store.openedFullscreenForEditNoteId === props.note.id) {
     store.closeNotePreview();
@@ -106,6 +111,7 @@ const saveEdit = () => {
 
 // 取消编辑
 const cancelEdit = () => {
+  const isNew = store.isNewlyCreatedNote?.(props.note.id);
   isEditing.value = false;
   editTitle.value = props.note.title || '';
   editContent.value = props.note.content;
@@ -113,6 +119,10 @@ const cancelEdit = () => {
 
   if (store.openedFullscreenForEditNoteId === props.note.id) {
     store.closeNotePreview();
+  }
+
+  if (isNew) {
+    store.discardNewNote?.(props.note.id);
   }
 };
 

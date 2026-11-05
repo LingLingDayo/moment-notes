@@ -130,6 +130,27 @@ export const useNoteStore = defineStore('noteStore', () => {
   };
 
   let lastRandomColor = '';
+  const newlyCreatedNoteIds = ref<Set<string>>(new Set());
+
+  const isNewlyCreatedNote = (id: string) => newlyCreatedNoteIds.value.has(id);
+
+  const markNoteAsSaved = (id: string) => {
+    newlyCreatedNoteIds.value.delete(id);
+  };
+
+  const discardNewNote = (id: string) => {
+    newlyCreatedNoteIds.value.delete(id);
+    if (editingNoteId.value === id) {
+      editingNoteId.value = null;
+    }
+    const index = allNotes.value.findIndex(n => n.id === id);
+    if (index !== -1) {
+      allNotes.value.splice(index, 1);
+      saveNotes();
+      syncCurrentCategoryNotes();
+      eventBus.emit('NOTE_DELETED', id);
+    }
+  };
 
   const addNote = (categoryId: string, content = '', title = '', color?: string, type?: NoteType) => {
     const uiStore = useUiStore();
@@ -157,6 +178,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     };
 
     allNotes.value.unshift(newNote);
+    newlyCreatedNoteIds.value.add(newNote.id);
     saveNotes();
     syncCurrentCategoryNotes();
 
@@ -166,6 +188,7 @@ export const useNoteStore = defineStore('noteStore', () => {
   };
 
   const deleteNote = (id: string) => {
+    newlyCreatedNoteIds.value.delete(id);
     const note = allNotes.value.find(n => n.id === id);
     if (!note) return;
 
@@ -217,6 +240,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     fields: Partial<Omit<Note, 'id' | 'createdAt'>>,
     updateTimestamp = true
   ) => {
+    newlyCreatedNoteIds.value.delete(id);
     const note = allNotes.value.find(n => n.id === id);
     if (note) {
       Object.assign(note, fields);
@@ -336,6 +360,10 @@ export const useNoteStore = defineStore('noteStore', () => {
     saveNotes,
     addNote,
     deleteNote,
+    discardNewNote,
+    isNewlyCreatedNote,
+    markNoteAsSaved,
+    newlyCreatedNoteIds,
     restoreNote,
     clearTrash,
     trashNotesCount,
