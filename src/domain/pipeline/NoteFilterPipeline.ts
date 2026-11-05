@@ -31,19 +31,19 @@ export class CategoryFilterStage implements PipelineStage {
   }
 }
 
-export class SearchFilterStage implements PipelineStage {
-  public name = 'SearchFilterStage';
-
-  public process(notes: Note[], context: NoteFilterContext): Note[] {
-    return filterNotes(notes, context.searchQuery, context.searchTarget, context.categories);
-  }
-}
-
 export class SortFilterStage implements PipelineStage {
   public name = 'SortFilterStage';
 
   public process(notes: Note[], context: NoteFilterContext): Note[] {
     return sortNotes(notes, context.sortMode, context.sortOrder, context.currentCategoryId);
+  }
+}
+
+export class SearchFilterStage implements PipelineStage {
+  public name = 'SearchFilterStage';
+
+  public process(notes: Note[], context: NoteFilterContext): Note[] {
+    return filterNotes(notes, context.searchQuery, context.searchTarget, context.categories);
   }
 }
 
@@ -61,8 +61,8 @@ export class LimitStage implements PipelineStage {
 export class NoteFilterPipeline {
   private stages: PipelineStage[] = [
     new CategoryFilterStage(),
-    new SearchFilterStage(),
     new SortFilterStage(),
+    new SearchFilterStage(),
     new LimitStage()
   ];
 

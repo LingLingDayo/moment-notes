@@ -6,6 +6,10 @@ import { useUiStore } from './uiStore';
 import { useCategoryStore } from './categoryStore';
 import { COLOR_PRESETS } from './colorPresets';
 import { SearchTarget } from './stickyNotesAlgorithms';
+import {
+  SEARCH_DEBOUNCE_THRESHOLD,
+  SEARCH_DEBOUNCE_MS
+} from '../domain/search/NoteSearchIndex';
 import { noteRepository } from '../infrastructure/storage/Repository';
 import { eventBus } from '../domain/events/DomainEventBus';
 
@@ -14,12 +18,36 @@ export const useNoteStore = defineStore('noteStore', () => {
   const notes = ref<Note[]>([]);
   const currentCategoryId = ref<string>('all');
   const searchQuery = ref<string>('');
+  const appliedSearchQuery = ref<string>('');
   const searchTarget = ref<SearchTarget[]>(['all']);
   const sortMode = ref<'date' | 'title' | 'tag' | 'custom' | 'useCount'>('date');
   const sortOrder = ref<'asc' | 'desc'>('desc');
   const draggedNoteId = ref<string | null>(null);
   const editingNoteId = ref<string | null>(null);
   const isLoadingNotes = ref(false);
+
+  let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // 监听原始搜索输入，按数据量自适应防抖或立即生效
+  watch(searchQuery, (newQuery) => {
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = null;
+    }
+
+    const trimmed = newQuery.trim();
+    // 清空搜索或便签总量较少时立即应用，避免界面交互延迟
+    if (!trimmed || notes.value.length <= SEARCH_DEBOUNCE_THRESHOLD) {
+      appliedSearchQuery.value = newQuery;
+      return;
+    }
+
+    // 大数据量且持续输入时引入平滑防抖，大幅降低频繁计算重绘
+    searchDebounceTimer = setTimeout(() => {
+      appliedSearchQuery.value = newQuery;
+      searchDebounceTimer = null;
+    }, SEARCH_DEBOUNCE_MS);
+  });
 
   const syncCurrentCategoryNotes = () => {
     const categoryId = currentCategoryId.value;
@@ -68,6 +96,11 @@ export const useNoteStore = defineStore('noteStore', () => {
 
   watch(currentCategoryId, (newId) => {
     if (newId) {
+      if (searchDebounceTimer) {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = null;
+        appliedSearchQuery.value = searchQuery.value;
+      }
       storage.setItem('sticky_notes_last_category_id', newId);
       applyCategoryViewSettings(newId);
       loadNotesForCurrentCategory();
@@ -293,6 +326,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     notes,
     currentCategoryId,
     searchQuery,
+    appliedSearchQuery,
     searchTarget,
     sortMode,
     sortOrder,
