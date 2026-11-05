@@ -1,8 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { marked } from 'marked';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { cleanMarkdownHtml } from './markdownHelper';
+import {
+  cleanMarkdownHtml,
+  SimpleLruCache,
+  renderMarkdownCached
+} from './markdownHelper';
 
 marked.setOptions({
   gfm: true,
@@ -70,5 +74,42 @@ describe('MarkdownRenderer 图片缩略图与排版规范单测', () => {
 
     // 占位符也应保持正方形规格避免加载跳变
     expect(source).toContain('width="64" height="64"');
+  });
+
+  describe('Markdown LRU 缓存与解析包装器', () => {
+    it('SimpleLruCache 超过容量限制时正确淘汰最久未使用的元素', () => {
+      const cache = new SimpleLruCache<string, number>(3);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.set('c', 3);
+
+      expect(cache.size()).toBe(3);
+      expect(cache.get('a')).toBe(1); // 访问 a，刷新活跃顺序
+
+      cache.set('d', 4); // 此时最久未使用应为 b，b 被淘汰
+      expect(cache.get('b')).toBeUndefined();
+      expect(cache.get('a')).toBe(1);
+      expect(cache.get('c')).toBe(3);
+      expect(cache.get('d')).toBe(4);
+    });
+
+    it('renderMarkdownCached 命中缓存时直接复用，不重复调用渲染函数', () => {
+      const testCache = new SimpleLruCache<string, string>(10);
+      const renderFn = vi.fn((src: string) => `<html>${src}</html>`);
+
+      const res1 = renderMarkdownCached('# Title', renderFn, testCache);
+      expect(res1).toBe('<html># Title</html>');
+      expect(renderFn).toHaveBeenCalledTimes(1);
+
+      // 第二次相同内容应命中缓存
+      const res2 = renderMarkdownCached('# Title', renderFn, testCache);
+      expect(res2).toBe('<html># Title</html>');
+      expect(renderFn).toHaveBeenCalledTimes(1);
+
+      // 内容变动时应调用渲染函数
+      const res3 = renderMarkdownCached('# Another', renderFn, testCache);
+      expect(res3).toBe('<html># Another</html>');
+      expect(renderFn).toHaveBeenCalledTimes(2);
+    });
   });
 });

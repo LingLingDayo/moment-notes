@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 import { openImagePreview } from '@utils/imageHandler';
 import { isAssetUrl, extractAssetId } from '@utils/imageProcessing';
 import { resolveAssetImagesInContainer } from '@utils/useAssetImages';
-import { cleanMarkdownHtml } from './markdownHelper';
+import { cleanMarkdownHtml, renderMarkdownCached } from './markdownHelper';
 
 const props = defineProps<{
   content: string;
@@ -35,13 +35,15 @@ marked.use({
   }
 });
 
-// 2. 解析并过滤 html
+// 2. 解析并过滤 html（接入 LRU 缓存，避免重复 AST 解析与 DOMPurify 净化损耗）
 const renderedHtml = computed(() => {
   if (!props.content) return '';
-  const rawHtml = marked.parse(props.content) as string;
-  const cleanedHtml = cleanMarkdownHtml(rawHtml);
-  return DOMPurify.sanitize(cleanedHtml, {
-    ADD_ATTR: ['target', 'class', 'data-asset-id']
+  return renderMarkdownCached(props.content, (src) => {
+    const rawHtml = marked.parse(src) as string;
+    const cleanedHtml = cleanMarkdownHtml(rawHtml);
+    return DOMPurify.sanitize(cleanedHtml, {
+      ADD_ATTR: ['target', 'class', 'data-asset-id']
+    });
   });
 });
 
