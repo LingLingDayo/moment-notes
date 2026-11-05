@@ -1,8 +1,15 @@
 import type { Note, Category } from '../types/index';
+import {
+  defaultSearchIndex,
+  buildCategoryPathMapLower
+} from '../domain/search/NoteSearchIndex';
 
 export type SearchTarget = 'all' | 'title' | 'content' | 'tag' | 'category';
 export type SortMode = 'date' | 'title' | 'tag' | 'custom' | 'useCount';
 export type SortOrder = 'asc' | 'desc';
+
+/** 中文拼音字典排序比较器单例，避免比较循环中数万次重复初始化 locale */
+const ZH_COLLATOR = new Intl.Collator('zh');
 
 /**
  * 构建分类 ID 到完整层级路径 (例如: "父分类 / 子分类") 的映射 Map
@@ -36,47 +43,8 @@ export function filterNotes(
   searchTarget: SearchTarget[] = ['all'],
   categories: Category[] = []
 ): Note[] {
-  const q = searchQuery.trim().toLowerCase();
-  if (!q) {
-    return notes;
-  }
-
-  const keywords = q.split(/\s+/).filter(k => k.length > 0);
-  if (keywords.length === 0) {
-    return notes;
-  }
-
-  const categoryPathMap = getCategoryPathMap(categories);
-
-  return notes.filter(n => {
-    return keywords.every(kw => {
-      const term = kw.toLowerCase();
-      const noteTitle = (n.title || '').toLowerCase();
-      const noteContent = (n.content || '').toLowerCase();
-
-      const titleMatch = noteTitle.includes(term);
-      const contentMatch = noteContent.includes(term);
-      const tagsMatch = Array.isArray(n.tags)
-        ? n.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(term))
-        : false;
-
-      const categoryName = (n.categoryId && categoryPathMap.has(n.categoryId))
-        ? categoryPathMap.get(n.categoryId)!
-        : (n.categoryId === 'uncategorized' ? '未分类' : '');
-      const categoryMatch = categoryName ? categoryName.toLowerCase().includes(term) : false;
-
-      if (searchTarget.includes('all')) {
-        return titleMatch || contentMatch || tagsMatch || categoryMatch;
-      }
-
-      let match = false;
-      if (searchTarget.includes('title') && titleMatch) match = true;
-      if (searchTarget.includes('content') && contentMatch) match = true;
-      if (searchTarget.includes('tag') && tagsMatch) match = true;
-      if (searchTarget.includes('category') && categoryMatch) match = true;
-      return match;
-    });
-  });
+  const pathMap = categories.length > 0 ? buildCategoryPathMapLower(categories) : undefined;
+  return defaultSearchIndex.filterNotes(notes, searchQuery, searchTarget, pathMap);
 }
 
 /**
@@ -92,68 +60,62 @@ export function sortNotes(
     return [...notes];
   }
 
-  // 1. 预计算 custom 索引 Map，避免在 sort 回调中频繁执行 findIndex (查找复杂度从 O(N) 降至 O(1))
-  const indexMap = sortMode === 'custom'
-    ? new Map(notes.map((n, i) => [n.id, i]))
-    : null;
+  // 1. 预提取排序比对所需字段为不可变原始结构，避免在 sort 回调中频繁穿透 Vue Proxy 触发 get trap
+  const items = notes.map((n, i) => {
+    let sortedTags: string[] = [];
+    if (sortMode === 'tag' && Array.isArray(n.tags) && n.tags.length > 0) {
+      sortedTags = [...n.tags].sort((t1, t2) => ZH_COLLATOR.compare(t1, t2));
+    }
+    return {
+      note: n,
+      isPinned: Boolean(n.isPinned),
+      lastUsedAt: n.lastUsedAt || 0,
+      updatedAt: n.updatedAt || 0,
+      title: n.title || '',
+      tags: sortedTags,
+      useCount: n.useCount || 0,
+      categoryId: n.categoryId,
+      index: i
+    };
+  });
 
-  // 2. 预计算 tag 字典序 Map，避免在 sort 回调中频繁做深浅拷贝与中文拼音字典排序
-  const sortedTagsMap = sortMode === 'tag'
-    ? new Map(
-        notes.map(n => [
-          n.id,
-          Array.isArray(n.tags) && n.tags.length > 0
-            ? [...n.tags].sort((t1, t2) => t1.localeCompare(t2, 'zh'))
-            : []
-        ])
-      )
-    : null;
-
-  return [...notes].sort((a, b) => {
+  items.sort((a, b) => {
     // 置顶(isPinned)始终排在最前面
     if (a.isPinned && !b.isPinned) return -1;
     if (!a.isPinned && b.isPinned) return 1;
 
     // 最近使用分类特殊按 lastUsedAt 降序
     if (currentCategoryId === 'recent') {
-      const timeA = a.lastUsedAt || 0;
-      const timeB = b.lastUsedAt || 0;
-      return timeB - timeA;
+      return b.lastUsedAt - a.lastUsedAt;
     }
 
     if (sortMode === 'title') {
-      const titleA = a.title || '';
-      const titleB = b.title || '';
+      const titleA = a.title;
+      const titleB = b.title;
       if (!titleA && titleB) return 1;
       if (titleA && !titleB) return -1;
       if (!titleA && !titleB) {
-        return sortOrder === 'asc'
-          ? (a.updatedAt || 0) - (b.updatedAt || 0)
-          : (b.updatedAt || 0) - (a.updatedAt || 0);
+        return sortOrder === 'asc' ? a.updatedAt - b.updatedAt : b.updatedAt - a.updatedAt;
       }
 
-      const cmp = titleA.localeCompare(titleB, 'zh');
+      const cmp = ZH_COLLATOR.compare(titleA, titleB);
       if (cmp !== 0) {
         return sortOrder === 'asc' ? cmp : -cmp;
       }
-      return sortOrder === 'asc'
-        ? (a.updatedAt || 0) - (b.updatedAt || 0)
-        : (b.updatedAt || 0) - (a.updatedAt || 0);
+      return sortOrder === 'asc' ? a.updatedAt - b.updatedAt : b.updatedAt - a.updatedAt;
     } else if (sortMode === 'tag') {
-      const tagsA = sortedTagsMap?.get(a.id) || [];
-      const tagsB = sortedTagsMap?.get(b.id) || [];
+      const tagsA = a.tags;
+      const tagsB = b.tags;
 
       // 无标签垫底
       if (tagsA.length === 0 && tagsB.length > 0) return 1;
       if (tagsA.length > 0 && tagsB.length === 0) return -1;
       if (tagsA.length === 0 && tagsB.length === 0) {
-        return (b.updatedAt || 0) - (a.updatedAt || 0);
+        return b.updatedAt - a.updatedAt;
       }
 
       // 比较代表/主要标签 (拼音字典序，归聚相同标签的分组)
-      const repTagA = tagsA[0];
-      const repTagB = tagsB[0];
-      const repCmp = repTagA.localeCompare(repTagB, 'zh');
+      const repCmp = ZH_COLLATOR.compare(tagsA[0], tagsB[0]);
       if (repCmp !== 0) {
         return sortOrder === 'asc' ? repCmp : -repCmp;
       }
@@ -165,25 +127,19 @@ export function sortNotes(
 
       // 标签数量相同时，逐项比较剩余标签字典序
       for (let i = 1; i < tagsA.length; i++) {
-        const itemCmp = tagsA[i].localeCompare(tagsB[i], 'zh');
+        const itemCmp = ZH_COLLATOR.compare(tagsA[i], tagsB[i]);
         if (itemCmp !== 0) {
           return sortOrder === 'asc' ? itemCmp : -itemCmp;
         }
       }
 
       // 标签完全相同时，对比更新时间
-      return sortOrder === 'asc'
-        ? (a.updatedAt || 0) - (b.updatedAt || 0)
-        : (b.updatedAt || 0) - (a.updatedAt || 0);
+      return sortOrder === 'asc' ? a.updatedAt - b.updatedAt : b.updatedAt - a.updatedAt;
     } else if (sortMode === 'useCount') {
-      const countA = a.useCount || 0;
-      const countB = b.useCount || 0;
-      if (countA !== countB) {
-        return sortOrder === 'asc' ? countA - countB : countB - countA;
+      if (a.useCount !== b.useCount) {
+        return sortOrder === 'asc' ? a.useCount - b.useCount : b.useCount - a.useCount;
       }
-      return sortOrder === 'asc'
-        ? (a.updatedAt || 0) - (b.updatedAt || 0)
-        : (b.updatedAt || 0) - (a.updatedAt || 0);
+      return sortOrder === 'asc' ? a.updatedAt - b.updatedAt : b.updatedAt - a.updatedAt;
     } else if (sortMode === 'custom') {
       if (currentCategoryId !== 'all' && currentCategoryId !== 'trash') {
         const isOwnA = a.categoryId === currentCategoryId;
@@ -191,15 +147,15 @@ export function sortNotes(
         if (isOwnA && !isOwnB) return -1;
         if (!isOwnA && isOwnB) return 1;
       }
-      const indexA = indexMap?.get(a.id) ?? 0;
-      const indexB = indexMap?.get(b.id) ?? 0;
-      return indexA - indexB;
+      return a.index - b.index;
     } else {
       return sortOrder === 'desc'
-        ? (b.updatedAt || 0) - (a.updatedAt || 0)
-        : (a.updatedAt || 0) - (b.updatedAt || 0);
+        ? b.updatedAt - a.updatedAt
+        : a.updatedAt - b.updatedAt;
     }
   });
+
+  return items.map(item => item.note);
 }
 
 /**
