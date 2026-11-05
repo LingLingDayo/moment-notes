@@ -1,12 +1,11 @@
 /**
  * 清理 Markdown 解析后 HTML 中多余的换行标签
- * 解决由于 marked 配置 breaks: true 时，块级图片与紧邻文本之间产生多余 <br> 的排版缺陷
+ * 对于连续相邻的多张图片，消除其由于 breaks: true 产生的换行标签，使多图能够以行内流形式自然并排平铺展示；
+ * 同时保留图片与文本之间的换行，确保用户在 Markdown 中回车换行的文本能够正确另起一行。
  */
 export function cleanMarkdownHtml(rawHtml: string): string {
   if (!rawHtml) return '';
-  return rawHtml
-    .replace(/(<img\b[^>]*>)\s*<br\s*\/?>/gi, '$1')
-    .replace(/<br\s*\/?>\s*(<img\b[^>]*>)/gi, '$1');
+  return rawHtml.replace(/(<img\b[^>]*>)\s*<br\s*\/?>\s*(?=<img\b)/gi, '$1');
 }
 
 /**

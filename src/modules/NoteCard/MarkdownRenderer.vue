@@ -212,9 +212,10 @@ const handleContainerClick = (e: MouseEvent) => {
     aspect-ratio: 1 / 1;
     object-fit: cover;
     box-sizing: border-box;
-    display: block;
+    display: inline-block;
+    vertical-align: middle;
     border-radius: 8px;
-    margin: 6px 0;
+    margin: 4px 6px 4px 0;
     cursor: zoom-in;
     transition: opacity 0.2s ease, filter 0.2s ease;
 
