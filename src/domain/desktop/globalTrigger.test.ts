@@ -3,10 +3,12 @@ import {
   DEFAULT_GLOBAL_TRIGGER,
   TRIGGER_HOLD_MS_MAX,
   TRIGGER_HOLD_MS_MIN,
+  cloneGlobalTrigger,
+  isSameGlobalTrigger,
   type GlobalTrigger
 } from './GlobalTrigger';
 import { GLOBAL_TRIGGER_SETTING, HIDE_ON_BLUR_SETTING } from './DesktopSettings';
-import { formatGlobalTrigger } from './triggerFormat';
+import { formatGlobalTrigger, getTriggerComboParts, getTriggerGestureNote } from './triggerFormat';
 import { getTriggerKeyInfo } from './triggerKeys';
 import {
   parseGlobalTrigger,
@@ -127,6 +129,45 @@ describe('formatGlobalTrigger', () => {
         trigger({ modifiers: [], input: { device: 'keyboard', code: 'ControlLeft' }, gesture: 'double' })
       )
     ).toBe('Ctrl（双击）');
+  });
+
+  it('可以分别取出按键名称和触发方式说明', () => {
+    const holdMiddle = trigger({
+      modifiers: ['shift', 'ctrl'],
+      input: { device: 'mouse', button: 'middle' },
+      gesture: 'hold',
+      holdMs: 600
+    });
+
+    expect(getTriggerComboParts(holdMiddle)).toEqual(['Ctrl', 'Shift', '鼠标中键']);
+    expect(getTriggerGestureNote(holdMiddle)).toBe('长按 600ms');
+    expect(getTriggerGestureNote(trigger({ gesture: 'double' }))).toBe('双击');
+    expect(getTriggerGestureNote(DEFAULT_GLOBAL_TRIGGER)).toBe('');
+  });
+});
+
+describe('isSameGlobalTrigger', () => {
+  it('内容相同的副本视为一致，修饰键顺序不影响结果', () => {
+    expect(isSameGlobalTrigger(DEFAULT_GLOBAL_TRIGGER, cloneGlobalTrigger(DEFAULT_GLOBAL_TRIGGER))).toBe(true);
+    expect(isSameGlobalTrigger(trigger({ modifiers: ['alt', 'ctrl'] }), DEFAULT_GLOBAL_TRIGGER)).toBe(true);
+  });
+
+  it.each<[string, Partial<GlobalTrigger>]>([
+    ['启用状态', { enabled: false }],
+    ['修饰键', { modifiers: ['ctrl'] }],
+    ['键盘主键', { input: { device: 'keyboard', code: 'KeyM' } }],
+    ['输入设备', { input: { device: 'mouse', button: 'middle' } }],
+    ['触发方式', { gesture: 'hold' }],
+    ['长按时长', { holdMs: 800 }]
+  ])('%s不同时视为不一致', (_name, overrides) => {
+    expect(isSameGlobalTrigger(trigger(overrides), DEFAULT_GLOBAL_TRIGGER)).toBe(false);
+  });
+
+  it('鼠标按键不同时视为不一致', () => {
+    const middle = trigger({ input: { device: 'mouse', button: 'middle' } });
+    const side = trigger({ input: { device: 'mouse', button: 'x1' } });
+
+    expect(isSameGlobalTrigger(middle, side)).toBe(false);
   });
 });
 

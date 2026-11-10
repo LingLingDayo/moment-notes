@@ -87,3 +87,16 @@ export const cloneGlobalTrigger = (trigger: GlobalTrigger): GlobalTrigger => ({
   gesture: trigger.gesture,
   holdMs: trigger.holdMs
 });
+
+const isSameTriggerInput = (a: TriggerInput, b: TriggerInput): boolean => {
+  if (a.device === 'keyboard') return b.device === 'keyboard' && a.code === b.code;
+  return b.device === 'mouse' && a.button === b.button;
+};
+
+/** 两个触发器的配置是否完全一致（修饰键不看顺序） */
+export const isSameGlobalTrigger = (a: GlobalTrigger, b: GlobalTrigger): boolean =>
+  a.enabled === b.enabled &&
+  a.gesture === b.gesture &&
+  a.holdMs === b.holdMs &&
+  isSameTriggerInput(a.input, b.input) &&
+  sortTriggerModifiers(a.modifiers).join('+') === sortTriggerModifiers(b.modifiers).join('+');
