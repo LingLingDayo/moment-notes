@@ -10,6 +10,9 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+# Electron 构建产物与安装包输出
+dist-electron
+release
 *.local
 
 # Editor directories and files

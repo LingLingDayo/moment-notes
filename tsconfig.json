@@ -34,7 +34,8 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "utools/**/*.ts",
-    "utools/**/*.d.ts"
+    "utools/**/*.d.ts",
+    "electron/**/*.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

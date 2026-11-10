@@ -13,6 +13,8 @@ export default [
       '.vscode/',
       '.idea/',
       'dist/',
+      'dist-electron/',
+      'release/',
       '*.local',
       'public/',
       'preload/',
@@ -123,6 +125,16 @@ export default [
           caughtErrorsIgnorePattern: '^_'
         }
       ]
+    }
+  },
+
+  // 6. Electron 主进程与 preload：最终打包成 CommonJS 运行在 Node 环境
+  {
+    files: ['electron/**/*.ts'],
+    languageOptions: {
+      globals: {
+        __dirname: 'readonly'
+      }
     }
   }
 ];
