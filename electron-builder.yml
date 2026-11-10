@@ -1,0 +1,51 @@
+# 桌面应用（Electron）的打包配置，配合 npm run pack:electron / dist:electron 使用。
+# 打包前必须先完成 build:electron，产物在 dist-electron/（主进程、preload 和 renderer）。
+appId: com.moment-notes.app
+productName: 拾光便签
+copyright: Copyright © moment-notes
+
+directories:
+  output: release
+  buildResources: public
+
+# 界面代码已由 Vite 打进 dist-electron/renderer，主进程由 esbuild 打成单文件，
+# 运行时唯一需要的 node_modules 是全局输入钩子 uiohook-napi（及它用来定位二进制的 node-gyp-build）。
+files:
+  - dist-electron/**
+  - package.json
+  - '!node_modules/**'
+  - node_modules/uiohook-napi/package.json
+  - node_modules/uiohook-napi/dist/**
+  - node_modules/uiohook-napi/prebuilds/${platform}-${arch}/**
+  - node_modules/node-gyp-build/**
+  - '!**/*.{md,map,ts}'
+
+# 原生模块（.node）不能从 asar 里直接加载
+asarUnpack:
+  - node_modules/uiohook-napi/**
+
+# uiohook-napi 自带各平台的预编译二进制（N-API，与 Electron 版本无关），不需要针对 Electron 重新编译
+npmRebuild: false
+
+win:
+  icon: public/logo.png
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 拾光便签
+  artifactName: moment-notes-${version}-setup.${ext}
+
+portable:
+  artifactName: moment-notes-${version}-portable.${ext}
+
+# 目前只配置并验证了 Windows。要支持 macOS / Linux 时再补对应的 target，
+# 注意 macOS 的图标至少需要 512x512（public/logo.png 是 256x256）。
