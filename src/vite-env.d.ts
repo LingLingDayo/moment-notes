@@ -8,6 +8,8 @@ declare module '*.vue' {
 
 interface Window {
   utools: UToolsApi;
+  /** 仅在 Electron 桌面应用形态下由 preload 注入 */
+  desktop?: import('./infrastructure/desktop/DesktopApi').DesktopApi;
   services: {
     runtime?: {
       platform: string;
