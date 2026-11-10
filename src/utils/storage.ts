@@ -1,3 +1,5 @@
+import { desktopBridge } from '../infrastructure/desktop/desktopBridge';
+
 /**
  * 检查当前是否在 uTools 环境下运行
  */
@@ -147,6 +149,17 @@ export const downloadOrWriteFile = (
         );
       }
     }
+  }
+
+  // 桌面应用形态：由主进程弹出保存对话框并写盘；失败时继续走下面的降级下载
+  if (desktopBridge.isAvailable()) {
+    const result = desktopBridge.saveTextFile({
+      content,
+      filename,
+      filterName: mimeType.includes('json') ? 'JSON Backup Files' : 'Text Files',
+      extensions: [filename.split('.').pop() || 'txt']
+    });
+    if (result !== 'failed') return result;
   }
 
   // 浏览器环境降级下载

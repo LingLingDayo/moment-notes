@@ -1,3 +1,4 @@
+import type { GlobalTrigger } from '../domain/desktop/GlobalTrigger';
 import type { DoubleClickNoteAction } from '../domain/noteInteractions/DoubleClickNoteActionRegistry';
 
 export type { DoubleClickNoteAction } from '../domain/noteInteractions/DoubleClickNoteActionRegistry';
@@ -74,6 +75,10 @@ export interface AppSettings {
   categoryViewSettings?: Record<string, CategoryViewSetting>;
   shortcuts?: Array<{ id: string; currentKey: string }>;
   collapsedCategoryIds?: string[];
+  /** 仅桌面应用（Electron）形态下导出和应用 */
+  globalTrigger?: GlobalTrigger;
+  /** 仅桌面应用（Electron）形态下导出和应用 */
+  hideOnBlur?: boolean;
 }
 
 export interface BackupData {

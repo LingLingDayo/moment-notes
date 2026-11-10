@@ -2,6 +2,7 @@ import { AppSettings } from '@type';
 import { storage } from '@utils/storage';
 import { DOUBLE_CLICK_NOTE_ACTION_SETTING } from '../domain/noteInteractions/DoubleClickNoteActionRegistry';
 import { decodeSettingValue } from '../domain/settings/SettingDefinition';
+import { applyDesktopSettings, getDesktopSettings } from './desktopSettingsHelper';
 
 export const getCurrentSettings = (
   uiStore: any,
@@ -33,7 +34,8 @@ export const getCurrentSettings = (
     categoryIndependentToolbar: uiStore.categoryIndependentToolbar,
     categoryViewSettings: uiStore.categoryViewSettings,
     shortcuts: shortcutStore.shortcuts.map((s: any) => ({ id: s.id, currentKey: s.currentKey })),
-    collapsedCategoryIds: categoryStore.collapsedCategoryIds
+    collapsedCategoryIds: categoryStore.collapsedCategoryIds,
+    ...getDesktopSettings()
   };
 };
 
@@ -132,6 +134,7 @@ export const applySettings = (
     categoryStore.collapsedCategoryIds = settings.collapsedCategoryIds;
     storage.setItem('sticky_notes_collapsed_categories', JSON.stringify(settings.collapsedCategoryIds));
   }
+  applyDesktopSettings(settings);
   if (typeof noteStore.applyCategoryViewSettings === 'function' && noteStore.currentCategoryId) {
     noteStore.applyCategoryViewSettings(noteStore.currentCategoryId);
   }

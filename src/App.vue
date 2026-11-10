@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
+import { useDesktopStore } from '@stores/desktopStore';
 import { isUTools } from '@utils/storage';
 import Dashboard from '@views/Dashboard.vue';
 import ImagePreviewModal from '@components/ImagePreviewModal.vue';
@@ -15,6 +16,7 @@ import {
 } from './infrastructure/windows/detachedNoteWindow';
 
 const store = useStickyNotesStore();
+const desktopStore = useDesktopStore();
 const unsubscribeCallbacks: Array<() => void> = [];
 
 onMounted(() => {
@@ -119,6 +121,9 @@ onMounted(() => {
     };
     window.addEventListener('storage', handleStorage);
     unsubscribeCallbacks.push(() => window.removeEventListener('storage', handleStorage));
+
+    // 桌面应用形态：把全局唤起快捷键、失焦隐藏两项设置同步给主进程（非桌面形态下是空操作）
+    void desktopStore.init();
   }
 
   unsubscribeCallbacks.push(
