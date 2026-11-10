@@ -1,11 +1,14 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { useShortcutStore } from '@stores/shortcutStore';
+import { useDesktopStore } from '@stores/desktopStore';
 import { storage } from '@utils/storage';
+import { HIDE_ON_BLUR_SETTING } from '../../domain/desktop/DesktopSettings';
 
 export function useSettings() {
   const store = useStickyNotesStore();
   const shortcutStore = useShortcutStore();
+  const desktopStore = useDesktopStore();
   const activeTab = ref<string>('general');
   const fileInputRef = ref<HTMLInputElement | null>(null);
 
@@ -17,6 +20,9 @@ export function useSettings() {
         if (shortcut) {
           return shortcut.currentKey;
         }
+        if (key === HIDE_ON_BLUR_SETTING.key) {
+          return desktopStore.hideOnBlur;
+        }
         return (store as any)[key];
       },
       set(val) {
@@ -25,7 +31,9 @@ export function useSettings() {
           shortcutStore.updateShortcut(key, val);
           return;
         }
-        if (key === 'isDark') {
+        if (key === HIDE_ON_BLUR_SETTING.key) {
+          void desktopStore.setHideOnBlur(val);
+        } else if (key === 'isDark') {
           if (store.isDark !== val) {
             store.toggleTheme();
           }
@@ -77,6 +85,8 @@ export function useSettings() {
 
   // 备份与恢复操作
   const triggerFileInput = () => {
+    // 系统的文件选择框会抢走焦点：先挂起失焦自动隐藏，否则窗口会连同选择框一起被收走
+    desktopStore.suspendAutoHideUntilFocus();
     fileInputRef.value?.click();
   };
 

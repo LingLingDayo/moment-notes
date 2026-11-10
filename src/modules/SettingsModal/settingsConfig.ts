@@ -1,11 +1,19 @@
 import { markRaw } from 'vue';
-import { Sun, Moon, Columns, Settings, Database, Info, Trash2, Keyboard } from '@lucide/vue';
+import { Sun, Moon, Columns, Settings, Database, Info, Trash2, Keyboard, AppWindow } from '@lucide/vue';
 import {
   DOUBLE_CLICK_NOTE_ACTIONS,
   DOUBLE_CLICK_NOTE_ACTION_SETTING
 } from '../../domain/noteInteractions/DoubleClickNoteActionRegistry';
+import { GLOBAL_TRIGGER_SETTING, HIDE_ON_BLUR_SETTING } from '../../domain/desktop/DesktopSettings';
+import { isSettingAvailableOn, type SettingPlatform } from '../../domain/settings/SettingDefinition';
+import { getRuntimePlatform } from '../../infrastructure/platform/platform';
 import DataPanel from './DataPanel.vue';
 import AboutPanel from './AboutPanel.vue';
+import GlobalTriggerSetting from './GlobalTriggerSetting/GlobalTriggerSetting.vue';
+
+/** 设置项是否在当前运行形态下可用，完全由领域层设置定义里的 platforms 决定 */
+const availableOnCurrentPlatform = (definition: { platforms?: readonly SettingPlatform[] }) => () =>
+  isSettingAvailableOn(definition, getRuntimePlatform());
 
 
 export interface SettingOption {
@@ -423,6 +431,32 @@ export const SETTINGS_SCHEMA: SettingGroup[] = [
           <li><strong>双击隐藏粘贴：</strong>双击便签卡片会直接自动收起窗口，并自动将便签内容填至您原先光标所在的输入位置。</li>
           <li><strong>捕获外部文本：</strong>在 uTools 的超级面板中，可以直接选中文本一键导入并创建新便签。</li>
         </ul>`
+      }
+    ]
+  },
+  {
+    // 仅桌面应用形态可见；uTools 插件里窗口的唤起和隐藏由 uTools 自己管理
+    id: 'desktop',
+    title: '桌面应用',
+    tabTitle: '桌面应用',
+    icon: markRaw(AppWindow),
+    visible: availableOnCurrentPlatform(GLOBAL_TRIGGER_SETTING),
+    items: [
+      {
+        key: GLOBAL_TRIGGER_SETTING.key,
+        label: '全局唤起快捷键',
+        type: 'component',
+        desc: '在任何程序里按下它，都能立刻显示或收起便签窗口。除了键盘组合键，也可以用鼠标按键（含侧键），并支持长按和双击。',
+        component: markRaw(GlobalTriggerSetting),
+        visible: availableOnCurrentPlatform(GLOBAL_TRIGGER_SETTING)
+      },
+      {
+        key: HIDE_ON_BLUR_SETTING.key,
+        label: '失去焦点时自动隐藏',
+        type: 'switch',
+        desc: '点击其他窗口或桌面时自动收起便签窗口。和全局唤起快捷键搭配使用：需要时一键唤出，用完点别处即收起。',
+        default: HIDE_ON_BLUR_SETTING.defaultValue,
+        visible: availableOnCurrentPlatform(HIDE_ON_BLUR_SETTING)
       }
     ]
   },
