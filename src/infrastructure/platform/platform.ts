@@ -13,4 +13,6 @@ export const getRuntimePlatform = (): SettingPlatform => {
   return 'browser';
 };
 
+export const isUTools = (): boolean => getRuntimePlatform() === 'utools';
 export const isElectron = (): boolean => getRuntimePlatform() === 'electron';
+export const isBrowser = (): boolean => getRuntimePlatform() === 'browser';

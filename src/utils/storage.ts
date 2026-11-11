@@ -1,11 +1,8 @@
 import { desktopBridge } from '../infrastructure/desktop/desktopBridge';
+import { isUTools } from '../infrastructure/platform/platform';
 
-/**
- * 检查当前是否在 uTools 环境下运行
- */
-export const isUTools = (): boolean => {
-  return typeof window !== 'undefined' && window.utools !== undefined;
-};
+export { isUTools, getRuntimePlatform, isElectron, isBrowser } from '../infrastructure/platform/platform';
+export { copyTextToClipboard, openExternalUrl } from '../infrastructure/platform/hostBridge';
 
 /**
  * 封装通用存储，在 uTools 下使用 dbStorage，在浏览器下使用 localStorage

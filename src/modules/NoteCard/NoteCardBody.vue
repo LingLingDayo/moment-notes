@@ -3,7 +3,7 @@ import { ref, watch, nextTick, computed } from 'vue';
 import { Note } from '@type';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { useShortcutStore } from '@stores/shortcutStore';
-import { isUTools } from '@utils/storage';
+import { copyTextToClipboard } from '../../infrastructure/platform/hostBridge';
 import { useNoteTagMeasure } from '@utils/useNoteTagMeasure';
 import { useNoteImageUpload } from '@utils/useNoteImageUpload';
 import MarkdownRenderer from './MarkdownRenderer.vue';
@@ -50,11 +50,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
 // 复制标签逻辑
 const copyTag = async (tag: string) => {
   try {
-    if (isUTools()) {
-      window.utools.copyText(tag);
-    } else {
-      await navigator.clipboard.writeText(tag);
-    }
+    await copyTextToClipboard(tag);
     store.showToast(`已复制标签: ${tag}`, 'success');
   } catch (err) {
     console.error('Failed to copy tag:', err);

@@ -6,6 +6,7 @@ import { openImagePreview } from '@utils/imageHandler';
 import { isAssetUrl, extractAssetId } from '@utils/imageProcessing';
 import { resolveAssetImagesInContainer } from '@utils/useAssetImages';
 import { cleanMarkdownHtml, renderMarkdownCached } from './markdownHelper';
+import { openExternalUrl } from '../../infrastructure/platform/hostBridge';
 
 const props = defineProps<{
   content: string;
@@ -84,11 +85,7 @@ const handleContainerClick = (e: MouseEvent) => {
     if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
       e.stopPropagation();
       e.preventDefault();
-      if (window.utools?.shellOpenExternal) {
-        window.utools.shellOpenExternal(href);
-      } else {
-        window.open(href, '_blank', 'noopener,noreferrer');
-      }
+      openExternalUrl(href);
     }
   }
 };

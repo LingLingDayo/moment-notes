@@ -8,7 +8,7 @@ import NoteCardBody from './NoteCardBody.vue';
 import NoteCardTagEditor from './NoteCardTagEditor.vue';
 import NoteCardFooter from './NoteCardFooter.vue';
 import { getContainerSelectedText } from '@utils/selection';
-import { isUTools } from '@utils/storage';
+import { copyTextToClipboard } from '../../infrastructure/platform/hostBridge';
 import { executeDoubleClickNoteAction } from '../../domain/noteInteractions/DoubleClickNoteActionRegistry';
 
 const props = withDefaults(
@@ -168,11 +168,7 @@ const handleSelectionChange = () => {
 
     lastAutoCopiedText = currentText;
     try {
-      if (isUTools()) {
-        window.utools.copyText(currentText);
-      } else {
-        await navigator.clipboard.writeText(currentText);
-      }
+      await copyTextToClipboard(currentText);
       store.updateNoteLastUsed(props.note.id);
     } catch (err) {
       console.error('Auto copy failed:', err);

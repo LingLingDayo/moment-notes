@@ -2,7 +2,7 @@
 import { ref, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
 import { Settings } from '@lucide/vue';
-import { isUTools } from '@utils/storage';
+import { storage, isUTools } from '@utils/storage';
 import CategoryList from './CategoryList.vue';
 import CategoryAdd from './CategoryAdd.vue';
 
@@ -18,7 +18,7 @@ const sidebarWidth = ref(DEFAULT_SIDEBAR_WIDTH);
 const isResizing = ref(false);
 
 // 从本地存储初始化宽度
-const savedWidth = localStorage.getItem('sidebar-width');
+const savedWidth = storage.getItem('sidebar-width');
 if (savedWidth) {
   const width = parseInt(savedWidth, 10);
   if (!isNaN(width) && width >= MIN_SIDEBAR_WIDTH) {
@@ -56,7 +56,7 @@ const stopResize = () => {
   document.body.style.cursor = '';
   document.body.style.userSelect = '';
 
-  localStorage.setItem('sidebar-width', sidebarWidth.value.toString());
+  storage.setItem('sidebar-width', sidebarWidth.value.toString());
 
   window.removeEventListener('mousemove', handleResize);
   window.removeEventListener('mouseup', stopResize);

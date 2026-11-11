@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { Palette, FolderInput, Check, Copy, Trash2, RotateCcw, Folder, FileText, FileCode } from '@lucide/vue';
 import { Note, NoteType } from '@type';
 import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
-import { isUTools } from '@utils/storage';
+import { copyTextToClipboard } from '../../infrastructure/platform/hostBridge';
 import { formatDate } from '@utils/date';
 import BasePopover from '@components/BasePopover.vue';
 
@@ -82,11 +82,7 @@ const copyNoteContent = async (e?: MouseEvent) => {
       return;
     }
 
-    if (isUTools()) {
-      window.utools.copyText(textToCopy);
-    } else {
-      await navigator.clipboard.writeText(textToCopy);
-    }
+    await copyTextToClipboard(textToCopy);
     store.showToast(isSelectedText ? '已复制选中内容' : '已复制便签内容', 'success');
     store.updateNoteLastUsed(props.note.id);
   } catch (err) {
