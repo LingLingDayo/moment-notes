@@ -15,6 +15,8 @@ const BLUR_HIDE_DELAY_MS = 60;
 const GESTURE_BLUR_TOLERANCE_MS = 250;
 /** 请求挂起失焦隐藏后，若这么久窗口仍然持有焦点，说明系统对话框没有弹出来 */
 const SUSPEND_FALLBACK_MS = 2000;
+/** 唤起时通过临时置顶穿透 Windows 前台锁定后，恢复普通层级的延时 */
+const TOPMOST_RESTORE_DELAY_MS = 150;
 
 /**
  * 主窗口控制器：负责显示 / 隐藏 / 切换，以及"失焦自动隐藏"。
@@ -27,6 +29,7 @@ export class MainWindowController {
   private lastBlurAt = 0;
   private lastBlurHideAt = 0;
   private blurTimer: ReturnType<typeof setTimeout> | null = null;
+  private topmostRestoreTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private readonly options: MainWindowOptions) {}
 
@@ -63,6 +66,7 @@ export class MainWindowController {
     });
     win.on('closed', () => {
       this.clearBlurTimer();
+      this.clearTopmostTimer();
       this.window = null;
     });
 
@@ -83,12 +87,29 @@ export class MainWindowController {
     if (!win) return;
     if (win.isMinimized()) win.restore();
     this.moveToCursorDisplay(win);
+
+    // 突破 Windows Foreground Lockout，临时置顶确保穿透其它前台窗口遮挡并夺取焦点
+    win.setAlwaysOnTop(true, 'screen-saver');
     win.show();
     win.focus();
+    win.moveTop();
+
+    this.clearTopmostTimer();
+    this.topmostRestoreTimer = setTimeout(() => {
+      this.topmostRestoreTimer = null;
+      const currentWin = this.getWindow();
+      if (currentWin) {
+        currentWin.setAlwaysOnTop(false);
+      }
+    }, TOPMOST_RESTORE_DELAY_MS);
   }
 
   hide(): void {
-    this.getWindow()?.hide();
+    this.clearTopmostTimer();
+    const win = this.getWindow();
+    if (!win) return;
+    win.setAlwaysOnTop(false);
+    win.hide();
   }
 
   /**
@@ -136,6 +157,13 @@ export class MainWindowController {
   prepareQuit(): void {
     this.quitting = true;
     this.clearBlurTimer();
+    this.clearTopmostTimer();
+  }
+
+  private clearTopmostTimer(): void {
+    if (this.topmostRestoreTimer === null) return;
+    clearTimeout(this.topmostRestoreTimer);
+    this.topmostRestoreTimer = null;
   }
 
   private handleBlur(): void {
