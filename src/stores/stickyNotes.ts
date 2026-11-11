@@ -70,126 +70,9 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
         categoryStore.saveCategoryOrder();
       }
 
-      const storedSortMode = storage.getItem('sticky_notes_sort_mode');
-      if (storedSortMode && ['date', 'title', 'tag', 'custom', 'useCount'].includes(storedSortMode)) {
-        noteStore.sortMode = storedSortMode as 'date' | 'title' | 'tag' | 'custom' | 'useCount';
-      }
-
-      const storedSortOrder = storage.getItem('sticky_notes_sort_order');
-      if (storedSortOrder && ['asc', 'desc'].includes(storedSortOrder)) {
-        noteStore.sortOrder = storedSortOrder as 'asc' | 'desc';
-      }
-
-      const storedGridColumns = storage.getItem('sticky_notes_grid_columns');
-      if (storedGridColumns) {
-        if (storedGridColumns === 'auto') {
-          uiStore.gridColumns = 'auto';
-        } else {
-          const cols = parseInt(storedGridColumns, 10);
-          if ([1, 2, 3, 4].includes(cols)) {
-            uiStore.gridColumns = cols as 1 | 2 | 3 | 4;
-          }
-        }
-      }
-
-      const storedMinNoteWidth = storage.getItem('sticky_notes_min_note_width');
-      if (storedMinNoteWidth) {
-        const width = parseInt(storedMinNoteWidth, 10);
-        if (!isNaN(width)) {
-          uiStore.minNoteWidth = width;
-        }
-      }
-
-      const storedNoteMaxHeight = storage.getItem('sticky_notes_note_max_height');
-      if (storedNoteMaxHeight) {
-        const height = parseInt(storedNoteMaxHeight, 10);
-        if (!isNaN(height)) {
-          uiStore.noteMaxHeight = height;
-        }
-      }
-
-      const storedEnabledButtons = storage.getItem('sticky_notes_enabled_action_bar_buttons');
-      if (storedEnabledButtons) {
-        try {
-          uiStore.enabledActionBarButtons = JSON.parse(storedEnabledButtons);
-        } catch (e) {
-          console.error('Failed to parse enabled action bar buttons:', e);
-        }
-      }
-
-      const storedDateFormat = storage.getItem('sticky_notes_date_format');
-      if (storedDateFormat) {
-        uiStore.dateFormat = storedDateFormat;
-      }
-
-      const storedDefaultNoteColor = storage.getItem('sticky_notes_default_note_color');
-      if (storedDefaultNoteColor) {
-        uiStore.defaultNoteColor = storedDefaultNoteColor;
-      }
-
-      const storedDefaultNoteType = storage.getItem('sticky_notes_default_note_type');
-      if (storedDefaultNoteType && ['text', 'markdown'].includes(storedDefaultNoteType)) {
-        uiStore.defaultNoteType = storedDefaultNoteType as any;
-      }
-
-      const storedDefaultEditMode = storage.getItem('sticky_notes_default_edit_mode');
-      if (storedDefaultEditMode && ['inline', 'fullscreen'].includes(storedDefaultEditMode)) {
-        uiStore.defaultEditMode = storedDefaultEditMode as 'inline' | 'fullscreen';
-      }
-
-      const storedSuperPanelCat = storage.getItem('sticky_notes_super_panel_default_category');
-      if (storedSuperPanelCat) {
-        uiStore.superPanelDefaultCategory = storedSuperPanelCat;
-      }
-
-      const storedStartPageMode = storage.getItem('sticky_notes_start_page_mode');
-      if (storedStartPageMode && ['last', 'default'].includes(storedStartPageMode)) {
-        uiStore.startPageMode = storedStartPageMode as 'last' | 'default';
-      }
-
-      const storedEnableHoverAnimation = storage.getItem('sticky_notes_enable_hover_animation');
-      if (storedEnableHoverAnimation !== null) {
-        uiStore.enableHoverAnimation = storedEnableHoverAnimation === 'true';
-      }
-
-      const storedEnableAutoCopySelection = storage.getItem('sticky_notes_enable_auto_copy_selection');
-      if (storedEnableAutoCopySelection !== null) {
-        uiStore.enableAutoCopySelection = storedEnableAutoCopySelection === 'true';
-      }
-
-      const storedShowNoteCount = storage.getItem('sticky_notes_show_note_count');
-      if (storedShowNoteCount !== null) {
-        uiStore.showNoteCount = storedShowNoteCount === 'true';
-      }
-
-      const storedPrefixTagWithHash = storage.getItem('sticky_notes_prefix_tag_with_hash');
-      if (storedPrefixTagWithHash !== null) {
-        uiStore.prefixTagWithHash = storedPrefixTagWithHash === 'true';
-      }
-
-      const storedSkipDeleteConfirm = storage.getItem('sticky_notes_skip_delete_confirm');
-      if (storedSkipDeleteConfirm !== null) {
-        uiStore.skipDeleteConfirm = storedSkipDeleteConfirm === 'true';
-      }
-
-      const storedEnableImmersiveFullscreen = storage.getItem('sticky_notes_enable_immersive_fullscreen');
-      if (storedEnableImmersiveFullscreen !== null) {
-        uiStore.enableImmersiveFullscreen = storedEnableImmersiveFullscreen === 'true';
-      }
-
-      const storedCategoryIndependentToolbar = storage.getItem('sticky_notes_category_independent_toolbar');
-      if (storedCategoryIndependentToolbar !== null) {
-        uiStore.categoryIndependentToolbar = storedCategoryIndependentToolbar === 'true';
-      }
-
-      const storedCategoryViewSettings = storage.getItem('sticky_notes_category_view_settings');
-      if (storedCategoryViewSettings) {
-        try {
-          uiStore.categoryViewSettings = JSON.parse(storedCategoryViewSettings);
-        } catch (e) {
-          console.error('Failed to parse category view settings:', e);
-        }
-      }
+      // 批量安全重载 UI 设置与排序设置
+      uiStore.loadSettings();
+      noteStore.loadSettings();
 
       const storedNotes = noteRepository.getAll();
       if (storedNotes && storedNotes.length > 0) {
@@ -507,6 +390,8 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     updateNote: noteStore.updateNote,
     clearNotes,
     setSortMode: noteStore.setSortMode,
+    setSortOrder: noteStore.setSortOrder,
+    setSetting: uiStore.setSetting,
     moveNote: noteStore.moveNote,
     updateNoteLastUsed: noteStore.updateNoteLastUsed,
 

@@ -1,7 +1,8 @@
 import { AppSettings } from '@type';
-import { storage } from '@utils/storage';
-import { DOUBLE_CLICK_NOTE_ACTION_SETTING } from '../domain/noteInteractions/DoubleClickNoteActionRegistry';
-import { decodeSettingValue } from '../domain/settings/SettingDefinition';
+import {
+  APP_SETTING_DEFINITIONS,
+  decodeSettingValue
+} from '../domain/settings/AppSettingRegistry';
 import { applyDesktopSettings, getDesktopSettings } from './desktopSettingsHelper';
 
 export const getCurrentSettings = (
@@ -48,81 +49,46 @@ export const applySettings = (
 ) => {
   if (!settings || typeof settings !== 'object') return;
 
-  if (settings.theme === 'dark' || settings.theme === 'light') {
-    const isDarkTarget = settings.theme === 'dark';
-    if (isDarkTarget !== uiStore.isDark) {
-      uiStore.toggleTheme();
+  // 1. 遍历应用设置注册表驱动解码与赋值
+  for (const def of APP_SETTING_DEFINITIONS) {
+    const rawVal = (settings as any)[def.key];
+    if (rawVal === undefined) continue;
+
+    const decoded = decodeSettingValue(def as any, rawVal);
+    if (decoded === undefined) continue;
+
+    if (def.key === 'sortMode') {
+      noteStore.setSortMode(decoded);
+    } else if (def.key === 'sortOrder') {
+      if (typeof noteStore.setSortOrder === 'function') {
+        noteStore.setSortOrder(decoded);
+      } else {
+        noteStore.sortOrder = decoded;
+      }
+    } else if (def.key === 'collapsedCategoryIds') {
+      categoryStore.collapsedCategoryIds = decoded;
+      if (categoryStore.saveCollapsed) {
+        categoryStore.saveCollapsed();
+      }
+    } else if (def.key === 'categoryViewSettings') {
+      uiStore.categoryViewSettings = decoded;
+      uiStore.saveCategoryViewSettings();
+    } else if (def.key === 'theme') {
+      const isDarkTarget = decoded === 'dark';
+      if (isDarkTarget !== uiStore.isDark) {
+        uiStore.toggleTheme();
+      }
+    } else {
+      const setterName = `set${def.key.charAt(0).toUpperCase()}${def.key.slice(1)}`;
+      if (typeof uiStore[setterName] === 'function') {
+        uiStore[setterName](decoded);
+      } else if (typeof uiStore.setSetting === 'function') {
+        uiStore.setSetting(def.key, decoded);
+      }
     }
   }
-  if (settings.gridColumns && ['auto', 1, 2, 3, 4].includes(settings.gridColumns)) {
-    uiStore.setGridColumns(settings.gridColumns);
-  }
-  if (typeof settings.minNoteWidth === 'number' && !isNaN(settings.minNoteWidth)) {
-    uiStore.setMinNoteWidth(settings.minNoteWidth);
-  }
-  if (typeof settings.noteMaxHeight === 'number' && !isNaN(settings.noteMaxHeight)) {
-    uiStore.setNoteMaxHeight(settings.noteMaxHeight);
-  }
-  if (Array.isArray(settings.enabledActionBarButtons)) {
-    uiStore.setEnabledActionBarButtons(settings.enabledActionBarButtons);
-  }
-  if (typeof settings.dateFormat === 'string') {
-    uiStore.setDateFormat(settings.dateFormat);
-  }
-  if (typeof settings.defaultNoteColor === 'string') {
-    uiStore.setDefaultNoteColor(settings.defaultNoteColor);
-  }
-  if (settings.defaultNoteType && ['text', 'markdown'].includes(settings.defaultNoteType)) {
-    uiStore.setDefaultNoteType(settings.defaultNoteType);
-  }
-  if (settings.defaultEditMode && ['inline', 'fullscreen'].includes(settings.defaultEditMode)) {
-    uiStore.setDefaultEditMode(settings.defaultEditMode);
-  }
-  const doubleClickNoteAction = decodeSettingValue(
-    DOUBLE_CLICK_NOTE_ACTION_SETTING,
-    settings.doubleClickNoteAction
-  );
-  if (doubleClickNoteAction) {
-    uiStore.setDoubleClickNoteAction(doubleClickNoteAction);
-  }
-  if (typeof settings.superPanelDefaultCategory === 'string') {
-    uiStore.setSuperPanelDefaultCategory(settings.superPanelDefaultCategory);
-  }
-  if (settings.startPageMode && ['last', 'default'].includes(settings.startPageMode)) {
-    uiStore.setStartPageMode(settings.startPageMode);
-  }
-  if (typeof settings.enableHoverAnimation === 'boolean') {
-    uiStore.setEnableHoverAnimation(settings.enableHoverAnimation);
-  }
-  if (typeof settings.enableAutoCopySelection === 'boolean') {
-    uiStore.setEnableAutoCopySelection(settings.enableAutoCopySelection);
-  }
-  if (typeof settings.showNoteCount === 'boolean') {
-    uiStore.setShowNoteCount(settings.showNoteCount);
-  }
-  if (typeof settings.prefixTagWithHash === 'boolean') {
-    uiStore.setPrefixTagWithHash(settings.prefixTagWithHash);
-  }
-  if (typeof settings.skipDeleteConfirm === 'boolean') {
-    uiStore.setSkipDeleteConfirm(settings.skipDeleteConfirm);
-  }
-  if (typeof settings.enableImmersiveFullscreen === 'boolean') {
-    uiStore.setEnableImmersiveFullscreen(settings.enableImmersiveFullscreen);
-  }
-  if (typeof settings.categoryIndependentToolbar === 'boolean') {
-    uiStore.setCategoryIndependentToolbar(settings.categoryIndependentToolbar);
-  }
-  if (settings.categoryViewSettings && typeof settings.categoryViewSettings === 'object') {
-    uiStore.categoryViewSettings = settings.categoryViewSettings;
-    uiStore.saveCategoryViewSettings();
-  }
-  if (settings.sortMode && ['date', 'title', 'tag', 'custom', 'useCount'].includes(settings.sortMode)) {
-    noteStore.setSortMode(settings.sortMode);
-  }
-  if (settings.sortOrder && ['asc', 'desc'].includes(settings.sortOrder)) {
-    noteStore.sortOrder = settings.sortOrder;
-    storage.setItem('sticky_notes_sort_order', settings.sortOrder);
-  }
+
+  // 2. 快捷键列表恢复
   if (Array.isArray(settings.shortcuts)) {
     settings.shortcuts.forEach(item => {
       if (item && typeof item.id === 'string' && typeof item.currentKey === 'string') {
@@ -130,11 +96,11 @@ export const applySettings = (
       }
     });
   }
-  if (Array.isArray(settings.collapsedCategoryIds)) {
-    categoryStore.collapsedCategoryIds = settings.collapsedCategoryIds;
-    storage.setItem('sticky_notes_collapsed_categories', JSON.stringify(settings.collapsedCategoryIds));
-  }
+
+  // 3. 桌面专属设置恢复
   applyDesktopSettings(settings);
+
+  // 4. 当前分类视图更新
   if (typeof noteStore.applyCategoryViewSettings === 'function' && noteStore.currentCategoryId) {
     noteStore.applyCategoryViewSettings(noteStore.currentCategoryId);
   }

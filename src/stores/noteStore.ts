@@ -7,6 +7,8 @@ import { useCategoryStore } from './categoryStore';
 import { COLOR_PRESETS } from './colorPresets';
 import { SearchTarget, SortMode, SortOrder } from '@type';
 import { filterNotesByCategory } from '../domain/notes/noteAlgorithms';
+import { settingRepository } from '../infrastructure/storage/SettingRepository';
+import { SORT_MODE_SETTING, SORT_ORDER_SETTING } from '../domain/settings/AppSettingRegistry';
 import {
   SEARCH_DEBOUNCE_THRESHOLD,
   SEARCH_DEBOUNCE_MS
@@ -21,8 +23,8 @@ export const useNoteStore = defineStore('noteStore', () => {
   const searchQuery = ref<string>('');
   const appliedSearchQuery = ref<string>('');
   const searchTarget = ref<SearchTarget[]>(['all']);
-  const sortMode = ref<SortMode>('date');
-  const sortOrder = ref<SortOrder>('desc');
+  const sortMode = ref<SortMode>(settingRepository.get(SORT_MODE_SETTING));
+  const sortOrder = ref<SortOrder>(settingRepository.get(SORT_ORDER_SETTING));
   const draggedNoteId = ref<string | null>(null);
   const editingNoteId = ref<string | null>(null);
   const isLoadingNotes = ref(false);
@@ -273,7 +275,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     eventBus.requestToast('已清空当前分类下的便签', 'success');
   };
 
-  const setSortMode = (mode: 'date' | 'title' | 'tag' | 'custom' | 'useCount') => {
+  const setSortMode = (mode: SortMode) => {
     if (mode === sortMode.value) {
       if (mode !== 'custom') {
         sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
@@ -290,8 +292,17 @@ export const useNoteStore = defineStore('noteStore', () => {
         sortOrder.value = 'desc';
       }
     }
-    storage.setItem('sticky_notes_sort_mode', sortMode.value);
-    storage.setItem('sticky_notes_sort_order', sortOrder.value);
+    settingRepository.set(SORT_MODE_SETTING, sortMode.value);
+    settingRepository.set(SORT_ORDER_SETTING, sortOrder.value);
+  };
+
+  const setSortOrder = (order: SortOrder) => {
+    sortOrder.value = settingRepository.set(SORT_ORDER_SETTING, order);
+  };
+
+  const loadSettings = () => {
+    sortMode.value = settingRepository.get(SORT_MODE_SETTING);
+    sortOrder.value = settingRepository.get(SORT_ORDER_SETTING);
   };
 
   const moveNote = (draggedId: string, targetId: string) => {
@@ -361,6 +372,8 @@ export const useNoteStore = defineStore('noteStore', () => {
     updateNote,
     clearNotes,
     setSortMode,
+    setSortOrder,
+    loadSettings,
     moveNote,
     updateNoteLastUsed,
     loadNotesForCurrentCategory,

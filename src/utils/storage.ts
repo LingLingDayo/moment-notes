@@ -4,8 +4,10 @@ import { isUTools } from '../infrastructure/platform/platform';
 export { isUTools, getRuntimePlatform, isElectron, isBrowser } from '../infrastructure/platform/platform';
 export { copyTextToClipboard, openExternalUrl } from '../infrastructure/platform/hostBridge';
 
+const memoryFallback = new Map<string, string>();
+
 /**
- * 封装通用存储，在 uTools 下使用 dbStorage，在浏览器下使用 localStorage
+ * 封装通用存储，在 uTools 下使用 dbStorage，在浏览器下使用 localStorage，在纯 Node 单元测试下使用内存 Map 兜底
  */
 export const storage = {
   getItem(key: string): string | null {
@@ -21,7 +23,10 @@ export const storage = {
         console.error('uTools dbStorage.getItem error, falling back to localStorage:', e);
       }
     }
-    return localStorage.getItem(key);
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+    return memoryFallback.get(key) ?? null;
   },
 
   setItem(key: string, value: string): void {
@@ -33,7 +38,11 @@ export const storage = {
         console.error('uTools dbStorage.setItem error, falling back to localStorage:', e);
       }
     }
-    localStorage.setItem(key, value);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, value);
+      return;
+    }
+    memoryFallback.set(key, value);
   },
 
   removeItem(key: string): void {
@@ -45,7 +54,11 @@ export const storage = {
         console.error('uTools dbStorage.removeItem error, falling back to localStorage:', e);
       }
     }
-    localStorage.removeItem(key);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(key);
+      return;
+    }
+    memoryFallback.delete(key);
   }
 };
 

@@ -3,8 +3,30 @@ import { ref } from 'vue';
 import { storage } from '@utils/storage';
 import { NoteType, CategoryViewSetting, BackupData, DoubleClickNoteAction } from '@type';
 import { eventBus, DomainEvent, ToastPayload } from '../domain/events/DomainEventBus';
-import { DOUBLE_CLICK_NOTE_ACTION_SETTING } from '../domain/noteInteractions/DoubleClickNoteActionRegistry';
 import { settingRepository } from '../infrastructure/storage/SettingRepository';
+import {
+  THEME_SETTING,
+  GRID_COLUMNS_SETTING,
+  MIN_NOTE_WIDTH_SETTING,
+  NOTE_MAX_HEIGHT_SETTING,
+  ENABLED_ACTION_BAR_BUTTONS_SETTING,
+  DATE_FORMAT_SETTING,
+  DEFAULT_NOTE_COLOR_SETTING,
+  DEFAULT_NOTE_TYPE_SETTING,
+  DEFAULT_EDIT_MODE_SETTING,
+  DOUBLE_CLICK_NOTE_ACTION_SETTING,
+  SUPER_PANEL_DEFAULT_CATEGORY_SETTING,
+  START_PAGE_MODE_SETTING,
+  ENABLE_HOVER_ANIMATION_SETTING,
+  ENABLE_AUTO_COPY_SELECTION_SETTING,
+  SHOW_NOTE_COUNT_SETTING,
+  PREFIX_TAG_WITH_HASH_SETTING,
+  SKIP_DELETE_CONFIRM_SETTING,
+  ENABLE_IMMERSIVE_FULLSCREEN_SETTING,
+  CATEGORY_INDEPENDENT_TOOLBAR_SETTING,
+  CATEGORY_VIEW_SETTINGS_SETTING,
+  GridColumns
+} from '../domain/settings/AppSettingRegistry';
 
 export const useUiStore = defineStore('uiStore', () => {
   // 确认弹窗状态 (Promise 驱动)
@@ -53,21 +75,22 @@ export const useUiStore = defineStore('uiStore', () => {
     }
   });
 
-  const gridColumns = ref<'auto' | 1 | 2 | 3 | 4>('auto');
-  const minNoteWidth = ref<number>(260);
-  const noteMaxHeight = ref<number>(300);
+  const gridColumns = ref<GridColumns>(settingRepository.get(GRID_COLUMNS_SETTING));
+  const minNoteWidth = ref<number>(settingRepository.get(MIN_NOTE_WIDTH_SETTING));
+  const noteMaxHeight = ref<number>(settingRepository.get(NOTE_MAX_HEIGHT_SETTING));
 
   // 分类独立工具栏设置选项状态
-  const categoryIndependentToolbar = ref<boolean>(false);
-  const categoryViewSettings = ref<Record<string, CategoryViewSetting>>({});
+  const categoryIndependentToolbar = ref<boolean>(settingRepository.get(CATEGORY_INDEPENDENT_TOOLBAR_SETTING));
+  const categoryViewSettings = ref<Record<string, CategoryViewSetting>>(
+    settingRepository.get(CATEGORY_VIEW_SETTINGS_SETTING)
+  );
 
   const setCategoryIndependentToolbar = (val: boolean) => {
-    categoryIndependentToolbar.value = val;
-    storage.setItem('sticky_notes_category_independent_toolbar', val ? 'true' : 'false');
+    categoryIndependentToolbar.value = settingRepository.set(CATEGORY_INDEPENDENT_TOOLBAR_SETTING, val);
   };
 
   const saveCategoryViewSettings = () => {
-    storage.setItem('sticky_notes_category_view_settings', JSON.stringify(categoryViewSettings.value));
+    settingRepository.set(CATEGORY_VIEW_SETTINGS_SETTING, categoryViewSettings.value);
   };
 
   const updateCategoryViewSetting = (categoryId: string, settingsPatch: CategoryViewSetting) => {
@@ -78,22 +101,19 @@ export const useUiStore = defineStore('uiStore', () => {
     saveCategoryViewSettings();
   };
 
-  const setGridColumns = (cols: 'auto' | 1 | 2 | 3 | 4, categoryId?: string) => {
-    gridColumns.value = cols;
-    storage.setItem('sticky_notes_grid_columns', cols.toString());
+  const setGridColumns = (cols: GridColumns, categoryId?: string) => {
+    gridColumns.value = settingRepository.set(GRID_COLUMNS_SETTING, cols);
     if (categoryIndependentToolbar.value && categoryId) {
       updateCategoryViewSetting(categoryId, { gridColumns: cols });
     }
   };
 
   const setMinNoteWidth = (val: number) => {
-    minNoteWidth.value = Number(val) || 260;
-    storage.setItem('sticky_notes_min_note_width', minNoteWidth.value.toString());
+    minNoteWidth.value = settingRepository.set(MIN_NOTE_WIDTH_SETTING, val);
   };
 
   const setNoteMaxHeight = (val: number) => {
-    noteMaxHeight.value = Number(val) || 320;
-    storage.setItem('sticky_notes_note_max_height', noteMaxHeight.value.toString());
+    noteMaxHeight.value = settingRepository.set(NOTE_MAX_HEIGHT_SETTING, val);
   };
 
   // 设置弹窗显示状态
@@ -111,6 +131,7 @@ export const useUiStore = defineStore('uiStore', () => {
   const isDark = ref(false);
 
   const applyTheme = (dark: boolean) => {
+    if (typeof document === 'undefined') return;
     const root = document.documentElement;
     if (dark) {
       root.classList.remove('light-theme');
@@ -127,13 +148,13 @@ export const useUiStore = defineStore('uiStore', () => {
       isDark.value = storedTheme === 'dark';
     } else if (isUtoolsEnv) {
       try {
-        isDark.value = window.utools.isDarkColors();
+        isDark.value = window.utools?.isDarkColors?.() ?? false;
       } catch (e) {
         console.error('Failed to get theme from uTools:', e);
-        isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        isDark.value = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
       }
     } else {
-      isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      isDark.value = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
     }
     applyTheme(isDark.value);
   };
@@ -141,47 +162,37 @@ export const useUiStore = defineStore('uiStore', () => {
   const toggleTheme = () => {
     isDark.value = !isDark.value;
     applyTheme(isDark.value);
-    storage.setItem('sticky_notes_theme', isDark.value ? 'dark' : 'light');
+    settingRepository.set(THEME_SETTING, isDark.value ? 'dark' : 'light');
   };
 
-  const enabledActionBarButtons = ref<string[]>([
-    'theme-toggle',
-    'sort-select',
-    'columns-select',
-    'clear-notes'
-  ]);
+  const enabledActionBarButtons = ref<string[]>(settingRepository.get(ENABLED_ACTION_BAR_BUTTONS_SETTING));
 
   const setEnabledActionBarButtons = (buttons: string[]) => {
-    enabledActionBarButtons.value = buttons;
-    storage.setItem('sticky_notes_enabled_action_bar_buttons', JSON.stringify(buttons));
+    enabledActionBarButtons.value = settingRepository.set(ENABLED_ACTION_BAR_BUTTONS_SETTING, buttons);
   };
 
-  const dateFormat = ref<string>('YYYY.MM.DD HH:mm');
+  const dateFormat = ref<string>(settingRepository.get(DATE_FORMAT_SETTING));
 
   const setDateFormat = (val: string) => {
-    dateFormat.value = val || 'YYYY.MM.DD HH:mm';
-    storage.setItem('sticky_notes_date_format', dateFormat.value);
+    dateFormat.value = settingRepository.set(DATE_FORMAT_SETTING, val);
   };
 
-  const defaultNoteColor = ref<string>('random');
+  const defaultNoteColor = ref<string>(settingRepository.get(DEFAULT_NOTE_COLOR_SETTING));
 
   const setDefaultNoteColor = (val: string) => {
-    defaultNoteColor.value = val || 'random';
-    storage.setItem('sticky_notes_default_note_color', defaultNoteColor.value);
+    defaultNoteColor.value = settingRepository.set(DEFAULT_NOTE_COLOR_SETTING, val);
   };
 
-  const defaultNoteType = ref<NoteType>('text');
+  const defaultNoteType = ref<NoteType>(settingRepository.get(DEFAULT_NOTE_TYPE_SETTING));
 
   const setDefaultNoteType = (val: NoteType) => {
-    defaultNoteType.value = val || 'text';
-    storage.setItem('sticky_notes_default_note_type', defaultNoteType.value);
+    defaultNoteType.value = settingRepository.set(DEFAULT_NOTE_TYPE_SETTING, val);
   };
 
-  const defaultEditMode = ref<'inline' | 'fullscreen'>('inline');
+  const defaultEditMode = ref<'inline' | 'fullscreen'>(settingRepository.get(DEFAULT_EDIT_MODE_SETTING));
 
   const setDefaultEditMode = (val: 'inline' | 'fullscreen') => {
-    defaultEditMode.value = val || 'inline';
-    storage.setItem('sticky_notes_default_edit_mode', defaultEditMode.value);
+    defaultEditMode.value = settingRepository.set(DEFAULT_EDIT_MODE_SETTING, val);
   };
 
   const doubleClickNoteAction = ref<DoubleClickNoteAction>(
@@ -192,60 +203,52 @@ export const useUiStore = defineStore('uiStore', () => {
     doubleClickNoteAction.value = settingRepository.set(DOUBLE_CLICK_NOTE_ACTION_SETTING, val);
   };
 
-  const superPanelDefaultCategory = ref<string>('all');
+  const superPanelDefaultCategory = ref<string>(settingRepository.get(SUPER_PANEL_DEFAULT_CATEGORY_SETTING));
 
   const setSuperPanelDefaultCategory = (val: string) => {
-    superPanelDefaultCategory.value = val || 'all';
-    storage.setItem('sticky_notes_super_panel_default_category', superPanelDefaultCategory.value);
+    superPanelDefaultCategory.value = settingRepository.set(SUPER_PANEL_DEFAULT_CATEGORY_SETTING, val);
   };
 
-  const startPageMode = ref<'last' | 'default'>('last');
+  const startPageMode = ref<'last' | 'default'>(settingRepository.get(START_PAGE_MODE_SETTING));
 
   const setStartPageMode = (val: 'last' | 'default') => {
-    startPageMode.value = val || 'last';
-    storage.setItem('sticky_notes_start_page_mode', startPageMode.value);
+    startPageMode.value = settingRepository.set(START_PAGE_MODE_SETTING, val);
   };
 
-  const enableHoverAnimation = ref(true);
+  const enableHoverAnimation = ref(settingRepository.get(ENABLE_HOVER_ANIMATION_SETTING));
 
   const setEnableHoverAnimation = (val: boolean) => {
-    enableHoverAnimation.value = val;
-    storage.setItem('sticky_notes_enable_hover_animation', val ? 'true' : 'false');
+    enableHoverAnimation.value = settingRepository.set(ENABLE_HOVER_ANIMATION_SETTING, val);
   };
 
-  const enableAutoCopySelection = ref(true);
+  const enableAutoCopySelection = ref(settingRepository.get(ENABLE_AUTO_COPY_SELECTION_SETTING));
 
   const setEnableAutoCopySelection = (val: boolean) => {
-    enableAutoCopySelection.value = val;
-    storage.setItem('sticky_notes_enable_auto_copy_selection', val ? 'true' : 'false');
+    enableAutoCopySelection.value = settingRepository.set(ENABLE_AUTO_COPY_SELECTION_SETTING, val);
   };
 
-  const showNoteCount = ref(true);
+  const showNoteCount = ref(settingRepository.get(SHOW_NOTE_COUNT_SETTING));
 
   const setShowNoteCount = (val: boolean) => {
-    showNoteCount.value = val;
-    storage.setItem('sticky_notes_show_note_count', val ? 'true' : 'false');
+    showNoteCount.value = settingRepository.set(SHOW_NOTE_COUNT_SETTING, val);
   };
 
-  const prefixTagWithHash = ref(true);
+  const prefixTagWithHash = ref(settingRepository.get(PREFIX_TAG_WITH_HASH_SETTING));
 
   const setPrefixTagWithHash = (val: boolean) => {
-    prefixTagWithHash.value = val;
-    storage.setItem('sticky_notes_prefix_tag_with_hash', val ? 'true' : 'false');
+    prefixTagWithHash.value = settingRepository.set(PREFIX_TAG_WITH_HASH_SETTING, val);
   };
 
-  const skipDeleteConfirm = ref(false);
+  const skipDeleteConfirm = ref(settingRepository.get(SKIP_DELETE_CONFIRM_SETTING));
 
   const setSkipDeleteConfirm = (val: boolean) => {
-    skipDeleteConfirm.value = val;
-    storage.setItem('sticky_notes_skip_delete_confirm', val ? 'true' : 'false');
+    skipDeleteConfirm.value = settingRepository.set(SKIP_DELETE_CONFIRM_SETTING, val);
   };
 
-  const enableImmersiveFullscreen = ref(false);
+  const enableImmersiveFullscreen = ref(settingRepository.get(ENABLE_IMMERSIVE_FULLSCREEN_SETTING));
 
   const setEnableImmersiveFullscreen = (val: boolean) => {
-    enableImmersiveFullscreen.value = val;
-    storage.setItem('sticky_notes_enable_immersive_fullscreen', val ? 'true' : 'false');
+    enableImmersiveFullscreen.value = settingRepository.set(ENABLE_IMMERSIVE_FULLSCREEN_SETTING, val);
   };
 
   // 全屏便签预览状态
@@ -287,6 +290,95 @@ export const useUiStore = defineStore('uiStore', () => {
   const closeImportModal = () => {
     showImportModal.value = false;
     pendingImportData.value = null;
+  };
+
+  const loadSettings = () => {
+    gridColumns.value = settingRepository.get(GRID_COLUMNS_SETTING);
+    minNoteWidth.value = settingRepository.get(MIN_NOTE_WIDTH_SETTING);
+    noteMaxHeight.value = settingRepository.get(NOTE_MAX_HEIGHT_SETTING);
+    enabledActionBarButtons.value = settingRepository.get(ENABLED_ACTION_BAR_BUTTONS_SETTING);
+    dateFormat.value = settingRepository.get(DATE_FORMAT_SETTING);
+    defaultNoteColor.value = settingRepository.get(DEFAULT_NOTE_COLOR_SETTING);
+    defaultNoteType.value = settingRepository.get(DEFAULT_NOTE_TYPE_SETTING);
+    defaultEditMode.value = settingRepository.get(DEFAULT_EDIT_MODE_SETTING);
+    doubleClickNoteAction.value = settingRepository.get(DOUBLE_CLICK_NOTE_ACTION_SETTING);
+    superPanelDefaultCategory.value = settingRepository.get(SUPER_PANEL_DEFAULT_CATEGORY_SETTING);
+    startPageMode.value = settingRepository.get(START_PAGE_MODE_SETTING);
+    enableHoverAnimation.value = settingRepository.get(ENABLE_HOVER_ANIMATION_SETTING);
+    enableAutoCopySelection.value = settingRepository.get(ENABLE_AUTO_COPY_SELECTION_SETTING);
+    showNoteCount.value = settingRepository.get(SHOW_NOTE_COUNT_SETTING);
+    prefixTagWithHash.value = settingRepository.get(PREFIX_TAG_WITH_HASH_SETTING);
+    skipDeleteConfirm.value = settingRepository.get(SKIP_DELETE_CONFIRM_SETTING);
+    enableImmersiveFullscreen.value = settingRepository.get(ENABLE_IMMERSIVE_FULLSCREEN_SETTING);
+    categoryIndependentToolbar.value = settingRepository.get(CATEGORY_INDEPENDENT_TOOLBAR_SETTING);
+    categoryViewSettings.value = settingRepository.get(CATEGORY_VIEW_SETTINGS_SETTING);
+  };
+
+  const setSetting = (key: string, val: unknown) => {
+    switch (key) {
+      case 'isDark':
+        if (isDark.value !== val) toggleTheme();
+        break;
+      case 'theme':
+        if ((isDark.value ? 'dark' : 'light') !== val) toggleTheme();
+        break;
+      case 'gridColumns':
+        setGridColumns(val as GridColumns);
+        break;
+      case 'minNoteWidth':
+        setMinNoteWidth(val as number);
+        break;
+      case 'noteMaxHeight':
+        setNoteMaxHeight(val as number);
+        break;
+      case 'enabledActionBarButtons':
+        setEnabledActionBarButtons(val as string[]);
+        break;
+      case 'dateFormat':
+        setDateFormat(val as string);
+        break;
+      case 'defaultNoteColor':
+        setDefaultNoteColor(val as string);
+        break;
+      case 'defaultNoteType':
+        setDefaultNoteType(val as NoteType);
+        break;
+      case 'defaultEditMode':
+        setDefaultEditMode(val as 'inline' | 'fullscreen');
+        break;
+      case 'doubleClickNoteAction':
+        setDoubleClickNoteAction(val as DoubleClickNoteAction);
+        break;
+      case 'superPanelDefaultCategory':
+        setSuperPanelDefaultCategory(val as string);
+        break;
+      case 'startPageMode':
+        setStartPageMode(val as 'last' | 'default');
+        break;
+      case 'enableHoverAnimation':
+        setEnableHoverAnimation(Boolean(val));
+        break;
+      case 'enableAutoCopySelection':
+        setEnableAutoCopySelection(Boolean(val));
+        break;
+      case 'showNoteCount':
+        setShowNoteCount(Boolean(val));
+        break;
+      case 'prefixTagWithHash':
+        setPrefixTagWithHash(Boolean(val));
+        break;
+      case 'skipDeleteConfirm':
+        setSkipDeleteConfirm(Boolean(val));
+        break;
+      case 'enableImmersiveFullscreen':
+        setEnableImmersiveFullscreen(Boolean(val));
+        break;
+      case 'categoryIndependentToolbar':
+        setCategoryIndependentToolbar(Boolean(val));
+        break;
+      default:
+        break;
+    }
   };
 
   return {
@@ -353,6 +445,8 @@ export const useUiStore = defineStore('uiStore', () => {
     showImportModal,
     pendingImportData,
     openImportModal,
-    closeImportModal
+    closeImportModal,
+    loadSettings,
+    setSetting
   };
 });

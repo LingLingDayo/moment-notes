@@ -1,12 +1,15 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStickyNotesStore } from '@stores/stickyNotes';
+import { useUiStore } from '@stores/uiStore';
+import { useNoteStore } from '@stores/noteStore';
 import { useShortcutStore } from '@stores/shortcutStore';
 import { useDesktopStore } from '@stores/desktopStore';
-import { storage } from '@utils/storage';
 import { HIDE_ON_BLUR_SETTING } from '../../domain/desktop/DesktopSettings';
 
 export function useSettings() {
   const store = useStickyNotesStore();
+  const uiStore = useUiStore();
+  const noteStore = useNoteStore();
   const shortcutStore = useShortcutStore();
   const desktopStore = useDesktopStore();
   const activeTab = ref<string>('general');
@@ -23,6 +26,12 @@ export function useSettings() {
         if (key === HIDE_ON_BLUR_SETTING.key) {
           return desktopStore.hideOnBlur;
         }
+        if (key in uiStore) {
+          return (uiStore as any)[key];
+        }
+        if (key in noteStore) {
+          return (noteStore as any)[key];
+        }
         return (store as any)[key];
       },
       set(val) {
@@ -33,52 +42,17 @@ export function useSettings() {
         }
         if (key === HIDE_ON_BLUR_SETTING.key) {
           void desktopStore.setHideOnBlur(val);
-        } else if (key === 'isDark') {
-          if (store.isDark !== val) {
-            store.toggleTheme();
-          }
-        } else if (key === 'gridColumns') {
-          store.setGridColumns(val);
-        } else if (key === 'minNoteWidth') {
-          store.setMinNoteWidth(val);
-        } else if (key === 'noteMaxHeight') {
-          store.setNoteMaxHeight(val);
-        } else if (key === 'enabledActionBarButtons') {
-          store.setEnabledActionBarButtons(val);
-        } else if (key === 'sortMode') {
-          store.setSortMode(val);
-        } else if (key === 'sortOrder') {
-          store.sortOrder = val;
-          storage.setItem('sticky_notes_sort_order', val);
-        } else if (key === 'dateFormat') {
-          store.setDateFormat(val);
-        } else if (key === 'defaultNoteColor') {
-          store.setDefaultNoteColor(val);
-        } else if (key === 'defaultNoteType') {
-          store.setDefaultNoteType(val);
-        } else if (key === 'defaultEditMode') {
-          store.setDefaultEditMode(val);
-        } else if (key === 'doubleClickNoteAction') {
-          store.setDoubleClickNoteAction(val);
-        } else if (key === 'superPanelDefaultCategory') {
-          store.setSuperPanelDefaultCategory(val);
-        } else if (key === 'startPageMode') {
-          store.setStartPageMode(val);
-        } else if (key === 'enableHoverAnimation') {
-          store.setEnableHoverAnimation(val);
-        } else if (key === 'showNoteCount') {
-          store.setShowNoteCount(val);
-        } else if (key === 'prefixTagWithHash') {
-          store.setPrefixTagWithHash(val);
-        } else if (key === 'skipDeleteConfirm') {
-          store.setSkipDeleteConfirm(val);
-        } else if (key === 'enableImmersiveFullscreen') {
-          store.setEnableImmersiveFullscreen(val);
-        } else if (key === 'categoryIndependentToolbar') {
-          store.setCategoryIndependentToolbar(val);
-        } else {
-          (store as any)[key] = val;
+          return;
         }
+        if (key === 'sortMode') {
+          noteStore.setSortMode(val);
+          return;
+        }
+        if (key === 'sortOrder') {
+          noteStore.setSortOrder(val);
+          return;
+        }
+        uiStore.setSetting(key, val);
       }
     });
   };

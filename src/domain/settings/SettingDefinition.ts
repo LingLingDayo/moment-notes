@@ -38,3 +38,81 @@ export const booleanSettingCodec: SettingCodec<boolean> = {
   },
   encode: (value: boolean) => String(value)
 };
+
+export const stringSettingCodec = (options: { nonEmpty?: boolean } = {}): SettingCodec<string> => ({
+  decode: (value: unknown) => {
+    if (typeof value !== 'string') return undefined;
+    if (options.nonEmpty && !value.trim()) return undefined;
+    return value;
+  },
+  encode: (value: string) => String(value)
+});
+
+export const numberSettingCodec = (options: {
+  min?: number;
+  max?: number;
+  integer?: boolean;
+} = {}): SettingCodec<number> => ({
+  decode: (value: unknown) => {
+    let num: number;
+    if (typeof value === 'number') {
+      num = value;
+    } else if (typeof value === 'string' && value.trim() !== '') {
+      num = options.integer ? parseInt(value, 10) : Number(value);
+    } else {
+      return undefined;
+    }
+
+    if (isNaN(num)) return undefined;
+    if (options.min !== undefined && num < options.min) return undefined;
+    if (options.max !== undefined && num > options.max) return undefined;
+    return num;
+  },
+  encode: (value: number) => String(value)
+});
+
+export const enumSettingCodec = <T extends string>(allowedValues: readonly T[]): SettingCodec<T> => {
+  const allowedSet = new Set<string>(allowedValues);
+  return {
+    decode: (value: unknown): T | undefined => {
+      if (typeof value === 'string' && allowedSet.has(value)) {
+        return value as T;
+      }
+      return undefined;
+    },
+    encode: (value: T) => String(value)
+  };
+};
+
+export const jsonSettingCodec = <T>(validator: (val: unknown) => val is T): SettingCodec<T> => ({
+  decode: (value: unknown): T | undefined => {
+    if (value === null || value === undefined) return undefined;
+    if (typeof value === 'object') {
+      return validator(value) ? value : undefined;
+    }
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return validator(parsed) ? parsed : undefined;
+      } catch {
+        return undefined;
+      }
+    }
+    return undefined;
+  },
+  encode: (value: T) => JSON.stringify(value)
+});
+
+export type GridColumns = 'auto' | 1 | 2 | 3 | 4;
+
+export const gridColumnsSettingCodec: SettingCodec<GridColumns> = {
+  decode: (value: unknown): GridColumns | undefined => {
+    if (value === 'auto') return 'auto';
+    const num = typeof value === 'number' ? value : typeof value === 'string' ? parseInt(value, 10) : NaN;
+    if ([1, 2, 3, 4].includes(num)) {
+      return num as 1 | 2 | 3 | 4;
+    }
+    return undefined;
+  },
+  encode: (value: GridColumns) => String(value)
+};
