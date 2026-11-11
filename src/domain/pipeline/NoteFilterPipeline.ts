@@ -1,5 +1,5 @@
 import type { Note, Category, SearchTarget, SortMode, SortOrder } from '../../types';
-import { filterNotes, sortNotes } from '../notes/noteAlgorithms';
+import { filterNotes, sortNotes, filterNotesByCategory } from '../notes/noteAlgorithms';
 
 export interface NoteFilterContext {
   notes: Note[];
@@ -9,6 +9,7 @@ export interface NoteFilterContext {
   sortOrder: SortOrder;
   currentCategoryId: string;
   categories: Category[];
+  descendantCategoryIds?: Set<string>;
 }
 
 export interface PipelineStage {
@@ -19,17 +20,8 @@ export interface PipelineStage {
 export class CategoryFilterStage implements PipelineStage {
   public name = 'CategoryFilterStage';
 
-  public process(notes: Note[], _context: NoteFilterContext): Note[] {
-    // 假设在 Pipeline 接入前 notes 已根据分类做基础过滤
-    return notes;
-  }
-}
-
-export class SortFilterStage implements PipelineStage {
-  public name = 'SortFilterStage';
-
   public process(notes: Note[], context: NoteFilterContext): Note[] {
-    return sortNotes(notes, context.sortMode, context.sortOrder, context.currentCategoryId);
+    return filterNotesByCategory(notes, context.currentCategoryId, context.descendantCategoryIds);
   }
 }
 
@@ -38,6 +30,14 @@ export class SearchFilterStage implements PipelineStage {
 
   public process(notes: Note[], context: NoteFilterContext): Note[] {
     return filterNotes(notes, context.searchQuery, context.searchTarget, context.categories);
+  }
+}
+
+export class SortFilterStage implements PipelineStage {
+  public name = 'SortFilterStage';
+
+  public process(notes: Note[], context: NoteFilterContext): Note[] {
+    return sortNotes(notes, context.sortMode, context.sortOrder, context.currentCategoryId);
   }
 }
 
@@ -53,12 +53,16 @@ export class LimitStage implements PipelineStage {
 }
 
 export class NoteFilterPipeline {
-  private stages: PipelineStage[] = [
-    new CategoryFilterStage(),
-    new SortFilterStage(),
-    new SearchFilterStage(),
-    new LimitStage()
-  ];
+  private stages: PipelineStage[];
+
+  constructor(stages?: PipelineStage[]) {
+    this.stages = stages || [
+      new CategoryFilterStage(),
+      new SearchFilterStage(),
+      new SortFilterStage(),
+      new LimitStage()
+    ];
+  }
 
   public addStage(stage: PipelineStage): this {
     this.stages.push(stage);

@@ -49,7 +49,8 @@ describe('Domain Architecture & Bus Modules', () => {
       color: 'yellow',
       isPinned: false,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      lastUsedAt: Date.now() + i
     }));
 
     const result = pipeline.execute({
@@ -63,5 +64,29 @@ describe('Domain Architecture & Bus Modules', () => {
     });
 
     expect(result.length).toBe(30);
+  });
+
+  it('NoteFilterPipeline 分类过滤与搜索级联处理生效', () => {
+    const pipeline = new NoteFilterPipeline();
+    const notes: Note[] = [
+      { id: '1', categoryId: 'cat-a', content: 'Vue 3 入门', color: 'yellow', isPinned: false, createdAt: 1, updatedAt: 1 },
+      { id: '2', categoryId: 'cat-b', content: 'React 入门', color: 'blue', isPinned: false, createdAt: 2, updatedAt: 2 },
+      { id: '3', categoryId: 'cat-sub', content: 'Vue 进阶', color: 'green', isPinned: false, createdAt: 3, updatedAt: 3 },
+      { id: '4', categoryId: 'cat-a', content: '已删除的 Vue', isDeleted: true, color: 'red', isPinned: false, createdAt: 4, updatedAt: 4 }
+    ];
+
+    const result = pipeline.execute({
+      notes,
+      searchQuery: 'Vue',
+      searchTarget: ['all'],
+      sortMode: 'date',
+      sortOrder: 'desc',
+      currentCategoryId: 'cat-a',
+      categories: [],
+      descendantCategoryIds: new Set(['cat-sub'])
+    });
+
+    // 应该匹配 cat-a 和 cat-sub，且排除了已删除的 id 4
+    expect(result.map(n => n.id)).toEqual(['3', '1']);
   });
 });

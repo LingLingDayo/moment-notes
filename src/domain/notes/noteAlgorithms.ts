@@ -33,6 +33,29 @@ export function getCategoryPathMap(categories: Category[]): Map<string, string> 
 }
 
 /**
+ * 依据分类 ID（含回收站、最近使用、特定分类及其子分类）过滤便签列表
+ */
+export function filterNotesByCategory(
+  notes: Note[],
+  categoryId: string,
+  descendantCategoryIds?: Set<string>
+): Note[] {
+  if (categoryId === 'trash') {
+    return notes.filter(n => n.isDeleted === true);
+  }
+  if (categoryId === 'recent') {
+    return notes.filter(n => n.isDeleted !== true && n.lastUsedAt !== undefined);
+  }
+  const activeNotes = notes.filter(n => n.isDeleted !== true);
+  if (categoryId === 'all') {
+    return activeNotes;
+  }
+  return activeNotes.filter(
+    n => n.categoryId === categoryId || (descendantCategoryIds && descendantCategoryIds.has(n.categoryId))
+  );
+}
+
+/**
  * 依据搜索词与目标范围过滤便签列表
  */
 export function filterNotes(
@@ -157,7 +180,7 @@ export function sortNotes(
 }
 
 /**
- * 聚合检索与排序算法，并应用 recent 分类截断策略
+ * 聚合分类初筛、检索过滤与多维排序算法，并应用 recent 分类截断策略
  */
 export function getFilteredAndSortedNotes(
   notes: Note[],
@@ -166,9 +189,11 @@ export function getFilteredAndSortedNotes(
   sortMode: SortMode = 'date',
   sortOrder: SortOrder = 'desc',
   currentCategoryId = 'all',
-  categories: Category[] = []
+  categories: Category[] = [],
+  descendantCategoryIds?: Set<string>
 ): Note[] {
-  const filtered = filterNotes(notes, searchQuery, searchTarget, categories);
+  const byCategory = filterNotesByCategory(notes, currentCategoryId, descendantCategoryIds);
+  const filtered = filterNotes(byCategory, searchQuery, searchTarget, categories);
   const sorted = sortNotes(filtered, sortMode, sortOrder, currentCategoryId);
 
   if (currentCategoryId === 'recent') {

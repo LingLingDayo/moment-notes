@@ -5,7 +5,8 @@ import { storage } from '@utils/storage';
 import { useUiStore } from './uiStore';
 import { useCategoryStore } from './categoryStore';
 import { COLOR_PRESETS } from './colorPresets';
-import { SearchTarget } from './stickyNotesAlgorithms';
+import { SearchTarget, SortMode, SortOrder } from '@type';
+import { filterNotesByCategory } from '../domain/notes/noteAlgorithms';
 import {
   SEARCH_DEBOUNCE_THRESHOLD,
   SEARCH_DEBOUNCE_MS
@@ -20,8 +21,8 @@ export const useNoteStore = defineStore('noteStore', () => {
   const searchQuery = ref<string>('');
   const appliedSearchQuery = ref<string>('');
   const searchTarget = ref<SearchTarget[]>(['all']);
-  const sortMode = ref<'date' | 'title' | 'tag' | 'custom' | 'useCount'>('date');
-  const sortOrder = ref<'asc' | 'desc'>('desc');
+  const sortMode = ref<SortMode>('date');
+  const sortOrder = ref<SortOrder>('desc');
   const draggedNoteId = ref<string | null>(null);
   const editingNoteId = ref<string | null>(null);
   const isLoadingNotes = ref(false);
@@ -53,22 +54,12 @@ export const useNoteStore = defineStore('noteStore', () => {
     const categoryId = currentCategoryId.value;
     const allNotesList = allNotes.value;
     const categoryStore = useCategoryStore();
+    const descendants =
+      categoryId !== 'all' && categoryId !== 'trash' && categoryId !== 'recent'
+        ? categoryStore.getCategoryDescendants(categoryId)
+        : undefined;
 
-    let result = allNotesList;
-    if (categoryId === 'trash') {
-      result = result.filter(n => n.isDeleted === true);
-    } else if (categoryId === 'recent') {
-      result = result.filter(n => n.isDeleted !== true && n.lastUsedAt !== undefined);
-    } else {
-      result = result.filter(n => n.isDeleted !== true);
-      if (categoryId !== 'all') {
-        const descendants = categoryStore.getCategoryDescendants(categoryId);
-        result = result.filter(
-          n => n.categoryId === categoryId || descendants.has(n.categoryId)
-        );
-      }
-    }
-    notes.value = result;
+    notes.value = filterNotesByCategory(allNotesList, categoryId, descendants);
   };
 
   const loadNotesForCurrentCategory = (_immediate = false) => {
