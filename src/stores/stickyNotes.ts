@@ -32,14 +32,20 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
   const isInitialized = ref(false);
 
   // 注册全局命令处理函数
-  commandRegistry.registerHandler('addNote', '新建便签', () => {
-    let targetCat = noteStore.currentCategoryId;
-    if (targetCat === 'all' || targetCat === 'trash' || targetCat === 'recent') {
-      targetCat = 'uncategorized';
-    }
-    noteStore.addNote(targetCat, '', '');
-    uiStore.showToast('已快捷新建空便签，可以直接编辑');
-  });
+  commandRegistry.registerHandler(
+    'addNote',
+    '新建便签',
+    () => {
+      let targetCat = noteStore.currentCategoryId;
+      if (targetCat === 'all' || targetCat === 'trash' || targetCat === 'recent') {
+        targetCat = 'uncategorized';
+      }
+      noteStore.addNote(targetCat, '', '');
+      uiStore.showToast('已快捷新建空便签，可以直接编辑');
+    },
+    undefined,
+    { silent: true }
+  );
 
   // 集中式数据加载
   const loadData = () => {

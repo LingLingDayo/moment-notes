@@ -1,14 +1,16 @@
 import { Note } from '@type';
 import { IAssetRepository, assetRepository } from '../../infrastructure/storage/AssetRepository';
 import {
-  compressImage,
-  calculateSha256,
   createAssetUrl,
   extractAssetIdsFromMarkdown,
-  uint8ArrayToBase64,
-  fastBase64ToUint8Array,
   getExtFromMime
-} from '../../utils/imageProcessing';
+} from './assetCodec';
+import {
+  compressImage,
+  calculateSha256,
+  uint8ArrayToBase64,
+  fastBase64ToUint8Array
+} from '../../infrastructure/assets/imageProcessor';
 
 export interface ImageAssetExportItem {
   mime: string;

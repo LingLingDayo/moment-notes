@@ -136,5 +136,23 @@ export default [
         __dirname: 'readonly'
       }
     }
+  },
+
+  // 7. 领域层架构边界守卫：禁止 domain 导入 stores / modules
+  {
+    files: ['src/domain/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/stores/**', '**/modules/**'],
+              message: 'Domain layer must not depend on stores or modules.'
+            }
+          ]
+        }
+      ]
+    }
   }
 ];

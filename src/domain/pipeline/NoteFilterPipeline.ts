@@ -1,11 +1,5 @@
-import { Note, Category } from '@type';
-import {
-  filterNotes,
-  sortNotes,
-  SearchTarget,
-  SortMode,
-  SortOrder
-} from '../../stores/stickyNotesAlgorithms';
+import type { Note, Category, SearchTarget, SortMode, SortOrder } from '../../types';
+import { filterNotes, sortNotes } from '../notes/noteAlgorithms';
 
 export interface NoteFilterContext {
   notes: Note[];

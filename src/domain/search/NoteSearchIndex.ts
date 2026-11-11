@@ -1,5 +1,4 @@
-import type { Note, Category } from '../../types';
-import type { SearchTarget } from '../../stores/stickyNotesAlgorithms';
+import type { Note, Category, SearchTarget } from '../../types';
 
 export const SEARCH_DEBOUNCE_THRESHOLD = 300;
 export const SEARCH_DEBOUNCE_MS = 150;

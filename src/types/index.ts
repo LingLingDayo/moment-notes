@@ -11,6 +11,9 @@ export interface Category {
 }
 
 export type NoteType = 'text' | 'markdown';
+export type SearchTarget = 'all' | 'title' | 'content' | 'tag' | 'category';
+export type SortMode = 'date' | 'title' | 'tag' | 'custom' | 'useCount';
+export type SortOrder = 'asc' | 'desc';
 
 export interface Note {
   id: string;
@@ -45,8 +48,8 @@ export interface NoteColorPreset {
 }
 
 export interface CategoryViewSetting {
-  sortMode?: 'date' | 'title' | 'tag' | 'custom' | 'useCount';
-  sortOrder?: 'asc' | 'desc';
+  sortMode?: SortMode;
+  sortOrder?: SortOrder;
   gridColumns?: 'auto' | 1 | 2 | 3 | 4;
 }
 
@@ -68,8 +71,8 @@ export interface AppSettings {
   enableAutoCopySelection?: boolean;
   showNoteCount?: boolean;
   prefixTagWithHash?: boolean;
-  sortMode?: 'date' | 'title' | 'tag' | 'custom' | 'useCount';
-  sortOrder?: 'asc' | 'desc';
+  sortMode?: SortMode;
+  sortOrder?: SortOrder;
   categoryIndependentToolbar?: boolean;
   skipDeleteConfirm?: boolean;
   categoryViewSettings?: Record<string, CategoryViewSetting>;

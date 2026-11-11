@@ -11,21 +11,33 @@ export interface Command {
   handler: CommandHandler;
 }
 
+export interface RegisterCommandOptions {
+  silent?: boolean;
+}
+
 class CommandRegistry {
   private commands = new Map<string, Command>();
 
-  public register(command: Command): () => void {
-    if (this.commands.has(command.id)) {
+  public register(command: Command, options?: RegisterCommandOptions): () => void {
+    if (this.commands.has(command.id) && !options?.silent) {
       console.warn(`[CommandRegistry] Warning: Command with ID "${command.id}" is already registered and will be overwritten.`);
     }
     this.commands.set(command.id, command);
     return () => {
-      this.commands.delete(command.id);
+      if (this.commands.get(command.id) === command) {
+        this.commands.delete(command.id);
+      }
     };
   }
 
-  public registerHandler(id: string, name: string, handler: CommandHandler, description?: string): () => void {
-    return this.register({ id, name, handler, description });
+  public registerHandler(
+    id: string,
+    name: string,
+    handler: CommandHandler,
+    description?: string,
+    options?: RegisterCommandOptions
+  ): () => void {
+    return this.register({ id, name, handler, description }, options);
   }
 
   public execute(id: string, payload?: any): boolean {
