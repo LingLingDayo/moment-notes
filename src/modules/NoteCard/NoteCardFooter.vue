@@ -1,11 +1,14 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue';
-import { Palette, FolderInput, Check, Copy, Trash2, RotateCcw, Folder, FileText, FileCode } from '@lucide/vue';
+import { Copy, Trash2, RotateCcw, Folder } from '@lucide/vue';
 import { Note, NoteType } from '@type';
-import { useStickyNotesStore, COLOR_PRESETS } from '@stores/stickyNotes';
+import { useStickyNotesStore } from '@stores/stickyNotes';
 import { copyTextToClipboard } from '../../infrastructure/platform/hostBridge';
 import { formatDate } from '@utils/date';
-import BasePopover from '@components/BasePopover.vue';
+import { getContainerSelectedText } from '@utils/selection';
+import NoteColorPickerPopover from './NoteColorPickerPopover.vue';
+import NoteCategoryPickerPopover from './NoteCategoryPickerPopover.vue';
+import NoteFormatPickerPopover from './NoteFormatPickerPopover.vue';
 
 const props = defineProps<{
   note: Note;
@@ -59,8 +62,6 @@ const originalCategoryName = computed(() => {
   const cat = store.categories.find(c => c.id === props.note.categoryId);
   return cat ? cat.name : '全部便签';
 });
-
-import { getContainerSelectedText } from '@utils/selection';
 
 // 复制便签内容逻辑 (支持划词选中复制与全量复制)
 const copyNoteContent = async (e?: MouseEvent) => {
@@ -187,127 +188,48 @@ const deleteSelf = async () => {
       </button>
 
       <!-- 换色调色盘 -->
-      <BasePopover
-        :is-open="showColorPicker"
-        width="auto"
-        @close="showColorPicker = false"
-      >
-        <template #trigger>
-          <button
-            class="action-btn"
-            data-tooltip="更改颜色"
-            @click="
-              showColorPicker = !showColorPicker;
-              showFolderPicker = false;
-              showFormatPicker = false;
-            "
-          >
-            <Palette class="action-icon" />
-          </button>
-        </template>
-        <div class="color-picker-list">
-          <button
-            v-for="(preset, key) in COLOR_PRESETS"
-            :key="key"
-            class="color-dot"
-            :style="{ background: preset.lightBg, border: `1px solid ${preset.lightBorder}` }"
-            :data-tooltip="preset.name"
-            @click="changeColor(key.toString())"
-          >
-            <Check v-if="note.color === key" class="dot-check-icon" />
-          </button>
-        </div>
-      </BasePopover>
+      <NoteColorPickerPopover
+        v-model:is-open="showColorPicker"
+        :current-color="note.color"
+        @select-color="changeColor"
+        @toggle="
+          showColorPicker = !showColorPicker;
+          showFolderPicker = false;
+          showFormatPicker = false;
+        "
+      />
 
       <!-- 移动分类 -->
-      <BasePopover
-        :is-open="showFolderPicker"
-        title="移动至分类"
-        width="130px"
-        @close="showFolderPicker = false"
-      >
-        <template #trigger>
-          <button
-            class="action-btn"
-            data-tooltip="移动分类"
-            @click="
-              showFolderPicker = !showFolderPicker;
-              showColorPicker = false;
-              showFormatPicker = false;
-            "
-          >
-            <FolderInput class="action-icon" />
-          </button>
-        </template>
-        <div class="folder-list">
-          <button
-            class="folder-item"
-            :class="{ active: note.categoryId === 'uncategorized' }"
-            @click="moveCategory('uncategorized')"
-          >
-            <span class="folder-name-text">全部便签</span>
-          </button>
-          <button
-            v-for="cat in store.orderedCategories.filter(c => !c.isSystem)"
-            :key="cat.id"
-            class="folder-item"
-            :style="{ paddingLeft: `${(Math.max((cat.level || 0) - 1, 0)) * 8 + 8}px` }"
-            :class="{ active: note.categoryId === cat.id }"
-            @click="moveCategory(cat.id)"
-          >
-            <span v-if="cat.level > 0" style="opacity: 0.5; margin-right: 4px">└</span>
-            <span class="folder-name-text">{{ cat.name }}</span>
-          </button>
-        </div>
-      </BasePopover>
+      <NoteCategoryPickerPopover
+        v-model:is-open="showFolderPicker"
+        :current-category-id="note.categoryId"
+        :categories="store.orderedCategories"
+        @select-category="moveCategory"
+        @toggle="
+          showFolderPicker = !showFolderPicker;
+          showColorPicker = false;
+          showFormatPicker = false;
+        "
+      />
 
       <!-- 便签格式/切换按钮及其下拉小弹窗 -->
-      <BasePopover
-        :is-open="showFormatPicker"
-        title="显示格式"
-        width="120px"
-        @close="showFormatPicker = false"
-      >
-        <template #trigger>
-          <button
-            class="action-btn"
-            :data-tooltip="note.type === 'markdown' ? '当前格式: Markdown' : '当前格式: 纯文本'"
-            @click="
-              showFormatPicker = !showFormatPicker;
-              showColorPicker = false;
-              showFolderPicker = false;
-            "
-          >
-            <FileCode v-if="note.type === 'markdown'" class="action-icon" />
-            <FileText v-else class="action-icon" />
-          </button>
-        </template>
-        <div class="format-list">
-          <button
-            class="format-item"
-            :class="{ active: !note.type || note.type === 'text' }"
-            @click="changeNoteType('text')"
-          >
-            <FileText class="item-icon" />
-            <span>纯文本</span>
-          </button>
-          <button
-            class="format-item"
-            :class="{ active: note.type === 'markdown' }"
-            @click="changeNoteType('markdown')"
-          >
-            <FileCode class="item-icon" />
-            <span>Markdown</span>
-          </button>
-        </div>
-      </BasePopover>
+      <NoteFormatPickerPopover
+        v-model:is-open="showFormatPicker"
+        :note-type="note.type"
+        @select-type="changeNoteType"
+        @toggle="
+          showFormatPicker = !showFormatPicker;
+          showColorPicker = false;
+          showFolderPicker = false;
+        "
+      />
 
       <!-- 复制 -->
-      <button class="action-btn" data-tooltip="复制内容" @click="copyNoteContent">
+      <button class="action-btn" data-tooltip="复制便签 (划词可复制局部)" @click="copyNoteContent">
         <Copy class="action-icon" />
       </button>
 
-      <!-- 删除按钮 -->
+      <!-- 删除便签 -->
       <button class="action-btn delete" data-tooltip="删除便签" @click="deleteSelf">
         <Trash2 class="action-icon" />
       </button>
@@ -316,105 +238,93 @@ const deleteSelf = async () => {
 </template>
 
 <style lang="scss" scoped>
+@use '@styles/variables' as *;
+
 .edit-footer {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 6px;
-}
+  padding-top: 8px;
+  margin-top: 4px;
 
-.edit-btn {
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 600;
+  .edit-btn {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all $transition-fast;
 
-  &.cancel {
-    background: var(--btn-bg);
-    color: inherit;
-    border: 1px solid var(--btn-border);
+    &.cancel {
+      background: var(--input-border);
+      color: var(--text-secondary);
 
-    &:hover {
-      background: var(--card-btn-hover-bg);
-      color: var(--card-btn-hover-color);
-      border-color: var(--card-btn-hover-bg);
-    }
-  }
-
-  &.save {
-    background: var(--card-text);
-    color: var(--card-bg);
-
-    .dark-theme & {
-      background: var(--card-text-dark);
-      color: var(--card-bg-dark);
+      &:hover {
+        background: var(--item-hover-bg);
+        color: var(--text-primary);
+      }
     }
 
-    &:hover {
-      opacity: 0.9;
+    &.save {
+      background: var(--accent-color);
+      color: #fff;
+
+      &:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
     }
   }
 }
 
 .card-footer {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px dashed var(--popover-border);
-  padding-top: 8px;
-  min-height: 30px;
-  max-height: 30px;
-  overflow: hidden;
-  box-sizing: border-box;
-  font-size: 10px;
-  color: inherit;
-  opacity: 0.8;
-  transition: opacity $transition-fast;
-  min-width: 0;
+  position: relative;
+  min-height: 20px;
+  padding-top: 2px;
+  margin-top: 2px;
+  z-index: 20;
 
   &.has-active-popover {
-    opacity: 1;
-    overflow: visible;
-    z-index: 20;
+    z-index: 21;
   }
 }
 
 .card-meta-info {
-  display: block;
+  font-size: 11px;
+  color: var(--card-footer-text);
+  opacity: 0.85;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 11px;
-  opacity: 0.75;
-  user-select: none;
-  line-height: 1;
-  min-width: 0;
   flex: 1;
-  cursor: default;
+  user-select: none;
+  pointer-events: auto;
+  line-height: 20px;
+  min-width: 0;
+  transition: opacity $transition-fast;
 }
 
-
 .card-actions {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   opacity: 0;
   max-width: 0;
-  transform: translateY(2px);
+  transform: translateX(10px);
   pointer-events: none;
   overflow: hidden;
   transition:
     opacity $transition-fast,
     transform $transition-fast,
-    max-width 0s linear 0.15s;
-  white-space: nowrap;
-  flex-shrink: 0;
+    max-width 0s 0.2s;
 
   &.is-deleted-actions {
-    opacity: 0.75;
-    max-width: 140px;
+    opacity: 0.85;
+    max-width: 160px;
     transform: none;
     pointer-events: auto;
     overflow: hidden;
@@ -437,10 +347,6 @@ const deleteSelf = async () => {
       transform $transition-fast,
       max-width 0s;
   }
-}
-
-.action-popover-wrapper {
-  position: relative;
 }
 
 .action-btn {
@@ -471,107 +377,6 @@ const deleteSelf = async () => {
   }
 
   .action-icon {
-    width: 12px;
-    height: 12px;
-  }
-}
-
-// 颜色选择列表样式
-.color-picker-list {
-  display: flex;
-  gap: 4px;
-  padding: 2px;
-}
-
-.color-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .dot-check-icon {
-    width: 10px;
-    height: 10px;
-    color: var(--text-primary);
-  }
-}
-
-// 分类列表样式
-.folder-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  max-height: 150px;
-  overflow-y: auto;
-}
-
-.folder-item {
-  display: flex;
-  align-items: center;
-  text-align: left;
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  color: var(--text-secondary);
-  min-width: 0;
-
-  &:hover {
-    background: var(--item-hover-bg);
-    color: var(--text-primary);
-  }
-
-  &.active {
-    background: var(--accent-light);
-    color: var(--accent-color);
-    font-weight: 600;
-  }
-
-  .folder-name-text {
-    flex: 1;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-// 格式选择列表样式
-.format-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.format-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: var(--item-hover-bg);
-    color: var(--text-primary);
-  }
-
-  &.active {
-    background: var(--accent-light);
-    color: var(--accent-color);
-    font-weight: 600;
-  }
-
-  .item-icon {
     width: 12px;
     height: 12px;
   }

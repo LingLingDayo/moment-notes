@@ -7,6 +7,7 @@ import { useCategoryStore } from './categoryStore';
 import { COLOR_PRESETS } from './colorPresets';
 import { SearchTarget, SortMode, SortOrder } from '@type';
 import { filterNotesByCategory } from '../domain/notes/noteAlgorithms';
+import { resolveNoteCreationCategoryId } from '../domain/category/categoryRules';
 import { settingRepository } from '../infrastructure/storage/SettingRepository';
 import { SORT_MODE_SETTING, SORT_ORDER_SETTING } from '../domain/settings/AppSettingRegistry';
 import {
@@ -147,6 +148,7 @@ export const useNoteStore = defineStore('noteStore', () => {
 
   const addNote = (categoryId: string, content = '', title = '', color?: string, type?: NoteType) => {
     const uiStore = useUiStore();
+    const targetCategoryId = resolveNoteCreationCategoryId(categoryId);
     let finalColor = color || uiStore.defaultNoteColor || 'random';
     if (finalColor === 'random') {
       const presetKeys = Object.keys(COLOR_PRESETS);
@@ -159,7 +161,7 @@ export const useNoteStore = defineStore('noteStore', () => {
     const finalType = type || uiStore.defaultNoteType || 'text';
     const newNote: Note = {
       id: Date.now().toString(),
-      categoryId,
+      categoryId: targetCategoryId,
       title: title.trim(),
       content: content,
       type: finalType,

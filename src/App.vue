@@ -6,6 +6,7 @@ import { isUTools } from '@utils/storage';
 import Dashboard from '@views/Dashboard.vue';
 import ImagePreviewModal from '@components/ImagePreviewModal.vue';
 import NotePreviewModal from '@components/NotePreviewModal.vue';
+import { resolveValidCategoryId } from './domain/category/categoryRules';
 import { eventBus } from './domain/events/DomainEventBus';
 import {
   handleDetachedNoteReady,
@@ -89,10 +90,7 @@ onMounted(() => {
 
       if (isSuperPanel) {
         // 读取并校验超级面板默认的打开分类
-        const targetCategory = store.superPanelDefaultCategory || 'all';
-        const isSystemCat = ['all', 'recent', 'trash'].includes(targetCategory);
-        const exists = isSystemCat || store.categories.some((c: any) => c.id === targetCategory);
-        const finalCategory = exists ? targetCategory : 'all';
+        const finalCategory = resolveValidCategoryId(store.superPanelDefaultCategory, store.categories, 'all');
 
         // uTools 提供了强大的文本输入匹配能力，支持将用户选中的文本快速保存
         // action.type 为 'text' 或 'over' (文本匹配指令)

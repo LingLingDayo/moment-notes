@@ -6,11 +6,12 @@ import { useUiStore } from './uiStore';
 import { COLOR_PRESETS } from './colorPresets';
 import * as helpers from './stickyNotesHelpers';
 import { storage, pasteTextToCursor } from '@utils/storage';
-import { Note, NoteType, ExportOptions, ImportOptions } from '@type';
+import { Note, ExportOptions, ImportOptions } from '@type';
 import { useShortcutStore } from './shortcutStore';
 import { getDefaultCategories } from './defaultData';
 import { getCurrentSettings, applySettings } from './settingsHelper';
 import { filterNotes, sortNotes, normalizeCategoryOrder } from './stickyNotesAlgorithms';
+import { resolveValidCategoryId } from '../domain/category/categoryRules';
 import { commandRegistry } from '../domain/commands/CommandRegistry';
 import { categoryRepository, noteRepository } from '../infrastructure/storage/Repository';
 import { imageAssetService } from '../domain/assets/ImageAssetService';
@@ -36,11 +37,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     'addNote',
     '新建便签',
     () => {
-      let targetCat = noteStore.currentCategoryId;
-      if (targetCat === 'all' || targetCat === 'trash' || targetCat === 'recent') {
-        targetCat = 'uncategorized';
-      }
-      noteStore.addNote(targetCat, '', '');
+      noteStore.addNote(noteStore.currentCategoryId, '', '');
       uiStore.showToast('已快捷新建空便签，可以直接编辑');
     },
     undefined,
@@ -86,14 +83,10 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
       const mode = uiStore.startPageMode;
       if (mode === 'default') {
         const targetCategory = uiStore.superPanelDefaultCategory || 'all';
-        const isSystemCat = ['all', 'recent', 'trash'].includes(targetCategory);
-        const exists = isSystemCat || categoryStore.categories.some(c => c.id === targetCategory);
-        noteStore.currentCategoryId = exists ? targetCategory : 'all';
+        noteStore.currentCategoryId = resolveValidCategoryId(targetCategory, categoryStore.categories, 'all');
       } else {
         const lastCategoryId = storage.getItem('sticky_notes_last_category_id') || 'all';
-        const isSystemCat = ['all', 'recent', 'trash'].includes(lastCategoryId);
-        const exists = isSystemCat || categoryStore.categories.some(c => c.id === lastCategoryId);
-        noteStore.currentCategoryId = exists ? lastCategoryId : 'all';
+        noteStore.currentCategoryId = resolveValidCategoryId(lastCategoryId, categoryStore.categories, 'all');
       }
 
       noteStore.loadNotesForCurrentCategory(true);
@@ -145,13 +138,7 @@ export const useStickyNotesStore = defineStore('stickyNotes', () => {
     }
   };
 
-  const addNote = (categoryId: string, content = '', title = '', color?: string, type?: NoteType) => {
-    let targetCategoryId = categoryId;
-    if (categoryId === 'all' || categoryId === 'trash' || categoryId === 'recent') {
-      targetCategoryId = 'uncategorized';
-    }
-    return noteStore.addNote(targetCategoryId, content, title, color, type);
-  };
+  const addNote = noteStore.addNote;
 
   const clearNotes = (categoryId: string) => {
     const descendants = categoryStore.getCategoryDescendants(categoryId);
