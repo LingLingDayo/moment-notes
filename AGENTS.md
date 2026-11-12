@@ -3,7 +3,7 @@
 ## 📌 项目简介
 基于 **Vue 3 + TypeScript + Vite + Pinia** 构建的 **uTools 便签插件** 与 **Electron 独立桌面应用**（共用同一套源码）。
 - **设计风格**：现代 Glassmorphism 视觉、Fluent Design 微动效，支持暗黑/浅色模式自适应。
-- **架构分层**：`modules`（功能视图）、`stores`（状态管理）、`domain`（领域规则与纯算法）、`infrastructure`（存储与宿主适配）、`electron`（桌面端主进程与 preload）。
+- **架构分层**：[`modules`](src/modules/README.md)（功能视图）、[`stores`](src/stores/README.md)（状态管理）、[`domain`](src/domain/README.md)（领域规则与纯算法）、[`infrastructure`](src/infrastructure/README.md)（存储与宿主适配）、[`electron`](docs/electron.md)（桌面端主进程与 preload）。
 - **运行形态**：`utools`、`electron`、`browser` 三种，统一通过平台适配层识别。
 
 ---
@@ -11,6 +11,7 @@
 ## 🛠️ 开发与架构约束
 
 > [!TIP]
+> - **分层模块规范**：修改具体分层代码前，请先按需阅读对应目录下的 `README.md`（[domain](src/domain/README.md) / [infrastructure](src/infrastructure/README.md) / [stores](src/stores/README.md) / [modules](src/modules/README.md)）。
 > - **常用命令**：执行构建、测试、校验或调试前，请查阅 [常用命令速查手册](docs/commands.md)。
 > - **桌面端规范**：涉及 Electron 主进程、preload、IPC、全局触发器或打包配置时，请查阅 [Electron 桌面应用适配规范](docs/electron.md)。
 > - **uTools 文档**：涉及 uTools 平台特性与 API 时，请参考 [uTools 开发者指南](https://www.u-tools.cn/docs/developer/basic/getting-started.html)。
