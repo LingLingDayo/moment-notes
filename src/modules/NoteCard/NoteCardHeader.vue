@@ -14,6 +14,8 @@ const props = defineProps<{
   isEditing: boolean;
   isFullScreen?: boolean;
   isImmersiveFullScreen?: boolean;
+  canPin?: boolean;
+  isPinned?: boolean;
 }>();
 
 const title = defineModel<string>('title', { default: '' });
@@ -77,11 +79,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
     class="header-left-actions"
     :class="{ 'is-full-screen': isFullScreenMode }"
   >
-    <!-- 置顶针和大头针效果 -->
+    <!-- 置顶针和大头针效果（仅在便签所属分组内展示） -->
     <button
+      v-if="canPin"
       class="pin-btn"
-      :class="{ active: note.isPinned }"
-      :data-tooltip="note.isPinned ? '取消置顶' : '置顶便签'"
+      :class="{ active: isPinned }"
+      :data-tooltip="isPinned ? '取消置顶' : '置顶便签'"
       @click.stop="emit('toggle-pin')"
     >
       <Pin class="pin-icon" />

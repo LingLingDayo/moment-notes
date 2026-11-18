@@ -6,7 +6,7 @@ import { useUiStore } from './uiStore';
 import { useCategoryStore } from './categoryStore';
 import { COLOR_PRESETS } from './colorPresets';
 import { SearchTarget, SortMode, SortOrder } from '@type';
-import { filterNotesByCategory } from '../domain/notes/noteAlgorithms';
+import { filterNotesByCategory, isNotePinnedInCategory } from '../domain/notes/noteAlgorithms';
 import { resolveNoteCreationCategoryId } from '../domain/category/categoryRules';
 import { settingRepository } from '../infrastructure/storage/SettingRepository';
 import { SORT_MODE_SETTING, SORT_ORDER_SETTING } from '../domain/settings/AppSettingRegistry';
@@ -238,7 +238,13 @@ export const useNoteStore = defineStore('noteStore', () => {
     newlyCreatedNoteIds.value.delete(id);
     const note = allNotes.value.find(n => n.id === id);
     if (note) {
+      const isCategoryChanged =
+        fields.categoryId !== undefined && fields.categoryId !== note.categoryId;
       Object.assign(note, fields);
+      // 跨分组移动便签时重置置顶状态，避免原分组置顶泄漏到目标分组
+      if (isCategoryChanged && fields.isPinned === undefined) {
+        note.isPinned = false;
+      }
       if (updateTimestamp) {
         note.updatedAt = Date.now();
       }
@@ -313,14 +319,19 @@ export const useNoteStore = defineStore('noteStore', () => {
     if (fromIndex !== -1 && toIndex !== -1) {
       const fromNote = notes.value[fromIndex];
       const toNote = notes.value[toIndex];
-      if (fromNote.isPinned === toNote.isPinned) {
+      if (
+        isNotePinnedInCategory(fromNote, currentCategoryId.value) ===
+        isNotePinnedInCategory(toNote, currentCategoryId.value)
+      ) {
         if (currentCategoryId.value !== 'all' && currentCategoryId.value !== 'trash') {
           if (fromNote.categoryId !== toNote.categoryId) {
             fromNote.categoryId = toNote.categoryId;
+            fromNote.isPinned = false;
             fromNote.updatedAt = Date.now();
             const allFrom = allNotes.value.find(n => n.id === draggedId);
             if (allFrom) {
               allFrom.categoryId = toNote.categoryId;
+              allFrom.isPinned = false;
               allFrom.updatedAt = Date.now();
             }
           }

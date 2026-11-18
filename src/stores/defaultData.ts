@@ -15,7 +15,7 @@ export const getDefaultNotes = (): Note[] => [
       `嗨喽！这是一个基于 uTools 平台开发的便签插件。在这里你可以分类整理你的日常工作备忘、常用快捷回复和奇思妙想！！
 随时记录每一个灵感瞬间，用鲜艳的色彩和流畅的体验，让随时记事变得轻松又优雅～赶快试试双击卡片，开启属于你的拾光之旅吧！`,
     color: 'yellow',
-    isPinned: true,
+    isPinned: false,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     tags: ['欢迎', '指南']

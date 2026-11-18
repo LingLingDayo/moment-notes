@@ -10,6 +10,10 @@ import NoteCardFooter from './NoteCardFooter.vue';
 import { getContainerSelectedText } from '@utils/selection';
 import { copyTextToClipboard } from '../../infrastructure/platform/hostBridge';
 import { executeDoubleClickNoteAction } from '../../domain/noteInteractions/DoubleClickNoteActionRegistry';
+import {
+  canPinNoteInCategory,
+  isNotePinnedInCategory
+} from '../../domain/notes/noteAlgorithms';
 
 const props = withDefaults(
   defineProps<{
@@ -186,17 +190,26 @@ const handleDoubleClick = () => {
   });
 };
 
-// 切换置顶
+const canPinInCurrentCategory = computed(() =>
+  canPinNoteInCategory(props.note, store.currentCategoryId)
+);
+
+const isPinnedInCurrentCategory = computed(() =>
+  isNotePinnedInCategory(props.note, store.currentCategoryId)
+);
+
+// 切换置顶（仅在当前便签所属分组内生效）
 const togglePin = () => {
-  if (props.note.isDeleted) return;
+  if (!canPinInCurrentCategory.value) return;
+  const nextPinned = !isPinnedInCurrentCategory.value;
   store.updateNote(
     props.note.id,
     {
-      isPinned: !props.note.isPinned
+      isPinned: nextPinned
     },
     false
   );
-  store.showToast(props.note.isPinned ? '便签已置顶' : '取消置顶');
+  store.showToast(nextPinned ? '便签已置顶' : '取消置顶');
 };
 
 // 拖拽相关事件
@@ -389,7 +402,7 @@ onMounted(() => {
     ref="cardRef"
     class="note-card"
     :class="{
-      pinned: note.isPinned,
+      pinned: isPinnedInCurrentCategory,
       editing: isEditing,
       dragging: store.draggedNoteId === note.id,
       'is-in-trash': note.isDeleted,
@@ -424,6 +437,8 @@ onMounted(() => {
       :is-editing="isEditing"
       :is-full-screen="isFullScreen"
       :is-immersive-full-screen="isFullScreen && isImmersiveFullScreen"
+      :can-pin="canPinInCurrentCategory"
+      :is-pinned="isPinnedInCurrentCategory"
       @toggle-pin="togglePin"
       @enter-edit="enterEditMode"
       @save-edit="saveEdit"

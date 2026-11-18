@@ -1,10 +1,30 @@
 import type { Note, Category, SearchTarget, SortMode, SortOrder } from '../../types';
+import { isSystemCategoryId } from '../category/categoryRules';
 import {
   defaultSearchIndex,
   buildCategoryPathMapLower
 } from '../search/NoteSearchIndex';
 
 export type { SearchTarget, SortMode, SortOrder };
+
+/**
+ * 判断便签在指定分类视图下是否允许执行置顶操作。
+ * 仅当处于具体用户分组视图且便签直接归属该分组（非系统虚拟分类、非子分类透出、非回收站）时允许置顶。
+ */
+export function canPinNoteInCategory(note: Note, currentCategoryId: string): boolean {
+  if (note.isDeleted === true) return false;
+  if (!currentCategoryId || isSystemCategoryId(currentCategoryId)) return false;
+  return note.categoryId === currentCategoryId;
+}
+
+/**
+ * 判断便签在指定分类视图下是否处于生效的置顶状态。
+ * 置顶仅对当前便签所属分组生效，在「全部便签」等系统分类或其他分组视图中均不置顶。
+ */
+export function isNotePinnedInCategory(note: Note, currentCategoryId: string): boolean {
+  if (!note.isPinned) return false;
+  return canPinNoteInCategory(note, currentCategoryId);
+}
 
 /** 中文拼音字典排序比较器单例，避免比较循环中数万次重复初始化 locale */
 const ZH_COLLATOR = new Intl.Collator('zh');
@@ -89,7 +109,7 @@ export function sortNotes(
     }
     return {
       note: n,
-      isPinned: Boolean(n.isPinned),
+      isPinned: isNotePinnedInCategory(n, currentCategoryId),
       lastUsedAt: n.lastUsedAt || 0,
       updatedAt: n.updatedAt || 0,
       title: n.title || '',

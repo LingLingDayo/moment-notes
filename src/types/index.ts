@@ -23,7 +23,7 @@ export interface Note {
   type?: NoteType; // 'text' (default) or 'markdown'
   images?: string[]; // 便签图片列表 (支持 Base64、URL 或本地路径)
   color: string; // HSL color string or preset name
-  isPinned: boolean;
+  isPinned: boolean; // 是否在所属分组内生效置顶
   createdAt: number;
   updatedAt: number;
   tags?: string[];

@@ -86,14 +86,20 @@ describe('stickyNotesAlgorithms 纯算法单测套件', () => {
   });
 
   describe('sortNotes 多维排序算法', () => {
-    it('置顶便签 isPinned 始终优先置顶', () => {
+    it('置顶便签仅在所属分组内优先置顶，在全部便签及其他分组不置顶', () => {
       const notes = [
-        createMockNote({ id: '1', isPinned: false, updatedAt: 2000 }),
-        createMockNote({ id: '2', isPinned: true, updatedAt: 1000 })
+        createMockNote({ id: '1', categoryId: 'cat-1', isPinned: false, updatedAt: 2000 }),
+        createMockNote({ id: '2', categoryId: 'cat-1', isPinned: true, updatedAt: 1000 })
       ];
 
-      const sorted = sortNotes(notes, 'date', 'desc');
-      expect(sorted[0].id).toBe('2');
+      const sortedInOwn = sortNotes(notes, 'date', 'desc', 'cat-1');
+      expect(sortedInOwn[0].id).toBe('2');
+
+      const sortedInAll = sortNotes(notes, 'date', 'desc', 'all');
+      expect(sortedInAll[0].id).toBe('1');
+
+      const sortedInOther = sortNotes(notes, 'date', 'desc', 'cat-2');
+      expect(sortedInOther[0].id).toBe('1');
     });
 
     it('按 title 拼音字典序进行升降序', () => {
