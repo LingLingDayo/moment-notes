@@ -2,6 +2,7 @@ import type { SettingDefinition } from '../settings/SettingDefinition';
 
 export interface DoubleClickNoteActionContext {
   copyAndPaste(): void | Promise<unknown>;
+  enterEdit(): void;
   openFullscreen(): void;
   deleteNote(): void;
 }
@@ -19,6 +20,12 @@ export const DOUBLE_CLICK_NOTE_ACTIONS = [
     id: 'copyAndPaste',
     label: '复制内容并粘贴到光标处',
     execute: (context: DoubleClickNoteActionContext) => context.copyAndPaste()
+  },
+  {
+    id: 'edit',
+    label: '进入编辑',
+    tooltip: '双击便签卡片直接进入编辑，遵循"默认编辑方式"设置',
+    execute: (context: DoubleClickNoteActionContext) => context.enterEdit()
   },
   {
     id: 'fullscreen',

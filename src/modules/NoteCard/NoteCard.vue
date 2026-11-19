@@ -67,6 +67,9 @@ const colorStyle = computed(() => {
 
 // 进入编辑模式
 const enterEditMode = () => {
+  // 与卡片上的编辑按钮保持一致，回收站便签不允许进入编辑
+  if (props.note.isDeleted) return;
+
   if (!props.isFullScreen && store.defaultEditMode === 'fullscreen') {
     store.editingNoteId = props.note.id;
     store.openedFullscreenForEditNoteId = props.note.id;
@@ -172,6 +175,7 @@ const handleDoubleClick = () => {
       selectionAutoCopy.suppressDoubleClickSelection();
       return store.handlePasteNote(textToPaste, props.note.id);
     },
+    enterEdit: enterEditMode,
     openFullscreen: handleTogglePreview,
     deleteNote: () => store.deleteNote(props.note.id)
   });
