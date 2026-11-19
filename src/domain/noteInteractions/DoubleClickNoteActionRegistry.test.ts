@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { decodeSettingValue } from '../settings/SettingDefinition';
 import {
   DOUBLE_CLICK_NOTE_ACTIONS,
@@ -22,12 +24,16 @@ describe('DoubleClickNoteActionRegistry', () => {
   it('应将动作交给对应策略执行', () => {
     const context = {
       copyAndPaste: vi.fn(),
+      enterEdit: vi.fn(),
       openFullscreen: vi.fn(),
       deleteNote: vi.fn()
     };
 
     executeDoubleClickNoteAction('copyAndPaste', context);
     expect(context.copyAndPaste).toHaveBeenCalledOnce();
+
+    executeDoubleClickNoteAction('edit', context);
+    expect(context.enterEdit).toHaveBeenCalledOnce();
 
     executeDoubleClickNoteAction('fullscreen', context);
     expect(context.openFullscreen).toHaveBeenCalledOnce();
@@ -38,7 +44,20 @@ describe('DoubleClickNoteActionRegistry', () => {
     vi.clearAllMocks();
     executeDoubleClickNoteAction('none', context);
     expect(context.copyAndPaste).not.toHaveBeenCalled();
+    expect(context.enterEdit).not.toHaveBeenCalled();
     expect(context.openFullscreen).not.toHaveBeenCalled();
     expect(context.deleteNote).not.toHaveBeenCalled();
+  });
+
+  it('「进入编辑」应注册为合法动作并由设置页派生为下拉选项', async () => {
+    const editAction = DOUBLE_CLICK_NOTE_ACTIONS.find(action => action.id === 'edit');
+    expect(editAction?.label).toBe('进入编辑');
+    expect(decodeSettingValue(DOUBLE_CLICK_NOTE_ACTION_SETTING, 'edit')).toBe('edit');
+
+    const settingsSource = await readFile(
+      path.resolve('src/modules/SettingsModal/settingsConfig.ts'),
+      'utf8'
+    );
+    expect(settingsSource).toContain('DOUBLE_CLICK_NOTE_ACTIONS.map');
   });
 });

@@ -144,7 +144,7 @@ describe('selectionAutoCopy 划词自动复制时序单测', () => {
   });
 });
 
-describe('NoteCard 双击粘贴链路回归护栏', () => {
+describe('NoteCard 双击动作链路回归护栏', () => {
   let source = '';
 
   beforeEach(async () => {
@@ -160,6 +160,11 @@ describe('NoteCard 双击粘贴链路回归护栏', () => {
   it('双击前应缓存划词选区并抑制双击产生的自动复制', () => {
     expect(source).toContain('@mousedown.capture="handleCardMousedown"');
     expect(source).toContain('selectionAutoCopy.suppressDoubleClickSelection()');
+  });
+
+  it('双击动作上下文应接入进入编辑，且回收站便签不可编辑', () => {
+    expect(source).toContain('enterEdit: enterEditMode');
+    expect(source).toContain('if (props.note.isDeleted) return;');
   });
 
   it('卡片交互逻辑已抽离且组件仍严格守住 600 行红线', () => {
