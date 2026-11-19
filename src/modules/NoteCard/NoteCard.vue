@@ -7,9 +7,10 @@ import NoteCardHeader from './NoteCardHeader.vue';
 import NoteCardBody from './NoteCardBody.vue';
 import NoteCardTagEditor from './NoteCardTagEditor.vue';
 import NoteCardFooter from './NoteCardFooter.vue';
-import { getContainerSelectedText } from '@utils/selection';
-import { copyTextToClipboard } from '../../infrastructure/platform/hostBridge';
+import { createSelectionAutoCopy } from './selectionAutoCopy';
+import { createDoubleClickSelectionGuard } from './doubleClickSelection';
 import { executeDoubleClickNoteAction } from '../../domain/noteInteractions/DoubleClickNoteActionRegistry';
+import { resolveDoubleClickPasteText } from '../../domain/noteInteractions/resolveDoubleClickPasteText';
 import {
   canPinNoteInCategory,
   isNotePinnedInCategory
@@ -37,6 +38,7 @@ const editContent = ref(props.note.content);
 const editTags = ref<string[]>([]);
 
 // 子组件 Ref 引用
+const cardRef = ref<HTMLElement | null>(null);
 const tagEditorRef = ref<InstanceType<typeof NoteCardTagEditor> | null>(null);
 const footerRef = ref<InstanceType<typeof NoteCardFooter> | null>(null);
 
@@ -141,50 +143,35 @@ const handleTogglePreview = () => {
   }
 };
 
-// 划词结束 200ms 防抖自动复制逻辑
-let autoCopyTimer: number | null = null;
-let lastAutoCopiedText = '';
+const selectionAutoCopy = createSelectionAutoCopy({
+  getContainer: () => cardRef.value,
+  isEnabled: () => store.enableAutoCopySelection && !isEditing.value && !props.note.isDeleted,
+  onCopied: () => store.updateNoteLastUsed(props.note.id)
+});
 
-const handleSelectionChange = () => {
-  if (!store.enableAutoCopySelection || isEditing.value || props.note.isDeleted) return;
+const handleSelectionChange = selectionAutoCopy.handleSelectionChange;
 
-  const selectedText = getContainerSelectedText(cardRef.value);
+const doubleClickSelection = createDoubleClickSelectionGuard({
+  getContainer: () => cardRef.value,
+  canBlockNativeSelection: () => !isEditing.value
+});
 
-  if (!selectedText) {
-    if (autoCopyTimer) {
-      clearTimeout(autoCopyTimer);
-      autoCopyTimer = null;
-    }
-    lastAutoCopiedText = '';
-    return;
-  }
-
-  if (selectedText === lastAutoCopiedText) return;
-
-  if (autoCopyTimer) {
-    clearTimeout(autoCopyTimer);
-  }
-
-  autoCopyTimer = window.setTimeout(async () => {
-    autoCopyTimer = null;
-    const currentText = getContainerSelectedText(cardRef.value);
-    if (!currentText || currentText !== selectedText) return;
-
-    lastAutoCopiedText = currentText;
-    try {
-      await copyTextToClipboard(currentText);
-      store.updateNoteLastUsed(props.note.id);
-    } catch (err) {
-      console.error('Auto copy failed:', err);
-    }
-  }, 200);
-};
+const handleCardMousedown = doubleClickSelection.handleMousedown;
 
 const handleDoubleClick = () => {
   if (isEditing.value) return;
 
+  const textToPaste = resolveDoubleClickPasteText(
+    doubleClickSelection.consumeSelectionBeforeGesture(),
+    props.note.content
+  );
+
   executeDoubleClickNoteAction(store.doubleClickNoteAction, {
-    copyAndPaste: () => store.handlePasteNote(props.note.content, props.note.id),
+    copyAndPaste: () => {
+      // 撤销可能挂起的划词复制并清除残留选区，保证剪贴板最终是本次要粘贴的文本
+      selectionAutoCopy.suppressDoubleClickSelection();
+      return store.handlePasteNote(textToPaste, props.note.id);
+    },
     openFullscreen: handleTogglePreview,
     deleteNote: () => store.deleteNote(props.note.id)
   });
@@ -309,9 +296,6 @@ const handleCardClick = (event: MouseEvent) => {
   }
 };
 
-// 用于判断外部点击的 Ref 引用
-const cardRef = ref<HTMLElement | null>(null);
-
 let mousedownTarget: Node | null = null;
 
 const handleMousedown = (event: MouseEvent) => {
@@ -368,10 +352,7 @@ watch(isEditing, editing => {
 });
 
 onBeforeUnmount(() => {
-  if (autoCopyTimer) {
-    clearTimeout(autoCopyTimer);
-    autoCopyTimer = null;
-  }
+  selectionAutoCopy.dispose();
   if (isEditing.value) {
     saveEdit();
   }
@@ -414,6 +395,7 @@ onMounted(() => {
     :style="[colorStyle, cardMaxHeightStyle]"
     :draggable="store.sortMode === 'custom' && !isEditing && !note.isDeleted && isDragTriggered"
     @dblclick="handleDoubleClick"
+    @mousedown.capture="handleCardMousedown"
     @dragstart="handleDragStart"
     @dragover.prevent="handleDragOver"
     @dragend="handleDragEnd"
